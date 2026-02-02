@@ -561,7 +561,12 @@
         <div class="panel">
             <div class="panel-header">
                 <h3>Challan Stats (By Category) PROD</h3>
-                <small>Current Month View</small>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Month:</label>
+                    <select id="stats-filter-prod" onchange="window.renderDashboardChallanStats()" style="padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
             </div>
             <div class="dashboard-grid" id="dashboard-prod-stats">
                 <!-- Injected via JS -->
@@ -572,7 +577,12 @@
         <div class="panel">
             <div class="panel-header">
                 <h3>Challan Stats (By Category) GIFT</h3>
-                <small>Current Month View</small>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Month:</label>
+                    <select id="stats-filter-gift" onchange="window.renderDashboardChallanStats()" style="padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
             </div>
             <div class="dashboard-grid" id="dashboard-gift-stats">
                 <!-- Injected via JS -->
@@ -1063,7 +1073,7 @@
 <!-- FIREBASE & APPLICATION LOGIC -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, set, remove, push, update, off } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, onValue, set, remove, push, update, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
@@ -1110,35 +1120,37 @@
         errDiv.style.display = 'none';
 
         // PRIORITY 1: ADMIN HARDCODED LOGIN
-        if (u === 'KS' && p === 'Monico@Ku007') {
+        if (u.toUpperCase() === 'KS' && p === 'Monico@Ku007') {
             currentUser = { username: 'KS', role: 'admin', depotId: null };
             completeLogin();
             return;
         }
 
-        // PRIORITY 2: USER LOGIN FROM FIREBASE DB
-        fetch('https://mplfpdc-default-rtdb.europe-west1.firebasedatabase.app/users.json')
-            .then(res => {
-                if (!res.ok) throw new Error("Network response was not ok");
-                return res.json();
-            })
-            .then(users => {
-                if (users) {
-                    const foundUser = Object.values(users).find(user => user.username.toLowerCase() === u.toLowerCase() && user.password === p);
-                    if (foundUser) {
-                        currentUser = { username: foundUser.username, role: 'user', depotId: foundUser.depotId };
-                        completeLogin();
-                    } else {
-                        showLoginError("Invalid Username or Password");
-                    }
+        // PRIORITY 2: USER LOGIN FROM FIREBASE DB (FIXED: using 'get' instead of 'fetch')
+        document.getElementById('loader').style.display = 'block'; // Show loading
+
+        get(ref(db, 'users')).then((snapshot) => {
+            document.getElementById('loader').style.display = 'none'; // Hide loading
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                // users is an object, convert to array to find
+                const userList = Object.values(users);
+                const foundUser = userList.find(user => user.username.toLowerCase() === u.toLowerCase() && user.password === p);
+                
+                if (foundUser) {
+                    currentUser = { username: foundUser.username, role: 'user', depotId: foundUser.depotId };
+                    completeLogin();
                 } else {
-                    showLoginError("No users found in database");
+                    showLoginError("Invalid Username or Password");
                 }
-            })
-            .catch(err => {
-                console.error("Login Error:", err);
-                showLoginError("Connection Failed. Check Internet or contact Admin.");
-            });
+            } else {
+                showLoginError("No users found in database");
+            }
+        }).catch((error) => {
+            console.error("Login Error:", error);
+            document.getElementById('loader').style.display = 'none';
+            showLoginError("Connection Failed. Check Internet or contact Admin.");
+        });
     }
 
     const loginForm = document.getElementById('login-form');
@@ -1400,6 +1412,9 @@
         document.getElementById('cat-mpo-D').innerText = catStats['D'].count;
         document.getElementById('cat-mpo-E').innerText = catStats['E'].count;
 
+        // POPULATE MONTH FILTERS (NEW)
+        window.populateStatsFilters();
+
         // DASHBOARD CATEGORY STATS (NEW - CHALLAN - SPLIT INTO PROD & GIFT)
         window.renderDashboardChallanStats(fChallans);
 
@@ -1429,24 +1444,48 @@
         if(manualMpoId) window.loadManualMPODetails();
     }
 
+    // NEW FUNCTION TO POPULATE MONTH FILTERS
+    window.populateStatsFilters = function() {
+        const selects = ['stats-filter-prod', 'stats-filter-gift'];
+        selects.forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+
+            // Check if already populated to avoid resetting user selection if not needed
+            if (sel.options.length > 0) return;
+
+            // Generate last 12 months
+            for (let i = 0; i < 12; i++) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const val = d.toISOString().slice(0, 7); // "YYYY-MM"
+                const label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+                sel.innerHTML += `<option value="${val}">${label}</option>`;
+            }
+        });
+    };
+
     window.renderDashboardChallanStats = function(fChallans) {
         const prodContainer = document.getElementById('dashboard-prod-stats');
         const giftContainer = document.getElementById('dashboard-gift-stats');
         const categories = ['A', 'B', 'C', 'D', 'E'];
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        
+        // Get selected filter values
+        const prodFilterVal = document.getElementById('stats-filter-prod')?.value;
+        const giftFilterVal = document.getElementById('stats-filter-gift')?.value;
 
         // Helper to generate cards HTML
-        const generateCards = (type) => {
+        const generateCards = (type, filterVal) => {
             let html = '';
             categories.forEach(cat => {
                 const challansInCat = fChallans.filter(c => {
                     const cDate = new Date(c.timestamp);
-                    // Check Type, Category, Month, Year
+                    const cDateStr = cDate.toISOString().slice(0, 7); // "YYYY-MM"
+
+                    // Check Type, Category, AND Selected Month
                     return c.type === type && 
                            c.mpoCat === cat && 
-                           cDate.getMonth() === currentMonth && 
-                           cDate.getFullYear() === currentYear;
+                           cDateStr === filterVal;
                 });
 
                 const count = challansInCat.length;
@@ -1454,7 +1493,7 @@
                     return sum + c.items.reduce((iSum, i) => iSum + (Number(i.issueQty) || 0), 0);
                 }, 0);
 
-                // Color customization for the small badge
+                // Color customization for small badge
                 const badgeColor = type === 'Product' ? 'var(--accent)' : 'var(--purple)';
 
                 html += `
@@ -1470,8 +1509,9 @@
             return html;
         };
 
-        prodContainer.innerHTML = generateCards('Product');
-        giftContainer.innerHTML = generateCards('Gift');
+        // Only render if filters are loaded
+        if (prodFilterVal) prodContainer.innerHTML = generateCards('Product', prodFilterVal);
+        if (giftFilterVal) giftContainer.innerHTML = generateCards('Gift', giftFilterVal);
     };
 
     window.nav = function(id) {
