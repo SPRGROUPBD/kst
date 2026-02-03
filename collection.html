@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monico Pharma - Calculation Fix</title>
+    
+    <!-- SheetJS Library -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #4f46e5;
+            --accent: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --dark: #1f2937;
+            --bg: #f3f4f6;
+            --white: #ffffff;
+            --border: #e5e7eb;
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: #333; }
+        .app-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* --- Navigation --- */
+        .tabs { display: flex; background: var(--white); padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; overflow-x: auto; }
+        .tab-btn {
+            flex: 1; padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap;
+        }
+        .tab-btn:hover { background: #f9fafb; color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* --- Sections --- */
+        .section { display: none; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Cards --- */
+        .card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        /* --- Forms --- */
+        .form-row { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-end; background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #dbeafe; }
+        .upload-row { background: #ecfdf5; border-color: #a7f3d0; align-items: center; }
+        
+        .input-group { flex: 1; min-width: 150px; }
+        .input-group label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; display: block; color: #4b5563; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+        input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+        input[readonly] { background-color: #f3f4f6; cursor: not-allowed; }
+
+        /* --- Tables --- */
+        table { width: 100%; border-collapse: collapse; background: var(--white); }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: left; }
+        th { background: #f9fafb; font-weight: 600; color: #374151; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        /* --- Buttons --- */
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; color: white; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: #1e3a8a; }
+        .btn-success { background: var(--accent); }
+        .btn-success:hover { background: #047857; }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); }
+        .btn-warning:hover { background: #b45309; }
+        .btn-dark { background: var(--dark); }
+        .btn-dark:hover { background: #000; }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
+
+        /* --- Input Styling inside Tables --- */
+        td input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; }
+        td input:focus, td input:hover { background: white; border-color: var(--primary); }
+
+        /* --- Status Toast --- */
+        #toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        #toast.show { opacity: 1; transform: translateY(-10px); }
+
+        /* --- Stats Grid --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card.green { border-left-color: var(--accent); }
+        .stat-card.red { border-left-color: var(--danger); }
+        .stat-card.blue { border-left-color: var(--primary); }
+        .stat-label { font-size: 0.85rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 5px; color: #1f2937; }
+
+        /* --- Report View Specifics --- */
+        .report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; }
+        .report-header h2 { margin: 0; font-size: 24px; color: #000; text-transform: uppercase; }
+        .report-header h3 { margin: 5px 0; font-size: 18px; color: #333; }
+        .report-header .subtitle { font-weight: bold; margin: 10px 0; font-size: 16px; }
+        .report-header .meta-row { display: flex; justify-content: space-between; margin-top: 15px; font-size: 14px; }
+        
+        .report-summary { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; border: 1px solid var(--border); }
+        .summary-block { flex: 1; }
+        .summary-block h4 { margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .summary-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .summary-total { border-top: 2px solid #000; padding-top: 5px; font-weight: bold; margin-top: 5px; }
+        
+        /* --- Print Styles --- */
+        @media print {
+            .tabs, .no-print, button, .form-row, input:not([readonly]) { display: none !important; }
+            .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; margin-bottom: 20px; }
+            body { background: white; }
+            .app-container { max-width: 100%; padding: 0; }
+            .section { display: block !important; }
+            input { border: none; background: transparent; padding: 0; }
+            /* Force Report Tab visibility */
+            #reports { display: block !important; }
+            #dashboard, #mpo-master, #exp-master { display: none !important; }
+            
+            /* Print Borders */
+            table th, table td { border: 1px solid #000 !important; padding: 5px; }
+            .report-header { border-bottom: 2px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- Navigation -->
+    <div class="tabs no-print">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard Entry</button>
+        <button class="tab-btn" onclick="switchTab('reports')">History & Reports</button>
+        <button class="tab-btn" onclick="switchTab('mpo-master')">MPO Management</button>
+        <button class="tab-btn" onclick="switchTab('exp-master')">Expense Management</button>
+    </div>
+
+    <div id="toast">Saved!</div>
+
+    <!-- ================= TAB 1: DASHBOARD ================= -->
+    <div id="dashboard" class="section active">
+        <div class="card-header">
+            <h2 style="margin:0;">Daily Collection & Expense</h2>
+            <button class="btn btn-dark" onclick="closeDay()">Close Day & Open New</button>
+        </div>
+        
+        <div class="card">
+            <div class="form-row no-print">
+                <div class="input-group">
+                    <label>Date</label>
+                    <input type="date" id="entryDate" onchange="loadDateData()">
+                </div>
+                <div class="input-group">
+                    <label>Month</label>
+                    <input type="text" id="entryMonth" readonly>
+                </div>
+                <div class="input-group">
+                    <label style="color:var(--warning)">Opening Balance (BF)</label>
+                    <input type="number" id="entryBF" value="0" style="background:#fffbeb; border-color:var(--warning); font-weight:bold;" oninput="autoSaveData()">
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card green">
+                    <div class="stat-label">Total Collection</div>
+                    <div class="stat-val val-green" id="totalCollection">0</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-label">Total Expense</div>
+                    <div class="stat-val val-red" id="totalExpense">0</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Net Balance (Cash in Hand)</div>
+                    <div class="stat-val" id="netBalance">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collection Table -->
+        <div class="card">
+            <h3>Collection Entry</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px">#</th>
+                        <th>MPO ID</th>
+                        <th>MPO Name</th>
+                        <th>Territory</th>
+                        <th>Month</th>
+                        <th>Mode</th>
+                        <th class="text-right">Bank</th>
+                        <th class="text-right">Cash</th>
+                        <th class="text-right">Adj</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-center no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="collectionBody"></tbody>
+            </table>
+            <button class="btn btn-primary no-print" onclick="addCollectionRow()">+ Add Collection Row</button>
+        </div>
+
+        <!-- Expense Table -->
+        <div class="card">
+            <h3>Expense Entry</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Expense Name</th>
+                        <th class="text-right">Depot</th>
+                        <th class="text-right">Bank</th>
+                        <th class="text-right">Adj</th>
+                        <th class="text-right">Total</th>
+                        <th>Remarks</th>
+                        <th class="text-center no-print">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseBody"></tbody>
+            </table>
+            <button class="btn btn-primary no-print" onclick="addExpenseRow()">+ Add Expense Row</button>
+        </div>
+    </div>
+
+    <!-- ================= TAB 2: REPORTS ================= -->
+    <div id="reports" class="section">
+        <div class="card">
+            <div class="card-header">
+                <h2 style="margin:0;">Day Wise Reports</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-warning no-print" onclick="editHistoryDay()">Edit This Day</button>
+                    <button class="btn btn-primary no-print" onclick="printReport()">Print Report</button>
+                </div>
+            </div>
+            
+            <div class="form-row no-print" style="background: #f0fdf4; border-color: #bbf7d0;">
+                <div class="input-group" style="flex: 0 0 250px;">
+                    <label>Select Date to View Report</label>
+                    <input type="date" id="reportDate" onchange="loadReport()">
+                </div>
+            </div>
+
+            <div id="reportContent" style="display:none;">
+                <div class="report-header">
+                    <h2 style="margin:0;">Monico Pharma Ltd</h2>
+                    <h3 style="margin:5px 0;">Kushtia Depot</h3>
+                    <div class="subtitle">Daily Collection Report</div>
+                    <div class="meta-row">
+                        <span>Date: <span id="rptDateStr">2026-01-22</span></span>
+                        <span>Month: <span id="rptMonthStr">January-26</span></span>
+                    </div>
+                </div>
+
+                <div class="report-summary">
+                    <div class="summary-block">
+                        <h4>Collection Summary</h4>
+                        <div class="summary-line"><span>BF:</span> <span id="rptBF">0</span></div>
+                        <div class="summary-line"><span>Total Collection:</span> <span id="rptColl">0</span></div>
+                        <!-- FIXED LOGIC: Total Cash (A) = BF + Total Collection -->
+                        <div class="summary-line summary-total"><span>Total Cash (A):</span> <span id="rptTotalCash">0</span></div>
+                    </div>
+                    <div class="summary-block">
+                        <h4>Expense Summary</h4>
+                        <div class="summary-line"><span>Total Expenses (B):</span> <span id="rptExp">0</span></div>
+                        <!-- FIXED LOGIC: Cash In Hand (A-B) = Total Cash (A) - Total Expenses (B) -->
+                        <div class="summary-line summary-total"><span>Cash In Hand (A-B):</span> <span id="rptNet">0</span></div>
+                    </div>
+                </div>
+
+                <h4>Collections</h4>
+                <table style="margin-bottom: 20px;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Terr</th>
+                            <th>Month</th>
+                            <th>Mode</th>
+                            <th class="text-right">Bank</th>
+                            <th class="text-right">Cash</th>
+                            <th class="text-right">Adj</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rptCollBody"></tbody>
+                    <tfoot>
+                        <tr style="font-weight:bold; background:#f9fafb;">
+                            <td colspan="5" class="text-right">Total</td>
+                            <td class="text-right" id="rptCollBank">0</td>
+                            <td class="text-right" id="rptCollCash">0</td>
+                            <td class="text-right" id="rptCollAdj">0</td>
+                            <td class="text-right" id="rptCollTotal">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <h4>Expenses</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Expense Name</th>
+                            <th class="text-right">Depot</th>
+                            <th class="text-right">Bank</th>
+                            <th class="text-right">Adj</th>
+                            <th class="text-right">Total</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rptExpBody"></tbody>
+                    <tfoot>
+                        <tr style="font-weight:bold; background:#f9fafb;">
+                            <td colspan="4" class="text-right">Total</td>
+                            <td class="text-right" id="rptExpTotal">0</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div id="noReportData" style="text-align:center; padding: 40px; color:#999;">
+                Select a date above to view report.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TAB 3: MPO MANAGEMENT ================= -->
+    <div id="mpo-master" class="section">
+        <h2>MPO Management</h2>
+        
+        <!-- UPLOAD EXCEL SECTION -->
+        <div class="card" style="border-top: 5px solid var(--accent);">
+            <h3>Bulk Upload MPOs (Excel)</h3>
+            <p style="font-size:0.9rem; color:#666;">
+                Upload an Excel file (.xlsx) with columns: <strong>ID</strong>, <strong>Name</strong>, <strong>Territory</strong>.
+            </p>
+            <div class="form-row upload-row">
+                <div class="input-group">
+                    <label>Choose Excel File</label>
+                    <input type="file" id="mpoExcelFile" accept=".xlsx, .xls, .csv">
+                </div>
+                <div class="input-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-success" onclick="uploadMpoExcel()">Upload to Database</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ADD SINGLE MPO SECTION -->
+        <div class="card" style="border-top: 5px solid var(--primary);">
+            <h3>Add New MPO</h3>
+            <div class="form-row">
+                <div class="input-group">
+                    <label>MPO ID</label>
+                    <input type="text" id="newMpoId" placeholder="e.g., MPO-101">
+                </div>
+                <div class="input-group">
+                    <label>MPO Name</label>
+                    <input type="text" id="newMpoName" placeholder="Full Name">
+                </div>
+                <div class="input-group">
+                    <label>Territory</label>
+                    <input type="text" id="newMpoTerritory" placeholder="Region/Area">
+                </div>
+                <div class="input-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-success" onclick="addMpoToDb()">Add MPO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MPO LIST SECTION -->
+        <div class="card">
+            <h3>MPO List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:120px">MPO ID</th>
+                        <th>MPO Name</th>
+                        <th>Territory</th>
+                        <th class="text-center" style="width:150px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="mpoMasterBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= TAB 4: EXPENSE MANAGEMENT (A-Z) ================= -->
+    <div id="exp-master" class="section">
+        <h2>Expense Management (A-Z)</h2>
+        <div class="card">
+            <!-- ADD NEW EXPENSE -->
+            <div class="form-row">
+                <div class="input-group">
+                    <label>New Expense Name</label>
+                    <input type="text" id="newExpenseName" placeholder="e.g., Office Rent">
+                </div>
+                <div class="input-group" style="flex:0 0 auto;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-success" onclick="addExpenseToDb()">Add Expense</button>
+                </div>
+            </div>
+
+            <!-- EXPENSE LIST TABLE -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Expense Name</th>
+                        <th class="text-center" style="width:200px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expMasterBody">
+                    <!-- Rows rendered by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- FIREBASE SDK IMPORTS -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAF-kGI-DnBwIaiC6JN-EYI02RGYlxH9cw",
+      authDomain: "cinemaxlivebd.firebaseapp.com",
+      databaseURL: "https://cinemaxlivebd-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "cinemaxlivebd",
+      storageBucket: "cinemaxlivebd.firebasestorage.app",
+      messagingSenderId: "350453548257",
+      appId: "1:350453548257:web:cb3ab283134368a13ae3a0",
+      measurementId: "G-VE5GHLWRZ1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Global State
+    window.mpoList = {};
+    window.expenseList = [];
+    window.saveTimeout = null;
+    window.currentData = { date: '', bf: 0, collections: [], expenses: [] };
+    window.editingRowId = null; 
+    window.editingExpenseKey = null; // New state for Expense editing
+
+    // --- INITIALIZATION ---
+    document.getElementById('entryDate').valueAsDate = new Date();
+    document.getElementById('reportDate').valueAsDate = new Date();
+    
+    loadDateData();
+    
+    // Listeners
+    onValue(ref(db, 'mpo_master'), (snap) => {
+        const data = snap.val();
+        window.mpoList = data || {};
+        renderMpoMasterTable();
+    });
+
+    // Real-time listener for Expense Master
+    onValue(ref(db, 'expense_master'), (snap) => {
+        const data = snap.val();
+        // Transform object to array for the Dashboard datalist
+        window.expenseList = data ? Object.values(data) : [];
+        // Re-render the table when data changes
+        renderExpenseMasterTable();
+    });
+
+    // --- 1. DASHBOARD LOGIC & DAY CLOSE ---
+
+    window.closeDay = function() {
+        if(!confirm("Are you sure you want to close this day?\n\n1. Current Net Balance will become Opening Balance for tomorrow.\n2. All entry rows will be cleared.\n3. Date will advance to next day.")) return;
+
+        // 1. Force Save Current Data
+        autoSaveData(true); // true = immediate
+
+        // 2. Calculate Current Net Balance
+        const totalColl = parseFloat(document.getElementById('totalCollection').innerText.replace(/,/g, '')) || 0;
+        const totalExp = parseFloat(document.getElementById('totalExpense').innerText.replace(/,/g, '')) || 0;
+        const currentBF = parseFloat(document.getElementById('entryBF').value) || 0;
+        const netBalance = (currentBF + totalColl) - totalExp;
+
+        // 3. Calculate Next Date
+        const dateInput = document.getElementById('entryDate');
+        const currentDate = new Date(dateInput.value);
+        currentDate.setDate(currentDate.getDate() + 1);
+        
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const nextDateStr = `${year}-${month}-${day}`;
+
+        // 4. Prepare New Day Object
+        const nextEntry = {
+            date: nextDateStr,
+            month: getMonthName(nextDateStr),
+            bf: netBalance,
+            collections: [],
+            expenses: [],
+            lastUpdated: new Date().toISOString()
+        };
+
+        // 5. Save New Day to Firebase
+        set(ref(db, 'entries/' + nextDateStr), nextEntry)
+            .then(() => {
+                // 6. Update UI explicitly
+                dateInput.value = nextDateStr;
+                document.getElementById('entryMonth').value = getMonthName(nextDateStr);
+                loadDateData(); // Reload empty tables for new day
+                showToast(`Day Closed! Balance ${netBalance} carried forward to ${nextDateStr}`);
+            })
+            .catch(err => {
+                alert("Error closing day: " + err.message);
+            });
+    };
+
+    function loadDateData() {
+        const date = document.getElementById('entryDate').value;
+        const entryRef = ref(db, 'entries/' + date);
+        
+        get(entryRef).then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                window.currentData = data;
+                document.getElementById('entryBF').value = data.bf || 0;
+                document.getElementById('entryMonth').value = data.month || '';
+                renderCollectionRows(data.collections || []);
+                renderExpenseRows(data.expenses || []);
+            } else {
+                window.currentData = {
+                    date: date,
+                    month: getMonthName(date),
+                    bf: 0,
+                    collections: [],
+                    expenses: []
+                };
+                document.getElementById('entryBF').value = 0;
+                document.getElementById('entryMonth').value = getMonthName(date);
+                if(document.getElementById('collectionBody').children.length === 0) addCollectionRow();
+                if(document.getElementById('expenseBody').children.length === 0) addExpenseRow();
+            }
+            updateCalculations();
+        });
+    }
+
+    window.autoSaveData = function(immediate = false) {
+        // *** FIXED: Call updateCalculations immediately on every input ***
+        updateCalculations();
+
+        if(immediate) {
+            performSave();
+            return;
+        }
+        showToast("Saving...", false);
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(() => {
+            performSave();
+        }, 1000);
+    };
+
+    function performSave() {
+        const collData = [];
+        document.querySelectorAll('#collectionBody tr').forEach(row => {
+            collData.push({
+                id: row.querySelector('.inp-id').value,
+                name: row.querySelector('.inp-name').value,
+                territory: row.querySelector('.inp-terr').value,
+                month: row.querySelector('.inp-month').value,
+                mode: row.querySelector('.inp-mode').value,
+                bank: row.querySelector('.inp-bank').value,
+                cash: row.querySelector('.inp-cash').value,
+                adj: row.querySelector('.inp-adj').value
+            });
+        });
+
+        const expData = [];
+        document.querySelectorAll('#expenseBody tr').forEach(row => {
+            expData.push({
+                name: row.querySelector('.exp-name').value,
+                depot: row.querySelector('.exp-depot').value,
+                bank: row.querySelector('.exp-bank').value,
+                adj: row.querySelector('.exp-adj').value,
+                remarks: row.querySelector('.exp-remarks').value
+            });
+        });
+
+        const payload = {
+            date: document.getElementById('entryDate').value,
+            month: document.getElementById('entryMonth').value,
+            bf: parseFloat(document.getElementById('entryBF').value) || 0,
+            collections: collData,
+            expenses: expData,
+            lastUpdated: new Date().toISOString()
+        };
+
+        set(ref(db, 'entries/' + payload.date), payload)
+            .then(() => showToast("Saved Successfully"));
+    };
+
+    window.addCollectionRow = function() {
+        const tbody = document.getElementById('collectionBody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td></td>
+            <td><input type="text" class="inp-id" placeholder="ID" onblur="window.lookupMpo(this)"></td>
+            <td><input type="text" class="inp-name" readonly placeholder="Name"></td>
+            <td><input type="text" class="inp-terr" readonly placeholder="Territory"></td>
+            <td><input type="text" class="inp-month" placeholder="Month"></td>
+            <td><select class="inp-mode"><option value="Cash">Cash</option><option value="Bank">Bank</option><option value="Adj">Adj</option></select></td>
+            <td class="text-right"><input type="number" class="inp-bank" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right"><input type="number" class="inp-cash" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right"><input type="number" class="inp-adj" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right row-total">0</td>
+            <td class="text-center no-print"><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); window.autoSaveData()">X</button></td>
+        `;
+        tbody.appendChild(tr);
+    };
+
+    window.renderCollectionRows = function(rows) {
+        const tbody = document.getElementById('collectionBody');
+        tbody.innerHTML = '';
+        if(rows.length === 0) addCollectionRow();
+        
+        rows.forEach((r, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td><input type="text" class="inp-id" value="${r.id || ''}" onblur="window.lookupMpo(this)"></td>
+                <td><input type="text" class="inp-name" value="${r.name || ''}" readonly></td>
+                <td><input type="text" class="inp-terr" value="${r.territory || ''}" readonly></td>
+                <td><input type="text" class="inp-month" value="${r.month || ''}"></td>
+                <td><select class="inp-mode"><option ${r.mode=='Cash'?'selected':''}>Cash</option><option ${r.mode=='Bank'?'selected':''}>Bank</option><option ${r.mode=='Adj'?'selected':''}>Adj</option></select></td>
+                <td class="text-right"><input type="number" class="inp-bank" value="${r.bank || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right"><input type="number" class="inp-cash" value="${r.cash || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right"><input type="number" class="inp-adj" value="${r.adj || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right row-total">0</td>
+                <td class="text-center no-print"><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); window.autoSaveData()">X</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        updateCalculations();
+    };
+
+    window.addExpenseRow = function() {
+        const tbody = document.getElementById('expenseBody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="exp-name" list="expenseList" placeholder="Expense Name" oninput="window.autoSaveData()">
+                <datalist id="expenseList">${window.expenseList.map(e => `<option value="${e.name}">`).join('')}</datalist>
+            </td>
+            <td class="text-right"><input type="number" class="exp-depot" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right"><input type="number" class="exp-bank" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right"><input type="number" class="exp-adj" value="0" oninput="window.autoSaveData()"></td>
+            <td class="text-right row-total">0</td>
+            <td><input type="text" class="exp-remarks" placeholder="Remarks" oninput="window.autoSaveData()"></td>
+            <td class="text-center no-print"><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); window.autoSaveData()">X</button></td>
+        `;
+        tbody.appendChild(tr);
+    };
+
+    window.renderExpenseRows = function(rows) {
+        const tbody = document.getElementById('expenseBody');
+        tbody.innerHTML = '';
+        if(rows.length === 0) addExpenseRow();
+
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="exp-name" list="expenseList" value="${r.name || ''}" oninput="window.autoSaveData()">
+                    <datalist id="expenseList">${window.expenseList.map(e => `<option value="${e.name}">`).join('')}</datalist>
+                </td>
+                <td class="text-right"><input type="number" class="exp-depot" value="${r.depot || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right"><input type="number" class="exp-bank" value="${r.bank || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right"><input type="number" class="exp-adj" value="${r.adj || 0}" oninput="window.autoSaveData()"></td>
+                <td class="text-right row-total">0</td>
+                <td><input type="text" class="exp-remarks" value="${r.remarks || ''}" oninput="window.autoSaveData()"></td>
+                <td class="text-center no-print"><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); window.autoSaveData()">X</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        updateCalculations();
+    };
+
+    window.lookupMpo = function(inputEl) {
+        const mpoId = inputEl.value.trim();
+        const row = inputEl.closest('tr');
+        const nameInput = row.querySelector('.inp-name');
+        const terrInput = row.querySelector('.inp-terr');
+
+        if (window.mpoList[mpoId]) {
+            nameInput.value = window.mpoList[mpoId].name;
+            terrInput.value = window.mpoList[mpoId].territory;
+        } else {
+            nameInput.value = '';
+            terrInput.value = '';
+        }
+        autoSaveData();
+    };
+
+    window.updateCalculations = function() {
+        let totalColl = 0;
+        document.querySelectorAll('#collectionBody tr').forEach(row => {
+            const b = parseFloat(row.querySelector('.inp-bank').value) || 0;
+            const c = parseFloat(row.querySelector('.inp-cash').value) || 0;
+            const a = parseFloat(row.querySelector('.inp-adj').value) || 0;
+            const sum = b + c + a;
+            row.querySelector('.row-total').textContent = sum;
+            totalColl += sum;
+        });
+
+        let totalExp = 0;
+        document.querySelectorAll('#expenseBody tr').forEach(row => {
+            const d = parseFloat(row.querySelector('.exp-depot').value) || 0;
+            const b = parseFloat(row.querySelector('.exp-bank').value) || 0;
+            const a = parseFloat(row.querySelector('.exp-adj').value) || 0;
+            const sum = d + b + a;
+            row.querySelector('.row-total').textContent = sum;
+            totalExp += sum;
+        });
+
+        const bf = parseFloat(document.getElementById('entryBF').value) || 0;
+        
+        // FIXED LOGIC: Total Cash (A) = BF + Total Collection
+        const totalCashA = bf + totalColl;
+        const net = totalCashA - totalExp;
+
+        document.getElementById('totalCollection').textContent = totalColl.toLocaleString();
+        document.getElementById('totalExpense').textContent = totalExp.toLocaleString();
+        document.getElementById('netBalance').textContent = net.toLocaleString();
+
+        return { bf, totalColl, totalExp, totalCashA, net };
+    };
+
+    // --- 2. REPORT LOGIC (WITH EDIT OPTION) ---
+
+    window.loadReport = function() {
+        const date = document.getElementById('reportDate').value;
+        if(!date) return;
+
+        const entryRef = ref(db, 'entries/' + date);
+        
+        get(entryRef).then((snapshot) => {
+            const data = snapshot.val();
+            const contentDiv = document.getElementById('reportContent');
+            const noDataDiv = document.getElementById('noReportData');
+
+            if (data) {
+                contentDiv.style.display = 'block';
+                noDataDiv.style.display = 'none';
+
+                // 1. Header
+                document.getElementById('rptDateStr').textContent = data.date;
+                document.getElementById('rptMonthStr').textContent = data.month;
+
+                // 2. Calculations for Footer
+                let totBank = 0, totCash = 0, totAdj = 0;
+                let totExp = 0;
+
+                // 3. Collection Body
+                const collBody = document.getElementById('rptCollBody');
+                collBody.innerHTML = '';
+                if(data.collections && data.collections.length > 0) {
+                    data.collections.forEach(r => {
+                        const b = parseFloat(r.bank) || 0;
+                        const c = parseFloat(r.cash) || 0;
+                        const a = parseFloat(r.adj) || 0;
+                        const sum = b + c + a;
+                        totBank += b; totCash += c; totAdj += a;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${r.id}</td>
+                            <td>${r.name}</td>
+                            <td>${r.territory}</td>
+                            <td>${r.month}</td>
+                            <td>${r.mode}</td>
+                            <td class="text-right">${b > 0 ? b.toLocaleString() : ''}</td>
+                            <td class="text-right">${c > 0 ? c.toLocaleString() : ''}</td>
+                            <td class="text-right">${a > 0 ? a.toLocaleString() : ''}</td>
+                            <td class="text-right"><strong>${sum.toLocaleString()}</strong></td>
+                        `;
+                        collBody.appendChild(tr);
+                    });
+                } else {
+                    collBody.innerHTML = '<tr><td colspan="9" class="text-center">No Collections</td></tr>';
+                }
+
+                // 4. Expense Body
+                const expBody = document.getElementById('rptExpBody');
+                expBody.innerHTML = '';
+                if(data.expenses && data.expenses.length > 0) {
+                    data.expenses.forEach(r => {
+                        const d = parseFloat(r.depot) || 0;
+                        const b = parseFloat(r.bank) || 0;
+                        const a = parseFloat(r.adj) || 0;
+                        const sum = d + b + a;
+                        totExp += sum;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${r.name}</td>
+                            <td class="text-right">${d > 0 ? d.toLocaleString() : ''}</td>
+                            <td class="text-right">${b > 0 ? b.toLocaleString() : ''}</td>
+                            <td class="text-right">${a > 0 ? a.toLocaleString() : ''}</td>
+                            <td class="text-right"><strong>${sum.toLocaleString()}</strong></td>
+                            <td>${r.remarks}</td>
+                        `;
+                        expBody.appendChild(tr);
+                    });
+                } else {
+                    expBody.innerHTML = '<tr><td colspan="6" class="text-center">No Expenses</td></tr>';
+                }
+
+                // 5. Summary Totals
+                const bf = parseFloat(data.bf) || 0;
+                const totalCollection = totBank + totCash + totAdj;
+                // FIXED LOGIC: Total Cash (A) = BF + Total Collection
+                const totalCashA = bf + totalCollection; 
+                const net = totalCashA - totExp;
+
+                document.getElementById('rptBF').textContent = bf.toLocaleString();
+                document.getElementById('rptColl').textContent = totalCollection.toLocaleString();
+                document.getElementById('rptTotalCash').textContent = totalCashA.toLocaleString();
+                document.getElementById('rptExp').textContent = totExp.toLocaleString();
+                document.getElementById('rptNet').textContent = net.toLocaleString();
+
+                // Footers
+                document.getElementById('rptCollBank').textContent = totBank.toLocaleString();
+                document.getElementById('rptCollCash').textContent = totCash.toLocaleString();
+                document.getElementById('rptCollAdj').textContent = totAdj.toLocaleString();
+                document.getElementById('rptCollTotal').textContent = totalCollection.toLocaleString();
+                document.getElementById('rptExpTotal').textContent = totExp.toLocaleString();
+
+            } else {
+                contentDiv.style.display = 'none';
+                noDataDiv.style.display = 'block';
+            }
+        });
+    };
+
+    window.editHistoryDay = function() {
+        const date = document.getElementById('reportDate').value;
+        if(!date) {
+            alert("Please select a date from the dropdown first.");
+            return;
+        }
+        if(confirm(`Are you sure you want to EDIT the data for ${date}?\n\nThis will load the data into the Dashboard where you can make changes.`)) {
+            // 1. Switch Tab to Dashboard
+            switchTab('dashboard');
+            
+            // 2. Set Dashboard Date
+            document.getElementById('entryDate').value = date;
+            
+            // 3. Load Data
+            loadDateData();
+            
+            // 4. Focus on BF input to start editing immediately
+            setTimeout(() => {
+                document.getElementById('entryBF').focus();
+            }, 500);
+        }
+    };
+
+    window.printReport = function() {
+        window.print();
+    }
+
+    // --- 3. MPO & EXPENSE MASTER FUNCTIONS ---
+
+    window.uploadMpoExcel = function() {
+        const fileInput = document.getElementById('mpoExcelFile');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select an Excel file first.");
+            return;
+        }
+
+        showToast("Uploading MPOs...", false);
+
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            
+            if (jsonData.length === 0) {
+                alert("Excel file is empty!");
+                return;
+            }
+
+            const updates = {};
+            let successCount = 0;
+
+            jsonData.forEach(row => {
+                const id = row['ID'] || row['MPO ID'] || row['Id'];
+                const name = row['Name'] || row['MPO Name'] || row['Mpo Name'];
+                const territory = row['Territory'] || row['Terr'];
+
+                if (id && name && territory) {
+                    updates[`mpo_master/${id}`] = { name, territory };
+                    successCount++;
+                }
+            });
+
+            if (successCount > 0) {
+                update(ref(db), updates)
+                    .then(() => {
+                        showToast(`Successfully uploaded ${successCount} MPOs!`);
+                        fileInput.value = ''; 
+                    })
+                    .catch((err) => {
+                        alert("Error uploading to Firebase: " + err.message);
+                    });
+            } else {
+                alert("No valid MPOs found. Check columns: ID, Name, Territory");
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    window.addMpoToDb = function() {
+        const id = document.getElementById('newMpoId').value.trim();
+        const name = document.getElementById('newMpoName').value.trim();
+        const territory = document.getElementById('newMpoTerritory').value.trim();
+
+        if (!id || !name || !territory) { alert("Please fill in all fields"); return; }
+
+        set(ref(db, 'mpo_master/' + id), { name, territory })
+            .then(() => {
+                document.getElementById('newMpoId').value = '';
+                document.getElementById('newMpoName').value = '';
+                document.getElementById('newMpoTerritory').value = '';
+                showToast("MPO Added Successfully");
+            })
+            .catch(err => alert("Error: " + err.message));
+    };
+
+    window.deleteMpo = function(id) {
+        if(confirm(`Delete MPO: ${id}?`)) {
+            remove(ref(db, 'mpo_master/' + id)).then(() => showToast("MPO Deleted"));
+        }
+    };
+
+    window.startEditMpo = function(id) {
+        window.editingRowId = id;
+        renderMpoMasterTable();
+    };
+
+    window.saveMpoEdit = function(id) {
+        const row = document.getElementById(`row-${id}`);
+        const newName = row.querySelector('.edit-name').value.trim();
+        const newTerritory = row.querySelector('.edit-terr').value.trim();
+
+        update(ref(db, 'mpo_master/' + id), { name: newName, territory: newTerritory })
+            .then(() => {
+                window.editingRowId = null;
+                showToast("MPO Updated");
+            })
+            .catch(err => alert("Update Error: " + err.message));
+    };
+
+    window.cancelEditMpo = function() {
+        window.editingRowId = null;
+        renderMpoMasterTable();
+    };
+
+    function renderMpoMasterTable() {
+        const tbody = document.getElementById('mpoMasterBody');
+        tbody.innerHTML = '';
+        Object.keys(window.mpoList).forEach(key => {
+            const item = window.mpoList[key];
+            const isEditing = (window.editingRowId === key);
+            const tr = document.createElement('tr');
+            tr.id = `row-${key}`;
+            if (isEditing) {
+                tr.style.backgroundColor = "#fef3c7";
+                tr.innerHTML = `
+                    <td><strong>${key}</strong></td>
+                    <td><input type="text" class="edit-name" value="${item.name}"></td>
+                    <td><input type="text" class="edit-terr" value="${item.territory}"></td>
+                    <td class="text-center">
+                        <button class="btn btn-success btn-sm" onclick="window.saveMpoEdit('${key}')">Save</button>
+                        <button class="btn btn-danger btn-sm" onclick="window.cancelEditMpo()">Cancel</button>
+                    </td>`;
+            } else {
+                tr.innerHTML = `
+                    <td><strong>${key}</strong></td>
+                    <td>${item.name}</td>
+                    <td>${item.territory}</td>
+                    <td class="text-center">
+                        <button class="btn btn-primary btn-sm" onclick="window.startEditMpo('${key}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="window.deleteMpo('${key}')">Delete</button>
+                    </td>`;
+            }
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- EXPENSE CRUD (ADD, EDIT, DELETE) ---
+    
+    window.addExpenseToDb = function() {
+        const name = document.getElementById('newExpenseName').value.trim();
+        if(!name) return alert("Enter name");
+        push(ref(db, 'expense_master'), { name: name })
+            .then(() => {
+                document.getElementById('newExpenseName').value = '';
+                showToast("Expense Added");
+            });
+    };
+
+    window.deleteExpense = function(key) {
+        if(confirm("Delete this expense?")) remove(ref(db, 'expense_master/' + key));
+    };
+
+    window.startEditExpense = function(key) {
+        window.editingExpenseKey = key;
+        renderExpenseMasterTable();
+    };
+
+    window.saveExpenseEdit = function(key) {
+        const input = document.getElementById(`edit-exp-name-${key}`);
+        const newName = input.value.trim();
+        
+        if(!newName) {
+            alert("Expense name cannot be empty");
+            return;
+        }
+
+        update(ref(db, 'expense_master/' + key), { name: newName })
+            .then(() => {
+                window.editingExpenseKey = null;
+                showToast("Expense Updated");
+            })
+            .catch(err => alert("Update Error: " + err.message));
+    };
+
+    window.cancelEditExpense = function() {
+        window.editingExpenseKey = null;
+        renderExpenseMasterTable();
+    };
+
+    function renderExpenseMasterTable() {
+        const tbody = document.getElementById('expMasterBody');
+        tbody.innerHTML = '';
+        
+        // Fetch fresh data to ensure we have keys
+        get(ref(db, 'expense_master')).then(snap => {
+            if(snap.exists()) {
+                snap.forEach(childSnap => {
+                    const key = childSnap.key;
+                    const val = childSnap.val();
+                    const isEditing = (window.editingExpenseKey === key);
+                    
+                    const tr = document.createElement('tr');
+                    if (isEditing) {
+                        tr.style.backgroundColor = "#fef3c7"; // Highlight editing row
+                        tr.innerHTML = `
+                            <td>
+                                <input type="text" id="edit-exp-name-${key}" value="${val.name}" style="padding:5px; border:1px solid #ccc; border-radius:4px;">
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm" onclick="window.saveExpenseEdit('${key}')">Save</button>
+                                <button class="btn btn-danger btn-sm" onclick="window.cancelEditExpense()">Cancel</button>
+                            </td>`;
+                    } else {
+                        tr.innerHTML = `
+                            <td>${val.name}</td>
+                            <td class="text-center">
+                                <button class="btn btn-primary btn-sm" onclick="window.startEditExpense('${key}')">Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="window.deleteExpense('${key}')">Delete</button>
+                            </td>`;
+                    }
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="2" class="text-center">No expenses found. Add one above.</td></tr>';
+            }
+        });
+    }
+
+    // --- UTILS ---
+
+    function getMonthName(dateStr) {
+        const date = new Date(dateStr);
+        const options = { month: 'long', year: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    function showToast(msg, autoHide=true) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        if(autoHide) setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    window.switchTab = function(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+        
+        if(tabId === 'reports') {
+            loadReport();
+        }
+    };
+</script>
+
+</body>
+</html>
