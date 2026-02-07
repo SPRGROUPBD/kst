@@ -111,6 +111,7 @@
         text-align: center;
         position: relative;
         margin: 0 auto; 
+        aspect-ratio: 1.586; /* CR80 Aspect Ratio */
     }
     .id-header {
         background: #2c3e50;
@@ -176,19 +177,19 @@
     
     .id-footer {
         background: #f8f9fa;
-        padding: 15px;
+        padding: 10px 15px;
         border-top: 1px solid #eee;
         text-align: left;
     }
-    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; font-size: 11px; color: #555; }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; font-size: 10px; color: #555; }
     
     /* Layout for Signature and QR side by side */
     .footer-sign-qr {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-top: 10px;
-        padding-top: 10px;
+        margin-top: 5px;
+        padding-top: 5px;
         border-top: 1px solid #e0e0e0;
     }
     
@@ -198,15 +199,15 @@
         justify-content: flex-start;
         flex: 1;
     }
-    .sig-img { height: 35px; max-width: 120px; object-fit: contain; }
-    .sig-label { font-size: 9px; color: #999; margin-right: 5px; text-transform: uppercase; }
+    .sig-img { height: 30px; max-width: 100px; object-fit: contain; }
+    .sig-label { font-size: 8px; color: #999; margin-right: 5px; text-transform: uppercase; }
 
     .qr-area {
         text-align: center;
         flex: 1;
     }
     .qr-area span {
-        font-size: 9px;
+        font-size: 8px;
         color: #999;
         display: block;
         margin-bottom: 2px;
@@ -230,6 +231,56 @@
     .toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
     @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
     @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+    /* --- CR80 PRINT STYLES --- */
+    @media print {
+        @page {
+            size: 86mm 54mm; /* Standard CR80 Credit Card Size */
+            margin: 0;
+        }
+        body {
+            background: white;
+            -webkit-print-color-adjust: exact;
+        }
+        .top-nav, .sub-nav-container, .scan-result-box button, #scanTitle, #scanDesc {
+            display: none !important;
+        }
+        .container {
+            padding: 0;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            background: white;
+        }
+        .id-card-container {
+            padding: 0;
+            width: 86mm;
+            height: 54mm;
+        }
+        .id-card {
+            width: 86mm;
+            height: 54mm;
+            box-shadow: none;
+            border: 1px solid #000; /* Border for print visibility if needed, or none */
+            border-radius: 0; /* Standard cards usually have square corners or slight radius. 0 is safer for exact size */
+            margin: 0;
+            page-break-after: always;
+        }
+        /* Adjustments for print readability */
+        .id-header { padding: 5px 8px; }
+        .id-header img.company-logo { height: 25px; }
+        .id-header h4 { font-size: 10px; }
+        .id-body { padding: 5px 8px; }
+        .profile-view-img { width: 55px; height: 55px; border: 2px solid #eee; }
+        .profile-name { font-size: 11px; margin-bottom: 2px; }
+        .profile-deg { font-size: 8px; padding: 2px 6px; margin-bottom: 5px; }
+        .info-row { font-size: 8px; margin-bottom: 3px; padding-bottom: 2px; }
+        .id-footer { padding: 5px 8px; }
+        .footer-grid { font-size: 7px; }
+        .sig-label, .qr-area span { font-size: 6px; }
+        .sig-img { height: 18px; }
+        #embeddedQR img { width: 35px; height: 35px; } /* Small QR for print */
+    }
 
     /* Mobile specific tweaks */
     @media (max-width: 600px) {
@@ -378,7 +429,7 @@
         <div id="company-info" class="section">
             <div class="form-box">
                 <h3>Company Information Settings</h3>
-                <p style="color:#666; font-size:13px; margin-bottom:20px;">Upload logo, signature and contact details for the ID Card view.</p>
+                <p style="color:#666; font-size:13px; margin-bottom:20px;">Upload logo, signature and contact details for ID Card view.</p>
                 
                 <form id="companyForm" onsubmit="handleCompanySave(event)">
                     <div class="comp-upload-group">
@@ -457,6 +508,7 @@
         <div class="modal-content" style="text-align: center;">
             <span class="close-btn" onclick="closeModal('qrModal')">&times;</span>
             <h3 style="color: #8e44ad; font-size: 18px;">Employee QR Code</h3>
+            <p style="font-size:12px; color:#666;">Scan to view ID Card</p>
             <div id="qrcode"></div>
             <p style="margin-top: 10px; font-size: 13px; color: #555; font-weight: bold;" id="qrNameDisplay"></p>
             <button class="btn btn-green" style="margin-top: 20px; background: #8e44ad;" onclick="closeModal('qrModal')">Close</button>
@@ -517,8 +569,7 @@
             mpoRef.child(id).once('value', (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
-                    // Important: Inject ID for QR generation
-                    data.id = id; 
+                    data.id = id; // Add ID for QR generation
                     showIdCard(data);
                 } else {
                     document.getElementById('scanResult').innerHTML = '<h3 style="color:red">Employee Not Found</h3><button class="btn btn-green" onclick="window.location.href=window.location.pathname">Go Home</button>';
@@ -669,7 +720,7 @@
             }
         }
 
-        // --- QR GENERATION ---
+        // --- QR GENERATION (MODAL) ---
         function generateQR(key) {
             const item = employeesCache[key];
             if(!item) return;
@@ -682,20 +733,11 @@
             nameDisplay.innerText = item.name;
             modal.style.display = 'block';
 
-            const qrData = JSON.stringify({
-                id: key,
-                code: item.code,
-                name: item.name,
-                territory: item.territory,
-                deg: item.deg,
-                date: item.date,
-                mobile: item.mobile,
-                url: item.url,
-                status: item.status
-            });
+            // CHANGE: QR CODE CONTAINS URL, NOT JSON
+            const shareLink = baseUrl + "?id=" + key;
 
             new QRCode(qrContainer, {
-                text: qrData,
+                text: shareLink,
                 width: 200,
                 height: 200,
                 colorDark : "#000000",
@@ -713,17 +755,17 @@
                 html5QrcodeScanner = null; 
             }
             
-            try {
-                const data = JSON.parse(decodedText);
-                showIdCard(data);
-            } catch (e) {
+            // CHANGE: CHECK IF IT IS A URL
+            if(decodedText.startsWith('http')) {
+                // Redirect to the URL
+                window.location.href = decodedText;
+            } else {
                 showToast("Invalid QR Code format");
-                console.error(e);
                 resetScanner();
             }
         }
 
-        // --- ID CARD DISPLAY (WITH QR) ---
+        // --- ID CARD DISPLAY (WITH EMBEDDED QR URL) ---
         function showIdCard(data) {
             const container = document.getElementById('scanResult');
             const statusColor = data.status === 'Active' ? '#27ae60' : '#e74c3c';
@@ -734,18 +776,8 @@
             const compAddr = companySettings.address || 'N/A';
             const compTel = companySettings.tel || 'N/A';
 
-            // Prepare QR Data String
-            const qrDataString = JSON.stringify({
-                id: data.id || '', // Ensure ID is present
-                code: data.code,
-                name: data.name,
-                territory: data.territory,
-                deg: data.deg,
-                date: data.date,
-                mobile: data.mobile,
-                url: data.url,
-                status: data.status
-            });
+            // CHANGE: EMBEDDED QR USES URL
+            const cardLink = baseUrl + "?id=" + (data.id || '');
 
             const html = `
                 <div class="id-card-container">
@@ -788,7 +820,7 @@
                                 <div><strong>Tel:</strong> ${compTel}</div>
                             </div>
                             
-                            <!-- New Footer Layout: Signature and QR Side by Side -->
+                            <!-- Footer Layout: Signature and QR Side by Side -->
                             <div class="footer-sign-qr">
                                 <div class="signature-area">
                                     <span class="sig-label">Authorized Signature</span>
@@ -807,11 +839,11 @@
             container.innerHTML = html;
             container.style.display = 'block';
 
-            // Generate QR inside the card after DOM update
+            // Generate Embedded QR with URL
             const qrElem = document.getElementById("embeddedQR");
             if(qrElem) {
                 new QRCode(qrElem, {
-                    text: qrDataString,
+                    text: cardLink,
                     width: 50,
                     height: 50,
                     colorDark : "#000000",
