@@ -25,14 +25,14 @@
             --warning: #f39c12;
             --teal: #16a085;
             --purple: #9b59b6;
-            --orange: #d35400; /* For Cat D */
-            --pink: #c2185b;   /* For Cat E */
-            --cyan: #00bcd4; /* For Edit Category Button */
+            --orange: #d35400; 
+            --pink: #c2185b;   
+            --cyan: #00bcd4; 
             --shadow: 0 2px 5px rgba(0,0,0,0.1);
 
-            /* PRINT VARIABLES - DEFAULTS */
+            /* PRINT VARIABLES */
             --print-font-family: 'Epson Roman', 'Epson Roman T', 'Times New Roman', serif;
-            --print-font-size: 10.5pt; /* Default: 10.5pt */
+            --print-font-size: 10.5pt;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -78,18 +78,16 @@
         }
         .user-info span { font-size: 0.9rem; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px; }
 
-        /* --- RESPONSIVE NAV LOGIC --- */
+        /* NAV LOGIC */
         nav { display: flex; gap: 5px; overflow-x: auto; flex-wrap: wrap; flex: 1; justify-content: center; padding: 0 15px; }
         nav button { background: none; border: none; color: #bdc3c7; padding: 0.5rem 0.8rem; cursor: pointer; font-size: 0.95rem; transition: 0.3s; white-space: nowrap; border-radius: 4px; }
         nav button:hover, nav button.active { color: white; background: rgba(255,255,255,0.1); }
 
-        /* HAMBURGER BUTTON (Hidden on Desktop) */
         #mobile-menu-btn {
             display: none;
             background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0 10px;
         }
 
-        /* MOBILE MENU OVERLAY */
         #mobile-nav {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -117,7 +115,6 @@
         .mobile-link-btn:active { background: rgba(255,255,255,0.05); }
         .mobile-link-btn i { width: 25px; text-align: center; }
 
-        /* MEDIA QUERY FOR MOBILE */
         @media(max-width: 768px) {
             nav { display: none !important; }
             #mobile-menu-btn { display: block; }
@@ -150,7 +147,6 @@
         .search-input { flex: 1; padding: 12px 15px; border: 1px solid var(--border); border-radius: 30px; font-size: 1rem; outline: none; transition: 0.3s; }
         .search-input:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
 
-        /* NEW: Small Search Input for Management Headers */
         .search-input-sm {
             padding: 6px 12px;
             font-size: 0.9rem;
@@ -255,7 +251,7 @@
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-content { background-color: white; padding: 25px; border-radius: 8px; width: 500px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 30px rgba(0,0,0,0.3); animation: slideDown 0.3s; }
-        .modal-content.large { width: 800px; } /* For viewing challans */
+        .modal-content.large { width: 800px; }
         @keyframes slideDown { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .close:hover { color: var(--danger); }
@@ -264,7 +260,7 @@
         .loader { display: none; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; position: fixed; top: 50%; left: 50%; z-index: 5000; transform: translate(-50%, -50%); }
         @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        /* ------------------ PRINT STYLES ------------------ */
+        /* PRINT STYLES */
         #print-area, #print-stock-area { display: none; }
         
         @media print {
@@ -420,7 +416,7 @@
         <span>Sample Managment System</span>
     </div>
     
-    <!-- DESKTOP NAV (Hidden on Mobile) -->
+    <!-- DESKTOP NAV -->
     <nav>
         <button onclick="window.nav('dashboard')" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
         <button onclick="window.nav('categoryView')"><i class="fa-solid fa-list"></i> Categories</button>
@@ -432,7 +428,7 @@
         <button onclick="window.nav('reports')"><i class="fa-solid fa-warehouse"></i> Stock</button>
     </nav>
 
-    <!-- MOBILE HAMBURGER BUTTON (Visible only on Mobile) -->
+    <!-- MOBILE HAMBURGER BUTTON -->
     <button id="mobile-menu-btn" onclick="window.toggleMobileMenu()">
         <i class="fa-solid fa-bars"></i>
     </button>
@@ -569,36 +565,29 @@
             </div>
         </div>
 
-        <!-- CHALLAN STATS (PROD) -->
+        <!-- CHALLAN STATS -->
         <div class="panel">
             <div class="panel-header">
                 <h3>Challan Stats (By Category) PROD</h3>
                 <div style="display:flex; align-items:center; gap:5px;">
                     <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Month:</label>
                     <select id="stats-filter-prod" onchange="window.renderDashboardChallanStats()" style="padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
-                        <!-- Populated via JS -->
                     </select>
                 </div>
             </div>
-            <div class="dashboard-grid" id="dashboard-prod-stats">
-                <!-- Injected via JS -->
-            </div>
+            <div class="dashboard-grid" id="dashboard-prod-stats"></div>
         </div>
 
-        <!-- CHALLAN STATS (GIFT) -->
         <div class="panel">
             <div class="panel-header">
                 <h3>Challan Stats (By Category) GIFT</h3>
                 <div style="display:flex; align-items:center; gap:5px;">
                     <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Month:</label>
                     <select id="stats-filter-gift" onchange="window.renderDashboardChallanStats()" style="padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
-                        <!-- Populated via JS -->
                     </select>
                 </div>
             </div>
-            <div class="dashboard-grid" id="dashboard-gift-stats">
-                <!-- Injected via JS -->
-            </div>
+            <div class="dashboard-grid" id="dashboard-gift-stats"></div>
         </div>
     </section>
 
@@ -688,7 +677,7 @@
         </div>
     </section>
 
-    <!-- NEW MANUAL GENERATOR SECTION -->
+    <!-- MANUAL GENERATOR SECTION -->
     <section id="manualGenerator" class="section">
         <h2><i class="fa-solid fa-pen-to-square"></i> Manual Challan Generator</h2>
         <p style="color:#7f8c8d; margin-top:-10px; margin-bottom: 20px;">Generate a challan with custom quantities (Shows All Products or Gifts, Ignores Quotas).</p>
@@ -742,8 +731,6 @@
                 <h3>Generated Challans <span id="challan-count-badge" style="font-size: 0.85rem; font-weight: normal; color: #666; margin-left: 10px;">(Total: 0)</span></h3>
                 
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap: wrap;">
-                    
-                    <!-- VIEW MODE SELECTOR -->
                     <div style="display:flex; align-items:center; gap:5px; border-right: 1px solid #ddd; padding-right: 10px; margin-right: 5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">View:</label>
                         <select id="view-mode" style="width: 110px; font-size: 0.9rem;" onchange="window.renderChallans()">
@@ -751,22 +738,16 @@
                             <option value="month" selected>Month Wise</option>
                         </select>
                     </div>
-
-                    <!-- DATE FILTER -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Date:</label>
                         <input type="date" id="filter-date" style="width: 140px; padding: 5px; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 4px;" onchange="window.renderChallans()">
                     </div>
-
-                    <!-- DEPOT FILTER -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Depot:</label>
                         <select id="filter-depot" style="width: 120px; font-size: 0.9rem;" onchange="window.renderChallans()">
                             <option value="">All Depots</option>
                         </select>
                     </div>
-
-                    <!-- CHALLAN TYPE FILTER (NEW) -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Type:</label>
                         <select id="filter-type" style="width: 120px; font-size: 0.9rem;" onchange="window.renderChallans()">
@@ -776,8 +757,6 @@
                             <option value="Manual">Manual</option>
                         </select>
                     </div>
-
-                    <!-- CATEGORY FILTER (A-E) -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Cat:</label>
                         <select id="filter-category" style="width: 70px; font-size: 0.9rem;" onchange="window.renderChallans()">
@@ -789,16 +768,12 @@
                             <option value="E">E</option>
                         </select>
                     </div>
-
-                    <!-- MPO FILTER -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">MPO:</label>
                         <select id="filter-mpo" style="width: 200px; font-size: 0.9rem;" onchange="window.renderChallans()">
                             <option value="">All MPOs</option>
                         </select>
                     </div>
-
-                    <!-- CHALLAN NO FILTER -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">No:</label>
                         <input type="text" id="filter-challan-no" style="width: 140px; padding: 5px; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Search Challan No" oninput="window.renderChallans()">
@@ -809,9 +784,7 @@
                 </div>
             </div>
             
-            <div id="challan-content-area">
-                <!-- Challan Tables will be rendered here -->
-            </div>
+            <div id="challan-content-area"></div>
             <div id="no-challan-msg" style="text-align:center; padding:20px; color:#999; display:none;">No challans found matching your filters.</div>
         </div>
     </section>
@@ -833,8 +806,6 @@
             <div class="panel-header">
                 <h3>MPO List</h3>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    
-                    <!-- MPO SEARCH INPUT -->
                     <input type="text" id="search-mpo" class="search-input-sm" placeholder="Search Name or ID..." oninput="window.renderMgmtTables()">
 
                     <div style="display:flex; align-items:center; gap:5px; border-right: 1px solid #ddd; padding-right: 10px; margin-right: 5px;">
@@ -850,46 +821,49 @@
             </div>
             <div class="table-responsive"><table id="table-mpo"></table></div>
         </div>
+        
+        <!-- MODIFIED PRODUCT MANAGEMENT -->
         <div id="mgmt-prod" class="panel" style="display:none">
             <div class="panel-header">
                 <h3>Product List</h3>
                 <div style="display:flex; gap:10px;">
-                    
-                    <!-- PRODUCT SEARCH INPUT -->
                     <input type="text" id="search-prod" class="search-input-sm" placeholder="Search Name or ID..." oninput="window.renderMgmtTables()">
-
                     <button class="btn btn-secondary" onclick="window.openUploadModal('prod')"><i class="fa-solid fa-file-excel" style="color:green;"></i> Upload Excel</button>
+                    
+                    <!-- NEW BUTTONS ADDED -->
+                    <button class="btn btn-cyan" onclick="window.openModal('editCategory')"><i class="fa-solid fa-layer-group"></i> Update Category</button>
                     <button class="btn btn-primary" onclick="window.openModal('prod')"><i class="fa-solid fa-plus"></i> Add Product</button>
                 </div>
             </div>
             <div class="table-responsive"><table id="table-prod"></table></div>
         </div>
+
+        <!-- MODIFIED GIFT MANAGEMENT -->
         <div id="mgmt-gift" class="panel" style="display:none">
             <div class="panel-header">
                 <h3>Gift List</h3>
                 <div style="display:flex; gap:10px;">
-                    
-                    <!-- GIFT SEARCH INPUT -->
                     <input type="text" id="search-gift" class="search-input-sm" placeholder="Search Name or ID..." oninput="window.renderMgmtTables()">
-
                     <button class="btn btn-secondary" onclick="window.openUploadModal('gift')"><i class="fa-solid fa-file-excel" style="color:green;"></i> Upload Excel</button>
+                    
+                    <!-- NEW BUTTONS ADDED -->
+                    <button class="btn btn-cyan" onclick="window.openModal('editGiftCategory')"><i class="fa-solid fa-layer-group"></i> Update Category</button>
                     <button class="btn btn-purple" onclick="window.openModal('gift')"><i class="fa-solid fa-plus"></i> Add Gift</button>
                 </div>
             </div>
             <div class="table-responsive"><table id="table-gift"></table></div>
         </div>
+
         <div id="mgmt-da" class="panel" style="display:none">
             <div class="panel-header">
                 <h3>Transport (DA) List</h3>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    
                     <div style="display:flex; align-items:center; gap:5px; border-right: 1px solid #ddd; padding-right: 10px; margin-right: 5px;">
                         <label style="margin:0; font-size:0.85rem; color:#7f8c8d;">Depot:</label>
                         <select id="filter-da-depot" style="width: 150px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;" onchange="window.renderMgmtTables()">
                             <option value="">All Depots</option>
                         </select>
                     </div>
-
                     <button class="btn btn-primary" onclick="window.openModal('da')"><i class="fa-solid fa-plus"></i> Add DA</button>
                 </div>
             </div>
@@ -909,6 +883,7 @@
             <div class="panel-header">
                 <h3>Current Inventory Status</h3> 
                 <div style="display:flex; gap:10px;">
+                    <button class="btn btn-warning" onclick="window.closeMonth()"><i class="fa-solid fa-calendar-check"></i> Close Month</button>
                     <button class="btn btn-success" onclick="window.exportStockToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
                     <button class="btn btn-secondary" onclick="window.printStockReport()"><i class="fa-solid fa-print"></i> Print Report</button>
                 </div>
@@ -930,7 +905,7 @@
     </div>
 </div>
 
-<!-- VIEW CHALLAN DETAIL MODAL (NEW) -->
+<!-- VIEW CHALLAN DETAIL MODAL -->
 <div id="view-challan-modal" class="modal">
     <div class="modal-content large">
         <span class="close" onclick="document.getElementById('view-challan-modal').style.display='none'">&times;</span>
@@ -1005,12 +980,11 @@
 <!-- TOAST NOTIFICATION -->
 <div id="toast">Message</div>
 
-<!-- CHALLAN PRINT AREA (HIDDEN FROM SCREEN) -->
+<!-- CHALLAN PRINT AREA -->
 <div id="print-area">
     <div class="print-title">SAMPLE/GIFT/PPM ISSUED INFO</div>
     
     <div class="print-header">
-        <!-- LEFT SIDE -->
         <div class="print-col">
             MPO ID : <span id="p-mpo-id"></span><br>
             MPO Name : <span id="p-mpo-name"></span><br>
@@ -1018,7 +992,6 @@
             Area : <span id="p-area"></span><br>
         </div>
 
-        <!-- CENTER SIDE -->
         <div class="print-col center">
             DA Name: <span id="p-da-name"></span><br>
             DA ID : <span id="p-da-id"></span><br>
@@ -1026,7 +999,6 @@
             Region : <span id="p-region"></span><br>
         </div>
 
-        <!-- RIGHT SIDE -->
         <div class="print-col right">
             Challan No: <span id="p-ch-no"></span><br>
             Date : <span id="p-date"></span><br>
@@ -1054,7 +1026,6 @@
         নোটিশ : কিছু কম পেলে সাথে সাথে ডিপো ইনচার্জকে ফোন করে জানাতে হবে
     </div>
     
-    <!-- SIGNATURE FOOTER -->
     <div style="margin-top: 60px; display: flex; justify-content: space-between; width: 100%;">
         <div style="width: 33%; text-align: left;">
             <div style="border-bottom: 1px solid #000; height: 40px; margin-bottom: 5px;"></div>
@@ -1071,7 +1042,7 @@
     </div>
 </div>
 
-<!-- STOCK REPORT PRINT AREA (HIDDEN FROM SCREEN) -->
+<!-- STOCK REPORT PRINT AREA -->
 <div id="print-stock-area">
     <div class="stock-print-title">Stock Report</div>
     <div class="stock-print-info">
@@ -1085,6 +1056,7 @@
                 <th>Name</th>
                 <th width="80">Pack</th>
                 <th width="60">Unit</th>
+                <th width="80">Opening</th>
                 <th width="80">Received</th>
                 <th width="80">Used</th>
                 <th width="80">Closing</th>
@@ -1112,14 +1084,14 @@
     // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyD3DBNkMcvm9RF1QNd6g37mn-todxR4THQ",
-        authDomain: "mplfpdc.firebaseapp.com",
-        databaseURL: "https://mplfpdc-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "mplfpdc",
-        storageBucket: "mplfpdc.firebasestorage.app",
-        messagingSenderId: "1004917483554",
-        appId: "1:1004917483554:web:91ee71365c64869e07027b",
-        measurementId: "G-S3JLB16V13"
-    };
+  authDomain: "mplfpdc.firebaseapp.com",
+  databaseURL: "https://mplfpdc-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "mplfpdc",
+  storageBucket: "mplfpdc.firebasestorage.app",
+  messagingSenderId: "1004917483554",
+  appId: "1:1004917483554:web:91ee71365c64869e07027b",
+  measurementId: "G-S3JLB16V13"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -1145,7 +1117,7 @@
     let editType = null; 
     let editId = null;
 
-    // --- AUTHENTICATION & LOGIN (UPDATED & FIXED) ---
+    // --- AUTHENTICATION & LOGIN (FIXED) ---
     function handleLogin(e) {
         e.preventDefault();
         const u = e.target.username.value.trim();
@@ -1153,34 +1125,33 @@
         const errDiv = document.getElementById('login-error');
         errDiv.style.display = 'none';
 
-        // 1. Basic Validation
         if (!u || !p) {
             showLoginError("Please enter Username and Password.");
             return;
         }
 
-        // 2. HARDCODED ADMIN LOGIN
+        // Admin Login - Case Insensitive Username Check
         if (u.toUpperCase() === 'KS' && p === 'Monico@Ku007') {
             currentUser = { username: 'KS', role: 'admin', depotId: null };
             completeLogin();
             return;
         }
 
-        // 3. USER LOGIN FROM FIREBASE DB
-        document.getElementById('loader').style.display = 'block'; // Show loading
+        // User Login
+        document.getElementById('loader').style.display = 'block';
 
         get(ref(db, 'users')).then((snapshot) => {
-            document.getElementById('loader').style.display = 'none'; // Hide loading
+            document.getElementById('loader').style.display = 'none';
             
             if (!snapshot.exists()) {
-                showLoginError("No users found in Database. Please contact Admin to add you.");
+                showLoginError("No users found in Database.");
                 return;
             }
 
             const users = snapshot.val();
             const userList = Object.values(users);
             
-            // Find user matching username and password
+            // CASE INSENSITIVE USERNAME CHECK
             const foundUser = userList.find(user => 
                 user.username.toLowerCase() === u.toLowerCase() && user.password === p
             );
@@ -1198,15 +1169,7 @@
         }).catch((error) => {
             console.error("Login Error:", error);
             document.getElementById('loader').style.display = 'none';
-            
-            // Detailed error message for debugging
-            let errorMsg = "Connection Failed. ";
-            if(error.code === 'PERMISSION_DENIED') {
-                errorMsg += "Database Access Denied. Check Firebase Rules.";
-            } else {
-                errorMsg += error.message;
-            }
-            showLoginError(errorMsg);
+            showLoginError("Connection Failed. " + error.message);
         });
     }
 
@@ -1440,7 +1403,6 @@
         document.getElementById('d-total-prod-challan').innerText = prodChallans;
         document.getElementById('d-total-gift-challan').innerText = giftChallans;
 
-        // DASHBOARD CATEGORY STATS (OLD - MPO)
         let catStats = { 
             'A': { sales: 0, count: 0 }, 
             'B': { sales: 0, count: 0 }, 
@@ -1469,10 +1431,7 @@
         document.getElementById('cat-mpo-D').innerText = catStats['D'].count;
         document.getElementById('cat-mpo-E').innerText = catStats['E'].count;
 
-        // POPULATE MONTH FILTERS (NEW)
         window.populateStatsFilters();
-
-        // DASHBOARD CATEGORY STATS (NEW - CHALLAN - SPLIT INTO PROD & GIFT)
         window.renderDashboardChallanStats(fChallans);
 
         window.populateSelects(activeMpos, fDas);
@@ -1501,21 +1460,17 @@
         if(manualMpoId) window.loadManualMPODetails();
     }
 
-    // NEW FUNCTION TO POPULATE MONTH FILTERS
     window.populateStatsFilters = function() {
         const selects = ['stats-filter-prod', 'stats-filter-gift'];
         selects.forEach(id => {
             const sel = document.getElementById(id);
             if (!sel) return;
-
-            // Check if already populated to avoid resetting user selection if not needed
             if (sel.options.length > 0) return;
 
-            // Generate last 12 months
             for (let i = 0; i < 12; i++) {
                 const d = new Date();
                 d.setMonth(d.getMonth() - i);
-                const val = d.toISOString().slice(0, 7); // "YYYY-MM"
+                const val = d.toISOString().slice(0, 7);
                 const label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
                 sel.innerHTML += `<option value="${val}">${label}</option>`;
             }
@@ -1527,22 +1482,16 @@
         const giftContainer = document.getElementById('dashboard-gift-stats');
         const categories = ['A', 'B', 'C', 'D', 'E'];
         
-        // Get selected filter values
         const prodFilterVal = document.getElementById('stats-filter-prod')?.value;
         const giftFilterVal = document.getElementById('stats-filter-gift')?.value;
 
-        // Helper to generate cards HTML
         const generateCards = (type, filterVal) => {
             let html = '';
             categories.forEach(cat => {
                 const challansInCat = fChallans.filter(c => {
                     const cDate = new Date(c.timestamp);
-                    const cDateStr = cDate.toISOString().slice(0, 7); // "YYYY-MM"
-
-                    // Check Type, Category, AND Selected Month
-                    return c.type === type && 
-                           c.mpoCat === cat && 
-                           cDateStr === filterVal;
+                    const cDateStr = cDate.toISOString().slice(0, 7);
+                    return c.type === type && c.mpoCat === cat && cDateStr === filterVal;
                 });
 
                 const count = challansInCat.length;
@@ -1550,7 +1499,6 @@
                     return sum + c.items.reduce((iSum, i) => iSum + (Number(i.issueQty) || 0), 0);
                 }, 0);
 
-                // Color customization for small badge
                 const badgeColor = type === 'Product' ? 'var(--accent)' : 'var(--purple)';
 
                 html += `
@@ -1566,7 +1514,6 @@
             return html;
         };
 
-        // Only render if filters are loaded
         if (prodFilterVal) prodContainer.innerHTML = generateCards('Product', prodFilterVal);
         if (giftFilterVal) giftContainer.innerHTML = generateCards('Gift', giftFilterVal);
     };
@@ -1663,7 +1610,6 @@
                     <div class="cat-header ${cat}">
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Category ${cat}</h3>
-                            
                             <div style="text-align:right; line-height:1.1;">
                                 <div style="font-weight:bold; font-size:0.95rem;">${totalSales.toLocaleString()}</div>
                                 <div style="font-size:0.75rem; opacity:0.9;">${mpoCount} MPOs</div>
@@ -2416,43 +2362,126 @@
         if(confirm('Delete this challan?')) remove(ref(db, 'challans/' + key)).then(() => showToast("Challan Deleted"));
     };
 
+    // --- NEW STOCK LOGIC START ---
     window.renderStockReport = function(fProds, fGifts, fChallans) {
         const table = document.getElementById('stock-report-table');
-        let realUsage = {};
+        table.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Unit</th><th>Opening</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead>`;
         
+        const allItems = [...fProds, ...fGifts];
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+        // Calculate Used Quantities for Current Month
+        let monthlyUsage = {};
         fChallans.forEach(c => {
-            if(c.items) {
-                c.items.forEach(item => {
-                    if(realUsage[item.id]) realUsage[item.id] += parseInt(item.issueQty || 0);
-                    else realUsage[item.id] = parseInt(item.issueQty || 0);
-                });
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth) {
+                if(c.items) {
+                    c.items.forEach(item => {
+                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                    });
+                }
             }
         });
 
-        table.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Unit</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead>`;
+        allItems.forEach(p => {
+            // Use values from DB, default to 0
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            table.innerHTML += `<tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.pack}</td>
+                <td>${p.unit}</td>
+                <td>${opening}</td>
+                <td>${received}</td>
+                <td>${used}</td>
+                <td style="font-weight:bold; color:${closing < 0 ? 'red' : 'green'}">${closing}</td>
+            </tr>`;
+        });
+    };
+
+    window.closeMonth = function() {
+        if(!confirm('Are you sure you want to Close Month? This will:\n1. Set Closing Stock as new Opening Stock.\n2. Reset Monthly Received to 0.')) return;
+        
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        const fChallans = getFilteredData(data.challans);
+        const fProds = data.prods;
+        const fGifts = data.gifts;
+
+        // Recalculate usage for safety
+        let monthlyUsage = {};
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth) {
+                if(c.items) {
+                    c.items.forEach(item => {
+                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                    });
+                }
+            }
+        });
+
+        const updates = [];
         const allItems = [...fProds, ...fGifts];
 
         allItems.forEach(p => {
-            const received = Number(p.receivedStock || 0);
-            const used = realUsage[p.id] || 0;
-            const closing = received - used;
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
 
-            table.innerHTML += `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.pack}</td><td>${p.unit}</td><td>${received}</td><td>${used}</td><td style="font-weight:bold; color:${closing < 0 ? 'red' : 'green'}">${closing}</td></tr>`;
+            // Prepare update object
+            const updateObj = {
+                openingStock: closing, // New Opening
+                receivedThisMonth: 0,  // Reset Received
+                // Keep other data intact
+                name: p.name,
+                pack: p.pack,
+                unit: p.unit,
+                qtyA: p.qtyA,
+                qtyB: p.qtyB,
+                qtyC: p.qtyC,
+                qtyD: p.qtyD,
+                qtyE: p.qtyE,
+                isActive: p.isActive
+            };
+
+            // Determine path
+            let path = '';
+            if(fProds.includes(p)) path = `depots/${p.depotId}/products/${p.id}`;
+            else path = `depots/${p.depotId}/gifts/${p.id}`;
+
+            updates.push(update(ref(db, path), updateObj));
         });
+
+        Promise.all(updates).then(() => {
+            showToast("Month Closed Successfully!");
+            window.renderStockReport(data.prods, data.gifts, getFilteredData(data.challans));
+        }).catch(err => showToast("Error: " + err.message));
     };
+    // --- NEW STOCK LOGIC END ---
 
     window.exportStockToExcel = function() {
         const fProds = data.prods; 
         const fGifts = data.gifts;
         const fChallans = getFilteredData(data.challans);
+        const currentMonth = new Date().toISOString().slice(0, 7);
 
-        let realUsage = {};
+        let monthlyUsage = {};
         fChallans.forEach(c => {
-            if(c.items) {
-                c.items.forEach(item => {
-                    if(realUsage[item.id]) realUsage[item.id] += parseInt(item.issueQty || 0);
-                    else realUsage[item.id] = parseInt(item.issueQty || 0);
-                });
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth) {
+                if(c.items) {
+                    c.items.forEach(item => {
+                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                    });
+                }
             }
         });
 
@@ -2460,10 +2489,11 @@
         const allItems = [...fProds, ...fGifts];
 
         allItems.forEach(p => {
-            const received = Number(p.receivedStock || 0);
-            const used = realUsage[p.id] || 0;
-            const closing = received - used;
             const type = fProds.includes(p) ? 'Product' : 'Gift';
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
 
             exportData.push({
                 "ID": p.id,
@@ -2471,13 +2501,14 @@
                 "Type": type,
                 "Pack": p.pack,
                 "Unit": p.unit,
+                "Opening": opening,
                 "Received": received,
                 "Used": used,
                 "Closing": closing
             });
         });
 
-        const ws = XLSX.utils.json_to_sheet(exportData);
+                const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
 
@@ -2496,26 +2527,53 @@
         document.getElementById('sp-depot').innerText = depotText || 'ALL';
         document.getElementById('sp-date').innerText = new Date().toLocaleDateString('en-GB');
 
-        const screenTable = document.getElementById('stock-report-table');
+        const fProds = data.prods; 
+        const fGifts = data.gifts;
+        const fChallans = getFilteredData(data.challans);
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        let monthlyUsage = {};
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth) {
+                if(c.items) {
+                    c.items.forEach(item => {
+                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                    });
+                }
+            }
+        });
+
         const printTbody = document.getElementById('sp-table-body');
         printTbody.innerHTML = '';
 
-        if(screenTable) {
-            const rows = screenTable.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const closingCell = row.lastElementChild; 
-                if (closingCell) {
-                    const closingValue = parseFloat(closingCell.innerText);
-                    if (closingValue > 0) {
-                        printTbody.innerHTML += row.innerHTML.replace(/color:\s*(\w+|#\w+);?/gi, '');
-                    }
-                }
-            });
-        }
+        const allItems = [...fProds, ...fGifts];
+
+        allItems.forEach(p => {
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            printTbody.innerHTML += `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${p.pack}</td>
+                    <td>${p.unit}</td>
+                    <td>${opening}</td>
+                    <td>${received}</td>
+                    <td>${used}</td>
+                    <td>${closing}</td>
+                </tr>
+            `;
+        });
         
         window.print();
     };
 
+    // MANAGEMENT TABLES RENDERING (WITH REMOVED STOCK COLUMN)
     window.renderMgmtTables = function(fMpos, fProds, fGifts, fDas, fUsers) {
         if (!fMpos) fMpos = getFilteredData(data.mpos);
         if (!fProds) fProds = data.prods; 
@@ -2523,16 +2581,11 @@
         if (!fDas) fDas = getFilteredData(data.das);
         if (!fUsers) fUsers = currentUser.role === 'admin' ? data.users : [];
         
+        // MPO Area Filter Logic
         const areaSelect = document.getElementById('filter-mpo-area');
         const currentAreaSelection = areaSelect.value;
-        
         const uniqueAreas = new Set();
-        fMpos.forEach(m => {
-            if (m.area && m.area.trim() !== "") {
-                uniqueAreas.add(m.area.trim());
-            }
-        });
-
+        fMpos.forEach(m => { if (m.area && m.area.trim() !== "") uniqueAreas.add(m.area.trim()); });
         let areaOptionsHtml = '<option value="">All Areas</option>';
         Array.from(uniqueAreas).sort().forEach(area => {
             const selected = area === currentAreaSelection ? 'selected' : '';
@@ -2541,11 +2594,9 @@
         areaSelect.innerHTML = areaOptionsHtml;
 
         let filteredMpos = fMpos;
-        if (areaSelect.value !== "") {
-            filteredMpos = fMpos.filter(m => m.area === areaSelect.value);
-        }
+        if (areaSelect.value !== "") filteredMpos = fMpos.filter(m => m.area === areaSelect.value);
 
-        // MPO SEARCH LOGIC
+        // MPO Search
         const mpoSearchInput = document.getElementById('search-mpo');
         if (mpoSearchInput) {
             const searchVal = mpoSearchInput.value.toLowerCase();
@@ -2556,140 +2607,91 @@
                 );
             }
         }
+        filteredMpos.sort((a, b) => (a.area || '').toLowerCase().localeCompare((b.area || '').toLowerCase()));
 
-        filteredMpos.sort((a, b) => {
-            const areaA = (a.area || '').toLowerCase();
-            const areaB = (b.area || '').toLowerCase();
-            if (areaA < areaB) return -1;
-            if (areaA > areaB) return 1;
-            return 0;
-        });
-
+        // Render MPO Table
         const mpoT = document.getElementById('table-mpo');
         mpoT.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Territory</th><th>Area</th><th>TP Sales</th><th>Cat(Prod)</th><th>Cat(Gift)</th><th>Status</th><th>Depot</th><th>Actions</th></tr></thead>`;
-        
         filteredMpos.forEach(m => {
             const isMpoActive = (m.isActive !== false);
-            const statusBadge = isMpoActive 
-                ? '<span style="color:var(--success); font-weight:bold;">Active</span>' 
-                : '<span style="color:var(--danger); font-weight:bold;">Inactive</span>';
-            
+            const statusBadge = isMpoActive ? '<span style="color:var(--success); font-weight:bold;">Active</span>' : '<span style="color:var(--danger); font-weight:bold;">Inactive</span>';
             const toggleBtnColor = isMpoActive ? 'var(--danger)' : 'var(--success)';
             
             mpoT.innerHTML += `
                 <tr>
-                    <td>${m.id}</td>
-                    <td>${m.name}</td>
-                    <td>${m.territory}</td>
-                    <td>${m.area || '-'}</td>
-                    <td>${m.sales || 0}</td>
-                    <td>${m.categoryProd || m.category || '-'}</td>
-                    <td>${m.categoryGift || '-'}</td>
-                    <td>${statusBadge}</td>
-                    <td>${m.depotId || '<span style="color:red">Missing</span>'}</td>
+                    <td>${m.id}</td><td>${m.name}</td><td>${m.territory}</td><td>${m.area || '-'}</td>
+                    <td>${m.sales || 0}</td><td>${m.categoryProd || m.category || '-'}</td><td>${m.categoryGift || '-'}</td>
+                    <td>${statusBadge}</td><td>${m.depotId || '<span style="color:red">Missing</span>'}</td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="window.editItem('mpo','${m.id}')"><i class="fa-solid fa-pen"></i></button> 
                         <button class="btn btn-sm btn-danger" onclick="window.deleteItem('mpo','${m.id}')"><i class="fa-solid fa-trash"></i></button>
-                        <button class="btn btn-sm" style="background-color:${toggleBtnColor}; color:white;" onclick="window.toggleMPOStatus('${m.id}')" title="Toggle Active/Inactive"><i class="fa-solid fa-power-off"></i></button>
+                        <button class="btn btn-sm" style="background-color:${toggleBtnColor}; color:white;" onclick="window.toggleMPOStatus('${m.id}')" title="Toggle Status"><i class="fa-solid fa-power-off"></i></button>
                     </td>
                 </tr>`;
         });
 
+        // DA Filter Logic
         const daDepotSelect = document.getElementById('filter-da-depot');
         const currentDaDepotVal = daDepotSelect.value;
-        
         const uniqueDaDepots = new Set();
-        fDas.forEach(d => {
-            if (d.depotId && d.depotId.trim() !== "") {
-                uniqueDaDepots.add(d.depotId.trim());
-            }
-        });
-
+        fDas.forEach(d => { if (d.depotId) uniqueDaDepots.add(d.depotId.trim()); });
         let daDepotOptionsHtml = '<option value="">All Depots</option>';
         Array.from(uniqueDaDepots).sort().forEach(depot => {
             const selected = depot === currentDaDepotVal ? 'selected' : '';
             daDepotOptionsHtml += `<option value="${depot}" ${selected}>${depot}</option>`;
         });
         daDepotSelect.innerHTML = daDepotOptionsHtml;
-
         let filteredDas = fDas;
-        if (daDepotSelect.value !== "") {
-            filteredDas = fDas.filter(d => d.depotId === daDepotSelect.value);
-        }
+        if (daDepotSelect.value !== "") filteredDas = fDas.filter(d => d.depotId === daDepotSelect.value);
+        filteredDas.sort((a, b) => (a.depotId || '').toLowerCase().localeCompare((b.depotId || '').toLowerCase()));
 
-        filteredDas.sort((a, b) => {
-            const depotA = (a.depotId || '').toLowerCase();
-            const depotB = (b.depotId || '').toLowerCase();
-            if (depotA < depotB) return -1;
-            if (depotA > depotB) return 1;
-            return 0;
-        });
-
-        // PRODUCT SEARCH LOGIC
+        // Render Product Table (MODIFIED - Removed Stock Column)
         const prodSearchInput = document.getElementById('search-prod');
         let filteredProds = fProds;
         if (prodSearchInput) {
             const searchVal = prodSearchInput.value.toLowerCase();
-            if (searchVal) {
-                filteredProds = filteredProds.filter(p => 
-                    (p.name && p.name.toLowerCase().includes(searchVal)) || 
-                    (p.id && p.id.toLowerCase().includes(searchVal))
-                );
-            }
+            if (searchVal) filteredProds = filteredProds.filter(p => (p.name && p.name.toLowerCase().includes(searchVal)) || (p.id && p.id.toLowerCase().includes(searchVal)));
         }
 
         const prodT = document.getElementById('table-prod');
-        prodT.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Status</th><th>A/B/C/D/E</th><th>Stock</th><th>Depot</th><th>Actions</th></tr></thead>`;
+        prodT.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Status</th><th>A/B/C/D/E</th><th>Depot</th><th>Actions</th></tr></thead>`;
+        
         filteredProds.forEach(p => {
-            const statusBadge = (p.isActive === false || p.isActive === 'false') 
-                ? '<span style="color:red; font-weight:bold;">Inactive</span>' 
-                : '<span style="color:var(--success); font-weight:bold;">Active</span>';
+            const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            const toggleBtnColor = (p.isActive === false || p.isActive === 'false') ? 'var(--success)' : 'var(--danger)';
-            const toggleIcon = (p.isActive === false || p.isActive === 'false') ? 'fa-toggle-on' : 'fa-toggle-off';
-
-            const btnCyan = `<button class="btn btn-sm btn-cyan" onclick="window.openModal('editCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-edit"></i> Cat</button>`;
+            const btnCyan = `<button class="btn btn-sm btn-cyan" onclick="window.openModal('editCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
+            const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
 
             prodT.innerHTML += `
                 <tr>
                     <td>${p.id}</td><td>${p.name}</td><td>${p.pack}</td><td>${statusBadge}</td>
                     <td>${p.qtyA}/${p.qtyB}/${p.qtyC}/${p.qtyD}/${p.qtyE}</td>
-                    <td style="font-weight:bold; text-align:center;">${p.receivedStock || 0}</td>
                     <td>${p.depotId || '<span style="color:red">Missing</span>'}</td>
                     <td>
                         ${btnCyan}
+                        ${btnAddStock}
                         <button class="btn btn-sm btn-secondary" onclick="window.editItem('prod','${p.id}')"><i class="fa-solid fa-pen"></i></button> 
-                        <button class="btn btn-warning" onclick="window.openAddStockModal('${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>
                         <button class="btn btn-sm btn-danger" onclick="window.deleteItem('prod','${p.id}')"><i class="fa-solid fa-trash"></i></button>
-                        <button class="btn btn-sm" style="background-color:${toggleBtnColor}; color:white;" onclick="window.toggleProductStatus('${p.id}')" title="Toggle Active/Inactive"><i class="fa-solid ${toggleIcon}"></i></button>
+                        <button class="btn btn-sm" style="background-color:var(--danger); color:white;" onclick="window.toggleProductStatus('${p.id}')" title="Toggle Status"><i class="fa-solid fa-toggle-off"></i></button>
                     </td>
                 </tr>`;
         });
 
-        // GIFT SEARCH LOGIC
+        // Render Gift Table (MODIFIED)
         const giftSearchInput = document.getElementById('search-gift');
         let filteredGifts = fGifts;
         if (giftSearchInput) {
             const searchVal = giftSearchInput.value.toLowerCase();
-            if (searchVal) {
-                filteredGifts = filteredGifts.filter(p => 
-                    (p.name && p.name.toLowerCase().includes(searchVal)) || 
-                    (p.id && p.id.toLowerCase().includes(searchVal))
-                );
-            }
+            if (searchVal) filteredGifts = filteredGifts.filter(p => (p.name && p.name.toLowerCase().includes(searchVal)) || (p.id && p.id.toLowerCase().includes(searchVal)));
         }
 
         const giftT = document.getElementById('table-gift');
         giftT.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Status</th><th>A/B/C/D/E</th><th>Depot</th><th>Actions</th></tr></thead>`;
+        
         filteredGifts.forEach(p => {
-            const statusBadge = (p.isActive === false || p.isActive === 'false') 
-                ? '<span style="color:red; font-weight:bold;">Inactive</span>' 
-                : '<span style="color:var(--success); font-weight:bold;">Active</span>';
-
-            const toggleBtnColor = (p.isActive === false || p.isActive === 'false') ? 'var(--success)' : 'var(--danger)';
-            const toggleIcon = (p.isActive === false || p.isActive === 'false') ? 'fa-toggle-on' : 'fa-toggle-off';
+            const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            const btnPurple = `<button class="btn btn-sm btn-purple" onclick="window.openModal('editGiftCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-edit"></i> Cat</button>`;
+            const btnPurple = `<button class="btn btn-sm btn-purple" onclick="window.openModal('editGiftCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
 
             giftT.innerHTML += `
                 <tr>
@@ -2700,22 +2702,26 @@
                         ${btnPurple}
                         <button class="btn btn-sm btn-secondary" onclick="window.editItem('gift','${p.id}')"><i class="fa-solid fa-pen"></i></button> 
                         <button class="btn btn-sm btn-danger" onclick="window.deleteItem('gift','${p.id}')"><i class="fa-solid fa-trash"></i></button>
-                        <button class="btn btn-sm" style="background-color:${toggleBtnColor}; color:white;" onclick="window.toggleGiftStatus('${p.id}')" title="Toggle Active/Inactive"><i class="fa-solid ${toggleIcon}"></i></button>
+                        <button class="btn btn-sm" style="background-color:var(--danger); color:white;" onclick="window.toggleGiftStatus('${p.id}')" title="Toggle Status"><i class="fa-solid fa-toggle-off"></i></button>
                     </td>
                 </tr>`;
         });
 
+        // Render DA Table
         const daT = document.getElementById('table-da');
         daT.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Depot</th><th>Actions</th></tr></thead>`;
         filteredDas.forEach(d => {
-            daT.innerHTML += `<tr><td>${d.id}</td><td>${d.name}</td><td>${d.phone || '-'}</td><td>${d.depotId || '<span style="color:red">Missing</span>'}</td>${createActions('da',d.id)}</tr>`;
+            daT.innerHTML += `<tr><td>${d.id}</td><td>${d.name}</td><td>${d.phone || '-'}</td><td>${d.depotId || '<span style="color:red">Missing</span>'}</td>
+            <td><button class="btn btn-sm btn-secondary" onclick="window.editItem('da','${d.id}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-danger" onclick="window.deleteItem('da','${d.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
         });
 
+        // Render Users Table
         if(document.getElementById('table-users')) {
             const userT = document.getElementById('table-users');
             userT.innerHTML = `<thead><tr><th>Username</th><th>Depot ID</th><th>Role</th><th>Actions</th></tr></thead>`;
             fUsers.forEach(u => {
-                userT.innerHTML += `<tr><td>${u.username}</td><td>${u.depotId}</td><td>User</td>${createActions('user',u.key)}</tr>`;
+                userT.innerHTML += `<tr><td>${u.username}</td><td>${u.depotId}</td><td>User</td>
+                <td><button class="btn btn-sm btn-secondary" onclick="window.editItem('user','${u.key}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-danger" onclick="window.deleteItem('user','${u.key}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             });
         }
     };
@@ -2724,29 +2730,21 @@
         const mpo = data.mpos.find(m => m.id === id);
         if(!mpo) return;
         const newStatus = !(mpo.isActive !== false);
-        update(ref(db, `mpos/${id}`), { isActive: newStatus }).then(() => showToast(`MPO marked as ${newStatus?'Active':'Inactive'}`)).catch(err => showToast("Error updating status"));
+        update(ref(db, `mpos/${id}`), { isActive: newStatus }).then(() => showToast(`MPO status updated`)).catch(err => showToast("Error"));
     }
 
     window.toggleProductStatus = function(id) {
         const product = data.prods.find(p => p.id === id);
-        if(!product) return;
-        const depotId = product.depotId;
-        if(!depotId) return showToast("Error: Product has no Depot ID");
-        const newStatus = !(product.isActive === true || product.isActive === 'true');
-        update(ref(db, `depots/${depotId}/products/${id}`), { isActive: newStatus }).then(() => showToast(`Product marked as ${newStatus?'Active':'Inactive'}`)).catch(err => showToast("Error updating status"));
+        if(!product || !product.depotId) return;
+        const newStatus = !(product.isActive === true);
+        update(ref(db, `depots/${product.depotId}/products/${id}`), { isActive: newStatus }).then(() => showToast("Product status updated")).catch(err => showToast("Error"));
     }
 
     window.toggleGiftStatus = function(id) {
         const gift = data.gifts.find(g => g.id === id);
-        if(!gift) return;
-        const depotId = gift.depotId;
-        if(!depotId) return showToast("Error: Gift has no Depot ID");
-        const newStatus = !(gift.isActive === true || gift.isActive === 'true');
-        update(ref(db, `depots/${depotId}/gifts/${id}`), { isActive: newStatus }).then(() => showToast(`Gift marked as ${newStatus?'Active':'Inactive'}`)).catch(err => showToast("Error updating status"));
-    }
-
-    function createActions(type, id) {
-        return `<td><button class="btn btn-sm btn-secondary" onclick="window.editItem('${type}','${id}')"><i class="fa-solid fa-pen"></i></button> <button class="btn btn-sm btn-danger" onclick="window.deleteItem('${type}','${id}')"><i class="fa-solid fa-trash"></i></button></td>`;
+        if(!gift || !gift.depotId) return;
+        const newStatus = !(gift.isActive === true);
+        update(ref(db, `depots/${gift.depotId}/gifts/${id}`), { isActive: newStatus }).then(() => showToast("Gift status updated")).catch(err => showToast("Error"));
     }
 
     window.openAddStockModal = function(id) {
@@ -2759,11 +2757,9 @@
         document.getElementById('modal-title').innerText = `Add Stock - ${product.name}`;
         document.getElementById('modal-form').reset();
         
-        const origDepotId = product.depotId;
-        
         const container = document.getElementById('modal-fields');
         container.innerHTML = `
-            <input type="hidden" name="origDepotId" value="${origDepotId}">
+            <input type="hidden" name="depotId" value="${product.depotId}">
             <div class="form-group">
                 <label>Product Name</label>
                 <input type="text" value="${product.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
@@ -2773,7 +2769,7 @@
                 <input type="number" value="${product.receivedStock || 0}" readonly style="background-color: #f8f9fa; font-weight:bold; color:var(--accent);">
             </div>
             <div class="form-group">
-                <label style="color:var(--warning);">Stock to Add</label>
+                <label style="color:var(--warning);">Stock to Add (This Month)</label>
                 <input type="number" name="stockToAdd" required placeholder="Enter quantity to add" style="border-color:var(--warning);">
             </div>
         `;
@@ -2784,7 +2780,6 @@
         editId = id;
         document.getElementById('modal').style.display = 'flex';
         document.getElementById('modal-form').reset();
-        
         const container = document.getElementById('modal-fields');
         container.innerHTML = '';
 
@@ -2792,50 +2787,25 @@
             if(currentUser.role === 'admin') {
                 let html = '<div class="form-group"><label>Depot ID</label><select name="depotId" required onchange="window.updateModalDAOptions(this.value)">';
                 html += '<option value="" disabled selected>-- Select Depot --</option>';
-                Array.from(allDepots).sort().forEach(depot => {
-                    html += `<option value="${depot}">${depot}</option>`;
-                });
+                Array.from(allDepots).sort().forEach(depot => html += `<option value="${depot}">${depot}</option>`);
                 html += '</select></div>';
                 return html;
-            } else {
-                return `<input type="hidden" name="depotId" value="${currentUser.depotId}">`;
-            }
+            } else return `<input type="hidden" name="depotId" value="${currentUser.depotId}">`;
         };
 
         if (type === 'editCategory') {
             const p = data.prods.find(x => x.id === id);
             if (!p) return;
-            
             document.getElementById('modal-title').innerText = `Edit Categories - ${p.name}`;
-            const hiddenDepot = `<input type="hidden" name="depotId" value="${p.depotId}">`;
-            
             container.innerHTML = `
-                ${hiddenDepot}
-                <div class="form-group">
-                    <label>Product Name</label>
-                    <input type="text" value="${p.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
-                </div>
+                <input type="hidden" name="depotId" value="${p.depotId}">
+                <div class="form-group"><label>Product Name</label><input type="text" value="${p.name}" readonly style="background-color: #f8f9fa; font-weight:bold;"></div>
                 <div style="display:flex; gap:10px;">
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--accent)">Cat A</label>
-                        <input type="number" name="qtyA" value="${p.qtyA || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--warning)">Cat B</label>
-                        <input type="number" name="qtyB" value="${p.qtyB || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--teal)">Cat C</label>
-                        <input type="number" name="qtyC" value="${p.qtyC || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--orange)">Cat D</label>
-                        <input type="number" name="qtyD" value="${p.qtyD || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--pink)">Cat E</label>
-                        <input type="number" name="qtyE" value="${p.qtyE || 0}">
-                    </div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--accent)">Cat A</label><input type="number" name="qtyA" value="${p.qtyA || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--warning)">Cat B</label><input type="number" name="qtyB" value="${p.qtyB || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--teal)">Cat C</label><input type="number" name="qtyC" value="${p.qtyC || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--orange)">Cat D</label><input type="number" name="qtyD" value="${p.qtyD || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--pink)">Cat E</label><input type="number" name="qtyE" value="${p.qtyE || 0}"></div>
                 </div>
             `;
             return; 
@@ -2844,37 +2814,16 @@
         if (type === 'editGiftCategory') {
             const p = data.gifts.find(x => x.id === id);
             if (!p) return;
-            
             document.getElementById('modal-title').innerText = `Edit Categories - ${p.name}`;
-            const hiddenDepot = `<input type="hidden" name="depotId" value="${p.depotId}">`;
-            
             container.innerHTML = `
-                ${hiddenDepot}
-                <div class="form-group">
-                    <label>Gift Name</label>
-                    <input type="text" value="${p.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
-                </div>
+                <input type="hidden" name="depotId" value="${p.depotId}">
+                <div class="form-group"><label>Gift Name</label><input type="text" value="${p.name}" readonly style="background-color: #f8f9fa; font-weight:bold;"></div>
                 <div style="display:flex; gap:10px;">
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--accent)">Cat A</label>
-                        <input type="number" name="qtyA" value="${p.qtyA || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--warning)">Cat B</label>
-                        <input type="number" name="qtyB" value="${p.qtyB || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--teal)">Cat C</label>
-                        <input type="number" name="qtyC" value="${p.qtyC || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--orange)">Cat D</label>
-                        <input type="number" name="qtyD" value="${p.qtyD || 0}">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--pink)">Cat E</label>
-                        <input type="number" name="qtyE" value="${p.qtyE || 0}">
-                    </div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--accent)">Cat A</label><input type="number" name="qtyA" value="${p.qtyA || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--warning)">Cat B</label><input type="number" name="qtyB" value="${p.qtyB || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--teal)">Cat C</label><input type="number" name="qtyC" value="${p.qtyC || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--orange)">Cat D</label><input type="number" name="qtyD" value="${p.qtyD || 0}"></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--pink)">Cat E</label><input type="number" name="qtyE" value="${p.qtyE || 0}"></div>
                 </div>
             `;
             return; 
@@ -2888,49 +2837,24 @@
                 <div class="form-group"><label>Territory</label><input name="territory"></div>
                 <div class="form-group"><label>Area</label><input name="area"></div> 
                 <div class="form-group"><label>Region</label><input name="region"></div> 
-                
                 <div style="display:flex; gap:10px;">
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--accent)">Category (Prod)</label>
-                        <select name="categoryProd"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label style="color:var(--purple)">Category (Gift)</label>
-                        <select name="categoryGift"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
-                    </div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--accent)">Category (Prod)</label><select name="categoryProd"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
+                    <div class="form-group" style="flex:1"><label style="color:var(--purple)">Category (Gift)</label><select name="categoryGift"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
                 </div>
-
                 <div class="form-group"><label>TP Sales</label><input type="number" name="sales"></div>
                 <div class="form-group"><label>Status</label><select name="isActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
                 <div class="form-group"><label>Assign DA</label><select name="daId" id="modal-da-select"><option value="">None</option></select></div>
             `;
         } else if (type === 'da') {
-            container.innerHTML = `
-                ${depotSelect()}
-                <div class="form-group"><label>DA ID</label><input name="id" required></div>
-                <div class="form-group"><label>Name</label><input name="name" required></div>
-                <div class="form-group"><label>Phone</label><input name="phone"></div>
-                <div class="form-group"><label>Vehicle No.</label><input name="vehicle"></div>
-            `;
+            container.innerHTML = `${depotSelect()}<div class="form-group"><label>DA ID</label><input name="id" required></div><div class="form-group"><label>Name</label><input name="name" required></div><div class="form-group"><label>Phone</label><input name="phone"></div><div class="form-group"><label>Vehicle No.</label><input name="vehicle"></div>`;
         } else if (type === 'prod' || type === 'gift') {
             const statusField = `<div class="form-group"><label>Status</label><select name="isActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>`;
-            
-            const isEdit = (editId && editId.length > 0);
-            const idInputState = isEdit ? 'readonly' : 'required';
-            const idInputStyle = isEdit ? 'background-color: #f8f9fa; font-weight:bold;' : '';
-            const idField = `
-                <div class="form-group">
-                    <label>Enter Unique ID (e.g. ASL, G01)</label>
-                    <input type="text" name="id" ${idInputState} style="${idInputStyle}" placeholder="Type ID here..." value="${isEdit ? editId : ''}">
-                </div>`;
-
+            const idField = `<div class="form-group"><label>Unique ID</label><input name="id" required placeholder="e.g. ASL, G01"></div>`;
             container.innerHTML = `
-                ${depotSelect()}
-                ${idField}
+                ${depotSelect()} ${idField}
                 <div class="form-group"><label>Name</label><input name="name" required></div>
                 <div class="form-group"><label>Pack Size</label><input name="pack" required></div>
                 <div class="form-group"><label>Unit</label><select name="unit"><option>Box</option><option>Pot</option><option>Pcs</option><option>Vial</option></select></div>
-                <div class="form-group"><label>Received Stock</label><input type="number" name="receivedStock" value="0"></div>
                 <div style="display:flex; gap:5px">
                     <div class="form-group" style="flex:1"><label>Qty A</label><input type="number" name="qtyA" value="0"></div>
                     <div class="form-group" style="flex:1"><label>Qty B</label><input type="number" name="qtyB" value="0"></div>
@@ -2941,62 +2865,40 @@
                 ${statusField}
             `;
         } else if (type === 'user') {
-            container.innerHTML = `
-                <div class="form-group"><label>Username</label><input name="username" required></div>
-                <div class="form-group"><label>Password</label><input name="password" type="password" required></div>
-                <div class="form-group"><label>Depot ID</label><input name="depotId" placeholder="e.g. KUS" required></div>
-            `;
+            container.innerHTML = `<div class="form-group"><label>Username</label><input name="username" required></div><div class="form-group"><label>Password</label><input name="password" type="password" required></div><div class="form-group"><label>Depot ID</label><input name="depotId" placeholder="e.g. KUS" required></div>`;
         }
     };
 
     window.updateModalDAOptions = function(selectedDepotId) {
         const daSelect = document.getElementById('modal-da-select');
         if (!daSelect) return;
-        
         daSelect.innerHTML = '<option value="">None</option>';
-        
         if (selectedDepotId && data.das) {
-            const filteredDas = data.das.filter(d => d.depotId === selectedDepotId);
-            filteredDas.forEach(d => {
-                daSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-            });
+            data.das.filter(d => d.depotId === selectedDepotId).forEach(d => daSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`);
         }
     };
 
     window.editItem = function(type, id) {
         let item;
-        if(type === 'user') {
-             item = data.users.find(x => x.key === id);
-             if(!item) return;
-             item.id = item.username; 
-        } else if (type === 'gift') {
-            item = data.gifts.find(x => x.id === id);
-        } else {
-            const sourceArr = type==='mpo'?data.mpos:type==='da'?data.das:data.prods;
-            item = sourceArr.find(x => x.id === id);
-        }
+        if(type === 'user') item = data.users.find(x => x.key === id);
+        else if (type === 'gift') item = data.gifts.find(x => x.id === id);
+        else item = (type==='mpo'?data.mpos:type==='da'?data.das:data.prods).find(x => x.id === id);
+        
         if(!item) return;
 
         window.openModal(type);
         editId = item.key || id;
-        document.getElementById('modal-title').innerText = 'Edit ' + (type === 'user' ? 'User' : type.toUpperCase());
+        document.getElementById('modal-title').innerText = 'Edit ' + type.toUpperCase();
         const form = document.getElementById('modal-form');
-        for(let key in item) {
-            if(form.elements[key]) form.elements[key].value = item[key];
-        }
-        if(type === 'mpo' && item.depotId) {
-            window.updateModalDAOptions(item.depotId);
-            form.elements['daId'].value = item.daId || '';
-        }
-        if((type === 'prod' || type === 'gift') && item.depotId) {
-            form.elements['depotId'].value = item.depotId;
-        }
+        for(let key in item) if(form.elements[key]) form.elements[key].value = item[key];
+        
+        if(type === 'mpo' && item.depotId) { window.updateModalDAOptions(item.depotId); form.elements['daId'].value = item.daId || ''; }
+        if((type === 'prod' || type === 'gift') && item.depotId) form.elements['depotId'].value = item.depotId;
     };
 
     window.deleteItem = function(type, id) {
         if(!confirm('Delete this record?')) return;
         let path = '';
-        
         if(type === 'user') path = 'users/' + id;
         else if(type === 'mpo') path = 'mpos/' + id;
         else if(type === 'da') path = 'das/' + id;
@@ -3010,7 +2912,6 @@
             if(!gift || !gift.depotId) return showToast("Error: Cannot find gift path");
             path = `depots/${gift.depotId}/gifts/${id}`;
         }
-        
         remove(ref(db, path)).then(() => showToast("Record Deleted"));
     };
 
@@ -3021,144 +2922,68 @@
         const obj = {};
         formData.forEach((value, key) => obj[key] = value);
 
-        if(editType === 'editCategory') {
+        // Handle Category Updates
+        if(editType === 'editCategory' || editType === 'editGiftCategory') {
             const depotId = obj.depotId;
             if(!depotId) return showToast("Depot ID missing");
-            
-            const updateObj = {
-                qtyA: Number(form.qtyA.value),
-                qtyB: Number(form.qtyB.value),
-                qtyC: Number(form.qtyC.value),
-                qtyD: Number(form.qtyD.value),
-                qtyE: Number(form.qtyE.value)
-            };
-            update(ref(db, `depots/${depotId}/products/${editId}`), updateObj)
-                .then(() => {
-                    showToast("Categories Updated Successfully");
-                    closeModal();
-                })
-                .catch(err => showToast("Error updating categories: " + err.message));
+            const updateObj = { qtyA: Number(form.qtyA.value), qtyB: Number(form.qtyB.value), qtyC: Number(form.qtyC.value), qtyD: Number(form.qtyD.value), qtyE: Number(form.qtyE.value) };
+            const path = editType === 'editCategory' ? `depots/${depotId}/products/${editId}` : `depots/${depotId}/gifts/${editId}`;
+            update(ref(db, path), updateObj).then(() => { showToast("Categories Updated"); closeModal(); }).catch(err => showToast("Error: " + err.message));
             return; 
         }
 
-        if(editType === 'editGiftCategory') {
-            const depotId = obj.depotId;
-            if(!depotId) return showToast("Depot ID missing");
-            
-            const updateObj = {
-                qtyA: Number(form.qtyA.value),
-                qtyB: Number(form.qtyB.value),
-                qtyC: Number(form.qtyC.value),
-                qtyD: Number(form.qtyD.value),
-                qtyE: Number(form.qtyE.value)
-            };
-            update(ref(db, `depots/${depotId}/gifts/${editId}`), updateObj)
-                .then(() => {
-                    showToast("Gift Categories Updated Successfully");
-                    closeModal();
-                })
-                .catch(err => showToast("Error updating categories: " + err.message));
-            return; 
-        }
-
+        // Handle Add Stock
         if(editType === 'addStock') {
             const addedStock = Number(obj.stockToAdd);
             const product = data.prods.find(p => p.id === editId);
-            if(!product) return;
+            if(!product || addedStock <= 0) return showToast("Invalid input");
             
-            const currentStock = Number(product.receivedStock || 0);
-            const newTotalStock = currentStock + addedStock;
-            const depotId = obj.origDepotId || product.depotId;
+            const depotId = product.depotId;
+            const currentTotal = Number(product.receivedStock || 0);
+            const currentMonthly = Number(product.receivedThisMonth || 0);
             
-            update(ref(db, `depots/${depotId}/products/${editId}`), { receivedStock: newTotalStock })
-                .then(() => {
-                    showToast(`Stock Updated! New Total: ${newTotalStock}`);
-                    closeModal();
-                })
-                .catch(err => showToast("Error updating stock: " + err.message));
+            // Update both Total Stock and Monthly Received
+            const updateObj = {
+                receivedStock: currentTotal + addedStock,
+                receivedThisMonth: currentMonthly + addedStock
+            };
+
+            update(ref(db, `depots/${depotId}/products/${editId}`), updateObj)
+                .then(() => { showToast(`Stock Added! Total: ${updateObj.receivedStock}`); closeModal(); })
+                .catch(err => showToast("Error: " + err.message));
             return; 
         }
 
-        if(editType === 'prod') {
+        // Handle Product/Gift Save
+        if(editType === 'prod' || editType === 'gift') {
             const depotId = obj.depotId;
             const customId = obj.id ? String(obj.id).trim() : null;
+            if(!depotId || !customId) return showToast("Depot ID and Custom ID are required");
             
-            if(!depotId) return showToast("Depot ID is required for products");
-            if(!customId) return showToast("Product ID is required");
+            obj.qtyA = Number(obj.qtyA); obj.qtyB = Number(obj.qtyB); obj.qtyC = Number(obj.qtyC); obj.qtyD = Number(obj.qtyD); obj.qtyE = Number(obj.qtyE);
+            obj.isActive = obj.isActive === 'true';
             
-            if (!editId) {
-                obj.id = customId;
-                set(ref(db, `depots/${depotId}/products/${customId}`), obj).then(() => {
-                    showToast("Product Added Successfully");
-                    closeModal();
-                }).catch(err => showToast("Error Saving: " + err.message));
-            } else {
-                obj.id = editId; 
-                update(ref(db, `depots/${depotId}/products/${editId}`), obj).then(() => {
-                    showToast("Product Updated Successfully");
-                    closeModal();
-                }).catch(err => showToast("Error Saving: " + err.message));
-            }
+            const path = editType === 'prod' ? `depots/${depotId}/products/${customId}` : `depots/${depotId}/gifts/${customId}`;
+            set(ref(db, path), obj).then(() => { showToast("Saved Successfully"); closeModal(); }).catch(err => showToast("Error Saving: " + err.message));
             return;
         }
 
-        if(editType === 'gift') {
-            const depotId = obj.depotId;
-            const customId = obj.id ? String(obj.id).trim() : null;
-            
-            if(!depotId) return showToast("Depot ID is required for gifts");
-            if(!customId) return showToast("Gift ID is required");
-            
-            if (!editId) {
-                obj.id = customId;
-                set(ref(db, `depots/${depotId}/gifts/${customId}`), obj).then(() => {
-                    showToast("Gift Added Successfully");
-                    closeModal();
-                }).catch(err => showToast("Error Saving: " + err.message));
-            } else {
-                obj.id = editId;
-                update(ref(db, `depots/${depotId}/gifts/${editId}`), obj).then(() => {
-                    showToast("Gift Updated Successfully");
-                    closeModal();
-                }).catch(err => showToast("Error Saving: " + err.message));
-            }
-            return;
-        }
-
+        // Handle Others (MPO, DA, User)
         if(obj.sales) obj.sales = Number(obj.sales);
-        if(obj.qtyA) { 
-            obj.qtyA = Number(obj.qtyA); 
-            obj.qtyB = Number(obj.qtyB); 
-            obj.qtyC = Number(obj.qtyC); 
-            obj.qtyD = Number(obj.qtyD); 
-            obj.qtyE = Number(obj.qtyE); 
-        }
-        if(obj.receivedStock) obj.receivedStock = Number(obj.receivedStock);
-        if(obj.isActive !== undefined) {
-            obj.isActive = obj.isActive === 'true' || obj.isActive === true;
-        }
-
-        if(editType !== 'user') {
-            if(currentUser.role === 'user' && obj.depotId !== currentUser.depotId) {
-                obj.depotId = currentUser.depotId; 
-            }
-        }
+        if(obj.isActive !== undefined) obj.isActive = obj.isActive === 'true' || obj.isActive === true;
 
         let path = '';
         if(editType === 'user') path = 'users/' + (editId || Date.now());
         else if(editType === 'mpo') path = 'mpos/' + (editId || obj.id);
         else if(editType === 'da') path = `das/${(editId || obj.id)}`;
 
-        set(ref(db, path), obj).then(() => {
-            showToast("Saved Successfully");
-            closeModal();
-        }).catch(err => showToast("Error Saving: " + err.message));
+        set(ref(db, path), obj).then(() => { showToast("Saved Successfully"); closeModal(); }).catch(err => showToast("Error Saving: " + err.message));
     };
 
     window.closeModal = function() { document.getElementById('modal').style.display = 'none'; };
 
-    let uploadType = null; 
-    let parsedExcelData = [];
+    // EXCEL UPLOAD LOGIC
+    let uploadType = null; let parsedExcelData = [];
 
     window.openUploadModal = function(type) {
         uploadType = type;
@@ -3171,152 +2996,82 @@
         parsedExcelData = [];
     };
 
-    window.closeUploadModal = function() {
-        document.getElementById('upload-modal').style.display = 'none';
-    };
+    window.closeUploadModal = function() { document.getElementById('upload-modal').style.display = 'none'; };
 
     document.getElementById('excel-file').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if(!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
-            
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            
             parsedExcelData = XLSX.utils.sheet_to_json(worksheet, {defval:""}); 
+            if(parsedExcelData.length === 0) { document.getElementById('upload-status').innerText = "Error: Empty file."; return; }
+            
+            // Render Preview
+            const table = document.getElementById('upload-preview-table');
+            document.getElementById('upload-preview-container').style.display = 'block';
+            table.innerHTML = '';
+            const headers = Object.keys(parsedExcelData[0]);
+            let thead = '<thead><tr>'; headers.forEach(h => thead += `<th>${h}</th>`); thead += '</tr></thead>';
+            table.innerHTML += thead;
+            let tbody = '<tbody>';
+            parsedExcelData.slice(0, 5).forEach((row) => {
+                tbody += '<tr>'; headers.forEach(h => tbody += `<td>${row[h]}</td>`); tbody += '</tr>';
+            });
+            if(parsedExcelData.length > 5) tbody += `<tr><td colspan="${headers.length}" style="text-align:center;">... and ${parsedExcelData.length - 5} more rows ...</td></tr>`;
+            tbody += '</tbody>';
+            table.innerHTML += tbody;
 
-            if(parsedExcelData.length === 0) {
-                document.getElementById('upload-status').innerText = "Error: Excel file is empty or format is incorrect.";
-                document.getElementById('upload-status').style.color = "red";
-                document.getElementById('btn-confirm-upload').disabled = true;
-                return;
-            }
-
-            renderUploadPreview(parsedExcelData);
-            document.getElementById('upload-status').innerText = `Loaded ${parsedExcelData.length} records. Review data below before confirming.`;
-            document.getElementById('upload-status').style.color = "var(--success)";
+            document.getElementById('upload-status').innerText = `Loaded ${parsedExcelData.length} records.`;
             document.getElementById('btn-confirm-upload').disabled = false;
         };
         reader.readAsArrayBuffer(file);
     });
 
-    function renderUploadPreview(data) {
-        const table = document.getElementById('upload-preview-table');
-        document.getElementById('upload-preview-container').style.display = 'block';
-        table.innerHTML = '';
-        
-        const headers = Object.keys(data[0]);
-        let thead = '<thead><tr>';
-        headers.forEach(h => thead += `<th>${h}</th>`);
-        thead += '</tr></thead>';
-        table.innerHTML += thead;
-
-        let tbody = '<tbody>';
-        data.slice(0, 5).forEach((row, index) => {
-            tbody += '<tr>';
-            headers.forEach(h => {
-                tbody += `<td>${row[h]}</td>`;
-            });
-            tbody += '</tr>';
-        });
-        if(data.length > 5) {
-            tbody += `<tr><td colspan="${headers.length}" style="text-align:center; font-style:italic;">... and ${data.length - 5} more rows ...</td></tr>`;
-        }
-        tbody += '</tbody>';
-        table.innerHTML += tbody;
-    }
-
     window.confirmExcelUpload = function() {
         if(!uploadType || parsedExcelData.length === 0) return;
-
-        if(!confirm(`Are you sure you want to upload ${parsedExcelData.length} records? This will update existing records if IDs match.`)) return;
-
-        document.getElementById('upload-status').innerText = "Uploading... Please wait.";
+        if(!confirm(`Upload ${parsedExcelData.length} records?`)) return;
+        document.getElementById('upload-status').innerText = "Uploading...";
         document.getElementById('btn-confirm-upload').disabled = true;
 
         const currentDepot = currentUser.depotId;
         
         const processUpload = async () => {
             try {
-                if(uploadType === 'prod') {
-                    let count = 0;
-                    for (const row of parsedExcelData) {
-                        const id = row['ID'] || row['id'];
-                        if(!id) continue;
-                        
+                let count = 0;
+                for (const row of parsedExcelData) {
+                    const id = row['ID'] || row['id'];
+                    if(!id) continue;
+                    
+                    if(uploadType === 'prod') {
                         const item = {
-                            name: row['Name'] || row['name'],
-                            pack: row['Pack'] || row['pack'],
-                            unit: row['Unit'] || row['unit'],
-                            receivedStock: Number(row['ReceivedStock'] || row['receivedstock'] || 0),
-                            qtyA: Number(row['QtyA'] || row['qtyA'] || 0),
-                            qtyB: Number(row['QtyB'] || row['qtyB'] || 0),
-                            qtyC: Number(row['QtyC'] || row['qtyC'] || 0),
-                            qtyD: Number(row['QtyD'] || row['qtyD'] || 0),
-                            qtyE: Number(row['QtyE'] || row['qtyE'] || 0),
-                            depotId: (row['DepotId'] || row['depotId']) || currentDepot,
-                            isActive: row['isActive'] !== undefined ? (row['isActive'] === true || row['isActive'] === 'true') : true,
-                            id: id
+                            name: row['Name'] || row['name'], pack: row['Pack'] || row['pack'], unit: row['Unit'] || row['unit'],
+                            qtyA: Number(row['QtyA'] || 0), qtyB: Number(row['QtyB'] || 0), qtyC: Number(row['QtyC'] || 0), qtyD: Number(row['QtyD'] || 0), qtyE: Number(row['QtyE'] || 0),
+                            receivedStock: Number(row['ReceivedStock'] || 0), receivedThisMonth: Number(row['ReceivedThisMonth'] || 0), openingStock: Number(row['OpeningStock'] || 0),
+                            depotId: (row['DepotId'] || row['depotId']) || currentDepot, isActive: row['isActive'] !== false, id: id
                         };
-
                         await set(ref(db, `depots/${item.depotId}/products/${id}`), item);
-                        count++;
-                    }
-                    showToast(`Successfully uploaded ${count} products!`);
-                } else if (uploadType === 'mpo') {
-                    let count = 0;
-                    for (const row of parsedExcelData) {
-                        const id = row['ID'] || row['id'];
-                        if(!id) continue;
-
-                        const item = {
-                            id: id,
-                            name: row['Name'] || row['name'],
-                            territory: row['Territory'] || row['territory'],
-                            area: row['Area'] || row['area'] || '', 
-                            region: row['Region'] || row['region'] || '', 
-                            categoryProd: row['CategoryProd'] || row['categoryProd'] || row['Category'] || row['category'],
-                            categoryGift: row['CategoryGift'] || row['categoryGift'],
-                            sales: Number(row['TP Sales'] || row['Sales'] || row['sales'] || 0),
-                            depotId: (row['DepotId'] || row['depotId']) || currentDepot,
-                            daId: row['DA'] || row['da'],
-                            isActive: row['isActive'] !== undefined ? (row['isActive'] === true || row['isActive'] === 'true') : true
+                    } else if (uploadType === 'gift') {
+                         const item = {
+                            name: row['Name'] || row['name'], pack: row['Pack'] || row['pack'], unit: row['Unit'] || row['unit'],
+                            qtyA: Number(row['QtyA'] || 0), qtyB: Number(row['QtyB'] || 0), qtyC: Number(row['QtyC'] || 0), qtyD: Number(row['QtyD'] || 0), qtyE: Number(row['QtyE'] || 0),
+                            depotId: (row['DepotId'] || row['depotId']) || currentDepot, isActive: row['isActive'] !== false, id: id
                         };
-
-                        await set(ref(db, `mpos/${id}`), item);
-                        count++;
-                    }
-                    showToast(`Successfully uploaded ${count} MPOs!`);
-                } else if (uploadType === 'gift') {
-                    let count = 0;
-                    for (const row of parsedExcelData) {
-                        const id = row['ID'] || row['id'];
-                        if(!id) continue;
-
-                        const item = {
-                            id: id,
-                            name: row['Name'] || row['name'],
-                            pack: row['Pack'] || row['pack'],
-                            unit: row['Unit'] || row['unit'],
-                            receivedStock: Number(row['ReceivedStock'] || row['receivedstock'] || 0),
-                            qtyA: Number(row['QtyA'] || row['qtyA'] || 0),
-                            qtyB: Number(row['QtyB'] || row['qtyB'] || 0),
-                            qtyC: Number(row['QtyC'] || row['qtyC'] || 0),
-                            qtyD: Number(row['QtyD'] || row['qtyD'] || 0),
-                            qtyE: Number(row['QtyE'] || row['qtyE'] || 0),
-                            depotId: (row['DepotId'] || row['depotId']) || currentDepot,
-                            isActive: row['isActive'] !== undefined ? (row['isActive'] === true || row['isActive'] === 'true') : true
-                        };
-                        
                         await set(ref(db, `depots/${item.depotId}/gifts/${id}`), item);
-                        count++;
+                    } else if (uploadType === 'mpo') {
+                         const item = {
+                            id: id, name: row['Name'] || row['name'], territory: row['Territory'] || row['territory'], area: row['Area'] || row['area'] || '', region: row['Region'] || row['region'] || '',
+                            categoryProd: row['CategoryProd'] || row['categoryProd'], categoryGift: row['CategoryGift'] || row['categoryGift'],
+                            sales: Number(row['Sales'] || 0), depotId: (row['DepotId'] || row['depotId']) || currentDepot, isActive: row['isActive'] !== false
+                        };
+                        await set(ref(db, `mpos/${id}`), item);
                     }
-                    showToast(`Successfully uploaded ${count} Gifts!`);
+                    count++;
                 }
+                showToast(`Successfully uploaded ${count} records!`);
                 window.closeUploadModal();
             } catch (error) {
                 console.error(error);
@@ -3325,7 +3080,6 @@
                 document.getElementById('upload-status').innerText = "Error occurred.";
             }
         };
-
         processUpload();
     };
 </script>
@@ -3333,27 +3087,15 @@
 <!-- DEVELOPER TOOLS BLOCKER -->
 <script>    
     document.addEventListener('contextmenu', event => event.preventDefault());
-
     document.onkeydown = function(e) {
-        if(e.keyCode == 123) { 
-            return false;
-        }
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { 
-            return false;
-        }
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { 
-            return false;
-        }
-        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { 
-            return false;
-        }
+        if(e.keyCode == 123) return false;
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
     }
-
     window.toggleMobileMenu = function() {
         const menu = document.getElementById('mobile-nav');
-        if (menu) {
-            menu.classList.toggle('active');
-        }
+        if (menu) menu.classList.toggle('active');
     };
 </script>
 </body>
