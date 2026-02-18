@@ -829,9 +829,6 @@
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="search-prod" class="search-input-sm" placeholder="Search Name or ID..." oninput="window.renderMgmtTables()">
                     <button class="btn btn-secondary" onclick="window.openUploadModal('prod')"><i class="fa-solid fa-file-excel" style="color:green;"></i> Upload Excel</button>
-                    
-                    <!-- NEW BUTTONS ADDED -->
-                    <button class="btn btn-cyan" onclick="window.openModal('editCategory')"><i class="fa-solid fa-layer-group"></i> Update Category</button>
                     <button class="btn btn-primary" onclick="window.openModal('prod')"><i class="fa-solid fa-plus"></i> Add Product</button>
                 </div>
             </div>
@@ -845,9 +842,6 @@
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="search-gift" class="search-input-sm" placeholder="Search Name or ID..." oninput="window.renderMgmtTables()">
                     <button class="btn btn-secondary" onclick="window.openUploadModal('gift')"><i class="fa-solid fa-file-excel" style="color:green;"></i> Upload Excel</button>
-                    
-                    <!-- NEW BUTTONS ADDED -->
-                    <button class="btn btn-cyan" onclick="window.openModal('editGiftCategory')"><i class="fa-solid fa-layer-group"></i> Update Category</button>
                     <button class="btn btn-purple" onclick="window.openModal('gift')"><i class="fa-solid fa-plus"></i> Add Gift</button>
                 </div>
             </div>
@@ -2296,8 +2290,7 @@
                     const dateObj = new Date(c.timestamp);
                     const monthKey = dateObj.toLocaleString('en-GB', { month: 'long', year: 'numeric' }); 
                     if (!groupedByMonth[monthKey]) groupedByMonth[monthKey] = [];
-                    groupedByMonth[monthKey].push(c);
-                });
+                    groupedByMonth[monthKey].push(c);                });
 
                 const sortedMonths = Object.keys(groupedByMonth).sort((a,b) => {
                     const d1 = new Date(a); 
@@ -2362,7 +2355,7 @@
         if(confirm('Delete this challan?')) remove(ref(db, 'challans/' + key)).then(() => showToast("Challan Deleted"));
     };
 
-    // --- NEW STOCK LOGIC START ---
+    // --- STOCK LOGIC START ---
     window.renderStockReport = function(fProds, fGifts, fChallans) {
         const table = document.getElementById('stock-report-table');
         table.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Unit</th><th>Opening</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead>`;
@@ -2385,7 +2378,6 @@
         });
 
         allItems.forEach(p => {
-            // Use values from DB, default to 0
             const opening = Number(p.openingStock || 0);
             const received = Number(p.receivedThisMonth || 0);
             const used = monthlyUsage[p.id] || 0;
@@ -2464,7 +2456,7 @@
             window.renderStockReport(data.prods, data.gifts, getFilteredData(data.challans));
         }).catch(err => showToast("Error: " + err.message));
     };
-    // --- NEW STOCK LOGIC END ---
+    // --- STOCK LOGIC END ---
 
     window.exportStockToExcel = function() {
         const fProds = data.prods; 
@@ -2508,7 +2500,7 @@
             });
         });
 
-                const ws = XLSX.utils.json_to_sheet(exportData);
+        const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
 
@@ -2573,7 +2565,7 @@
         window.print();
     };
 
-    // MANAGEMENT TABLES RENDERING (WITH REMOVED STOCK COLUMN)
+    // MANAGEMENT TABLES RENDERING
     window.renderMgmtTables = function(fMpos, fProds, fGifts, fDas, fUsers) {
         if (!fMpos) fMpos = getFilteredData(data.mpos);
         if (!fProds) fProds = data.prods; 
@@ -2645,7 +2637,7 @@
         if (daDepotSelect.value !== "") filteredDas = fDas.filter(d => d.depotId === daDepotSelect.value);
         filteredDas.sort((a, b) => (a.depotId || '').toLowerCase().localeCompare((b.depotId || '').toLowerCase()));
 
-        // Render Product Table (MODIFIED - Removed Stock Column)
+        // Render Product Table
         const prodSearchInput = document.getElementById('search-prod');
         let filteredProds = fProds;
         if (prodSearchInput) {
@@ -2659,8 +2651,9 @@
         filteredProds.forEach(p => {
             const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            const btnCyan = `<button class="btn btn-sm btn-cyan" onclick="window.openModal('editCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
-            const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
+            // ACTION BUTTONS FOR PRODUCT
+            const btnEditCat = `<button class="btn btn-sm btn-cyan" onclick="window.openModal('editCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
+            const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('prod','${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
 
             prodT.innerHTML += `
                 <tr>
@@ -2668,7 +2661,7 @@
                     <td>${p.qtyA}/${p.qtyB}/${p.qtyC}/${p.qtyD}/${p.qtyE}</td>
                     <td>${p.depotId || '<span style="color:red">Missing</span>'}</td>
                     <td>
-                        ${btnCyan}
+                        ${btnEditCat}
                         ${btnAddStock}
                         <button class="btn btn-sm btn-secondary" onclick="window.editItem('prod','${p.id}')"><i class="fa-solid fa-pen"></i></button> 
                         <button class="btn btn-sm btn-danger" onclick="window.deleteItem('prod','${p.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -2677,7 +2670,7 @@
                 </tr>`;
         });
 
-        // Render Gift Table (MODIFIED)
+        // Render Gift Table
         const giftSearchInput = document.getElementById('search-gift');
         let filteredGifts = fGifts;
         if (giftSearchInput) {
@@ -2691,7 +2684,9 @@
         filteredGifts.forEach(p => {
             const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            const btnPurple = `<button class="btn btn-sm btn-purple" onclick="window.openModal('editGiftCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
+            // ACTION BUTTONS FOR GIFT (As Requested)
+            const btnEditCat = `<button class="btn btn-sm btn-purple" onclick="window.openModal('editGiftCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
+            const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('gift','${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
 
             giftT.innerHTML += `
                 <tr>
@@ -2699,7 +2694,8 @@
                     <td>${p.qtyA}/${p.qtyB}/${p.qtyC}/${p.qtyD}/${p.qtyE}</td>
                     <td>${p.depotId || '<span style="color:red">Missing</span>'}</td>
                     <td>
-                        ${btnPurple}
+                        ${btnEditCat}
+                        ${btnAddStock}
                         <button class="btn btn-sm btn-secondary" onclick="window.editItem('gift','${p.id}')"><i class="fa-solid fa-pen"></i></button> 
                         <button class="btn btn-sm btn-danger" onclick="window.deleteItem('gift','${p.id}')"><i class="fa-solid fa-trash"></i></button>
                         <button class="btn btn-sm" style="background-color:var(--danger); color:white;" onclick="window.toggleGiftStatus('${p.id}')" title="Toggle Status"><i class="fa-solid fa-toggle-off"></i></button>
@@ -2747,26 +2743,31 @@
         update(ref(db, `depots/${gift.depotId}/gifts/${id}`), { isActive: newStatus }).then(() => showToast("Gift status updated")).catch(err => showToast("Error"));
     }
 
-    window.openAddStockModal = function(id) {
-        const product = data.prods.find(p => p.id === id);
-        if (!product) return;
+    // Updated to handle both prod and gift
+    window.openAddStockModal = function(type, id) {
+        let item;
+        if (type === 'prod') item = data.prods.find(p => p.id === id);
+        else item = data.gifts.find(g => g.id === id);
+        
+        if (!item) return;
 
-        editType = 'addStock';
+        editType = 'addStock' + (type === 'gift' ? 'Gift' : 'Prod'); // distinguish type
         editId = id;
         document.getElementById('modal').style.display = 'flex';
-        document.getElementById('modal-title').innerText = `Add Stock - ${product.name}`;
+        document.getElementById('modal-title').innerText = `Add Stock - ${item.name}`;
         document.getElementById('modal-form').reset();
         
         const container = document.getElementById('modal-fields');
         container.innerHTML = `
-            <input type="hidden" name="depotId" value="${product.depotId}">
+            <input type="hidden" name="depotId" value="${item.depotId}">
+            <input type="hidden" name="itemType" value="${type}">
             <div class="form-group">
-                <label>Product Name</label>
-                <input type="text" value="${product.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
+                <label>Item Name</label>
+                <input type="text" value="${item.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
             </div>
             <div class="form-group">
                 <label>Current Stock</label>
-                <input type="number" value="${product.receivedStock || 0}" readonly style="background-color: #f8f9fa; font-weight:bold; color:var(--accent);">
+                <input type="number" value="${item.receivedStock || 0}" readonly style="background-color: #f8f9fa; font-weight:bold; color:var(--accent);">
             </div>
             <div class="form-group">
                 <label style="color:var(--warning);">Stock to Add (This Month)</label>
@@ -2932,23 +2933,29 @@
             return; 
         }
 
-        // Handle Add Stock
-        if(editType === 'addStock') {
+        // Handle Add Stock (Prod or Gift)
+        if(editType === 'addStockProd' || editType === 'addStockGift') {
             const addedStock = Number(obj.stockToAdd);
-            const product = data.prods.find(p => p.id === editId);
-            if(!product || addedStock <= 0) return showToast("Invalid input");
+            const type = obj.itemType; // 'prod' or 'gift'
             
-            const depotId = product.depotId;
-            const currentTotal = Number(product.receivedStock || 0);
-            const currentMonthly = Number(product.receivedThisMonth || 0);
+            let item;
+            if (type === 'prod') item = data.prods.find(p => p.id === editId);
+            else item = data.gifts.find(g => g.id === editId);
             
-            // Update both Total Stock and Monthly Received
+            if(!item || addedStock <= 0) return showToast("Invalid input");
+            
+            const depotId = item.depotId;
+            const currentTotal = Number(item.receivedStock || 0);
+            const currentMonthly = Number(item.receivedThisMonth || 0);
+            
             const updateObj = {
                 receivedStock: currentTotal + addedStock,
                 receivedThisMonth: currentMonthly + addedStock
             };
 
-            update(ref(db, `depots/${depotId}/products/${editId}`), updateObj)
+            const path = type === 'prod' ? `depots/${depotId}/products/${editId}` : `depots/${depotId}/gifts/${editId}`;
+            
+            update(ref(db, path), updateObj)
                 .then(() => { showToast(`Stock Added! Total: ${updateObj.receivedStock}`); closeModal(); })
                 .catch(err => showToast("Error: " + err.message));
             return; 
