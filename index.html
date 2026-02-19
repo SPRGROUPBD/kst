@@ -261,7 +261,7 @@
         @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
         /* PRINT STYLES */
-        #print-area, #print-stock-area { display: none; }
+        #print-area, #print-stock-area, #print-handover-area { display: none; }
         
         @media print {
             @page { size: A4; margin: 10mm; }
@@ -272,7 +272,7 @@
                 overflow: hidden; 
             }
             
-            #print-area, #print-area *, #print-stock-area, #print-stock-area * { 
+            #print-area, #print-area *, #print-stock-area, #print-stock-area *, #print-handover-area, #print-handover-area * { 
                 visibility: visible; 
                 height: auto; 
                 overflow: visible; 
@@ -283,7 +283,7 @@
                 box-shadow: none !important;
             }
 
-            #print-area, #print-stock-area { 
+            #print-area, #print-stock-area, #print-handover-area { 
                 position: absolute; 
                 left: 0; top: 0; width: 100%; 
                 display: block; 
@@ -386,6 +386,57 @@
                 font-family: var(--print-font-family) !important;
                 text-decoration: underline; 
             }
+            
+            /* HAND OVER CHALLAN PRINT STYLE */
+            .ho-container {
+                font-family: 'Courier New', Courier, monospace;
+                padding: 20px;
+                color: #000;
+            }
+            .ho-header-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                font-size: 12pt;
+            }
+            .ho-title {
+                text-align: center;
+                font-size: 18pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+            }
+            .ho-sep {
+                border-top: 2px dashed #000;
+                margin: 10px 0;
+            }
+            .ho-items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                font-size: 11pt;
+            }
+            .ho-items-table th, .ho-items-table td {
+                border: 1px solid #000;
+                padding: 4px;
+                text-align: left;
+            }
+            .ho-items-table th {
+                text-align: center;
+                font-weight: bold;
+            }
+            .ho-total-row {
+                font-weight: bold;
+                font-size: 12pt;
+                margin-top: 10px;
+                text-align: right;
+            }
+            .ho-signatures {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 50px;
+                font-size: 11pt;
+            }
         }
     </style>
 </head>
@@ -422,7 +473,10 @@
         <button onclick="window.nav('categoryView')"><i class="fa-solid fa-list"></i> Categories</button>
         <button onclick="window.nav('generator')"><i class="fa-solid fa-box-open"></i> Product</button>
         <button onclick="window.nav('giftGenerator')" style="color:var(--purple)"><i class="fa-solid fa-gift"></i> Gift</button>
-        <button onclick="window.nav('manualGenerator')" style="color:var(--warning)"><i class="fa-solid fa-pen-to-square"></i> Manual Challan</button>
+        <button onclick="window.nav('manualGenerator')" style="color:var(--warning)"><i class="fa-solid fa-pen-to-square"></i> Manual</button>
+        <!-- NEW HAND OVER BUTTON -->
+        <button onclick="window.nav('handOver')" style="color:var(--teal)"><i class="fa-solid fa-hand-holding-hand"></i> Hand Over</button>
+        
         <button onclick="window.nav('challans')"><i class="fa-solid fa-file-invoice"></i> Challans</button>
         <button onclick="window.nav('management')" id="nav-mgmt"><i class="fa-solid fa-cogs"></i> Management</button>
         <button onclick="window.nav('reports')"><i class="fa-solid fa-warehouse"></i> Stock</button>
@@ -467,7 +521,11 @@
             <i class="fa-solid fa-gift" style="color:var(--purple)"></i> Gift
         </button>
         <button class="mobile-link-btn" onclick="window.nav('manualGenerator'); window.toggleMobileMenu()">
-            <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Manual Challan
+            <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Manual
+        </button>
+        <!-- NEW HAND OVER MOBILE LINK -->
+        <button class="mobile-link-btn" onclick="window.nav('handOver'); window.toggleMobileMenu()">
+            <i class="fa-solid fa-hand-holding-hand" style="color:var(--teal)"></i> Hand Over
         </button>
         <button class="mobile-link-btn" onclick="window.nav('challans'); window.toggleMobileMenu()">
             <i class="fa-solid fa-file-invoice"></i> Challans
@@ -723,6 +781,38 @@
         </div>
     </section>
 
+    <!-- HAND OVER CHALLAN SECTION -->
+    <section id="handOver" class="section">
+        <h2><i class="fa-solid fa-hand-holding-hand"></i> Hand Over Challan</h2>
+        <p style="color:#7f8c8d; margin-top:-10px; margin-bottom: 20px;">Transfer stock to a specific Area, Depot, or Destination. Stock will be deducted.</p>
+        
+        <div class="split-view">
+            <div class="panel">
+                <div class="panel-header"><h3>Transfer Details</h3></div>
+                <div class="form-group">
+                    <label>From Depot</label>
+                    <input type="text" id="ho-from-depot" readonly style="background:#eee; font-weight:bold;">
+                </div>
+                <div class="form-group">
+                    <label>To Area / Depot / Destination</label>
+                    <select id="ho-to-area"><option value="">-- Select Destination --</option></select>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top:15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <strong>Total Qty: <span id="ho-total-qty">0</span></strong>
+                    <button class="btn btn-teal" onclick="window.generateHandOverChallan()" id="btn-gen-ho" disabled style="background:var(--teal)"><i class="fa-solid fa-print"></i> Generate & Print</button>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>All Items (Prod & Gift) - Closing Stock</h3>
+                    <div style="font-size:0.85rem; color:#666;">Enter Qty to hand over.</div>
+                </div>
+                <div id="ho-product-list-container" style="max-height: 600px; overflow-y: auto; border: 1px solid var(--light); border-radius: 4px;"></div>
+            </div>
+        </div>
+    </section>
+
     <!-- CHALLANS LIST SECTION -->
     <section id="challans" class="section">
         <h2><i class="fa-solid fa-file-invoice"></i> Challan History</h2>
@@ -755,6 +845,7 @@
                             <option value="Product">Product</option>
                             <option value="Gift">Gift</option>
                             <option value="Manual">Manual</option>
+                            <option value="Hand Over">Hand Over</option>
                         </select>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px;">
@@ -974,7 +1065,7 @@
 <!-- TOAST NOTIFICATION -->
 <div id="toast">Message</div>
 
-<!-- CHALLAN PRINT AREA -->
+<!-- STANDARD CHALLAN PRINT AREA -->
 <div id="print-area">
     <div class="print-title">SAMPLE/GIFT/PPM ISSUED INFO</div>
     
@@ -1032,6 +1123,56 @@
         <div style="width: 33%; text-align: right;">
             <div style="border-bottom: 1px solid #000; height: 40px; margin-bottom: 5px;"></div>
             <div style="font-weight: bold; font-size: 12px; text-transform: uppercase;">Sign By Depot In-charge</div>
+        </div>
+    </div>
+</div>
+
+<!-- HAND OVER CHALLAN PRINT AREA -->
+<div id="print-handover-area">
+    <div class="ho-container">
+        <!-- Center Header -->
+        <div class="ho-title">HAND OVER CHALLAN</div>
+        <div class="ho-sep"></div>
+        
+        
+        <!-- Row 1 -->
+        <div class="ho-header-row">
+            <div>Challan No: <span id="ho-p-no"></span></div>
+            <div>Date: <span id="ho-p-date"></span></div>
+        </div>
+        
+        <!-- Row 2 -->
+        <div class="ho-header-row">
+            <div>From: <span id="ho-p-from"></span></div>
+            <div>To: <span id="ho-p-to"></span></div>
+        </div>
+       <div class="ho-sep"></div>
+        <!-- Items Table -->
+        <table class="ho-items-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ITEM ID</th>
+                    <th>ITEM NAME</th>
+                    <th>PACK SIZE</th>
+                    <th>QUANTITY</th>
+                    <th>UNIT</th>
+                </tr>
+            </thead>
+            <tbody id="ho-p-items"></tbody>
+        </table>
+       
+        
+        <!-- Total Row -->
+        <div class="ho-total-row">
+            Total Qty: <span id="ho-p-total"></span>
+        </div>
+
+
+        <!-- Signatures -->
+        <div class="ho-signatures">
+            <div>Handed Over By: __________</div>
+            <div>Received By: __________</div>
         </div>
     </div>
 </div>
@@ -1099,7 +1240,7 @@
     let giftListeners = []; 
 
     let data = {
-        mpos: [], das: [], prods: [], gifts: [], challans: [], users: []
+        mpos: [], das: [], prods: [], gifts: [], challans: [], users: [], handovers: []
     };
     
     let currentMPO = null;
@@ -1107,6 +1248,7 @@
     let selectedGifts = new Set();
     let selectedMpoForDialog = null;
     let manualSelections = {}; 
+    let handOverSelections = {}; 
 
     let editType = null; 
     let editId = null;
@@ -1241,6 +1383,7 @@
         listen('das', 'das');
         listen('challans', 'challans');
         listen('users', 'users');
+        listen('handovers', 'handovers'); // Listener for Hand Overs
 
         initProductListeners();
         initGiftListeners();
@@ -1435,6 +1578,27 @@
         window.renderCategoryView(activeMpos);
         window.renderStockReport(fProds, fGifts, fChallans);
 
+        // Populate Hand Over Dropdowns
+        const hoDepotInput = document.getElementById('ho-from-depot');
+        if(currentUser.role === 'admin') hoDepotInput.value = currentDepotFilter === 'ALL' ? 'All Depots' : currentDepotFilter;
+        else hoDepotInput.value = currentUser.depotId;
+
+        const hoAreaSelect = document.getElementById('ho-to-area');
+        const currentHoArea = hoAreaSelect.value;
+        hoAreaSelect.innerHTML = '<option value="">-- Select Destination --</option>';
+        
+        // Add Areas
+        const uniqueAreas = new Set(activeMpos.map(m => m.area).filter(a => a));
+        Array.from(uniqueAreas).sort().forEach(area => {
+            hoAreaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+        });
+        // Add Depots as Destinations
+        hoAreaSelect.innerHTML += '<option disabled>──────────</option>';
+        Array.from(allDepots).sort().forEach(depot => {
+             hoAreaSelect.innerHTML += `<option value="${depot}">${depot} (Depot)</option>`;
+        });
+        hoAreaSelect.value = currentHoArea;
+
         if(currentUser.role === 'admin') {
             const select = document.getElementById('global-depot-filter');
             const currentVal = select.value;
@@ -1452,6 +1616,11 @@
         
         const manualMpoId = document.getElementById('manual-mpo').value;
         if(manualMpoId) window.loadManualMPODetails();
+        
+        // Refresh Hand Over items if data changed
+        if(document.getElementById('handOver').classList.contains('active')) {
+            window.loadHandOverItems();
+        }
     }
 
     window.populateStatsFilters = function() {
@@ -1525,6 +1694,7 @@
 
         if(id === 'reports') window.renderStockReport(data.prods, data.gifts, getFilteredData(data.challans));
         if(id === 'challans') window.renderChallans(getFilteredData(data.challans), getFilteredData(data.mpos));
+        if(id === 'handOver') window.loadHandOverItems();
     };
 
     window.showMgmt = function(type) {
@@ -1644,6 +1814,173 @@
         filterSel.value = currentFilter;
     };
 
+    // --- Helper: Calculate Stock ---
+    function getItemClosingStock(item) {
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        let used = 0;
+        
+        // Filter strictly by the item's depot to ensure accuracy regardless of global filter
+        const itemChallans = data.challans.filter(c => c.depotId === item.depotId);
+        const itemHandovers = data.handovers.filter(c => c.depotId === item.depotId);
+
+        // Calculate Used in Regular Challans
+        itemChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(i => {
+                    if(i.id === item.id) used += parseInt(i.issueQty || 0);
+                });
+            }
+        });
+
+        // Calculate Used in Hand Overs
+        itemHandovers.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(i => {
+                    if(i.id === item.id) used += parseInt(i.issueQty || 0);
+                });
+            }
+        });
+
+        const opening = Number(item.openingStock || 0);
+        const received = Number(item.receivedThisMonth || 0);
+        return opening + received - used;
+    }
+
+    // --- HAND OVER LOGIC ---
+    window.loadHandOverItems = function() {
+        const container = document.getElementById('ho-product-list-container');
+        container.innerHTML = '';
+        handOverSelections = {}; 
+        updateCount('handover');
+
+        // Combine and Sort Prods and Gifts
+        const allItems = [...data.prods, ...data.gifts].filter(p => p.isActive !== false);
+
+        allItems.forEach(p => {
+            const closing = getItemClosingStock(p);
+            
+            const div = document.createElement('div');
+            div.className = 'product-list-item';
+            div.innerHTML = `
+                <div class="product-list-info">
+                    <strong>${p.name} (${p.id})</strong>
+                    <span>Pack: ${p.pack} | Type: ${data.prods.includes(p) ? 'Product' : 'Gift'}</span>
+                </div>
+                <div style="font-weight:bold; color:var(--teal); margin-right:10px;">Closing: ${closing}</div>
+                <input type="number" min="0" class="manual-qty-input" placeholder="0" max="${closing}" onchange="window.updateHandOverSelection('${p.id}', this.value, '${data.prods.includes(p) ? 'prod' : 'gift'}')">
+            `;
+            container.appendChild(div);
+        });
+    };
+
+    window.updateHandOverSelection = function(id, qty, type) {
+        const q = parseInt(qty);
+        if (q && q > 0) handOverSelections[id] = { qty: q, type: type };
+        else delete handOverSelections[id];
+        updateCount('handover');
+    };
+
+    window.generateHandOverChallan = function() {
+        const toArea = document.getElementById('ho-to-area').value;
+        const fromDepot = document.getElementById('ho-from-depot').value;
+        
+        if(!toArea) return showToast("Please select a destination.");
+        if(Object.keys(handOverSelections).length === 0) return showToast("Please add items.");
+
+        const itemsArray = [];
+        
+        for (const [pid, val] of Object.entries(handOverSelections)) {
+            const sourceData = (val.type === 'gift') ? data.gifts : data.prods;
+            const p = sourceData.find(x => x.id === pid);
+            if(p) itemsArray.push({ ...p, issueQty: val.qty });
+        }
+
+        const dateObj = new Date();
+        const year = dateObj.getFullYear();
+        const month = ("0" + (dateObj.getMonth() +1)).slice(-2);
+        
+        let depotCode = "HO"; 
+        let assignedDepotId = currentUser.depotId; 
+        
+        if (currentUser.role === 'admin') assignedDepotId = currentDepotFilter === 'ALL' ? 'HQ' : currentDepotFilter;
+        if(assignedDepotId && assignedDepotId !== 'ALL') depotCode = assignedDepotId.substring(0, 2).toUpperCase();
+
+        const dateCode = `${year}${month}`;
+        const basePrefix = `HO-${dateCode}`;
+        
+        let maxSerial = 0;
+        if(data.handovers) {
+            data.handovers.forEach(c => { 
+                if(c.id && c.id.startsWith(basePrefix)) {
+                    const serial = parseInt(c.id.slice(-4));
+                    if(!isNaN(serial) && serial > maxSerial) maxSerial = serial;
+                }
+            });
+        }
+
+        const newSerial = maxSerial + 1;
+        const serialStr = newSerial.toString().padStart(4, '0');
+        const challanNo = `${basePrefix}-${serialStr}`;
+
+        const newChallan = {
+            id: challanNo,
+            date: dateObj.toLocaleDateString('en-GB'),
+            timestamp: Date.now(),
+            type: 'Hand Over',
+            from: fromDepot,
+            to: toArea,
+            items: itemsArray,
+            depotId: assignedDepotId
+        };
+
+        push(ref(db, 'handovers'), newChallan).then(() => {
+            showToast("Hand Over Challan Generated!");
+            
+            window.printHandOverChallan(newChallan);
+            handOverSelections = {};
+            window.loadHandOverItems();
+        }).catch(err => showToast("Error: " + err.message));
+    };
+
+    window.printHandOverChallan = function(c) {
+        document.getElementById('print-area').style.display = 'none';
+        document.getElementById('print-stock-area').style.display = 'none';
+        document.getElementById('print-handover-area').style.display = 'block';
+
+        document.getElementById('ho-p-no').innerText = c.id;
+        document.getElementById('ho-p-date').innerText = c.date;
+        document.getElementById('ho-p-from').innerText = c.from;
+        document.getElementById('ho-p-to').innerText = c.to;
+
+        const tbody = document.getElementById('ho-p-items');
+        tbody.innerHTML = '';
+        let total = 0;
+        let totalUnit = "pcs";
+        c.items.forEach((item, index) => {
+            total += parseInt(item.issueQty || 0);
+            if(item.unit) totalUnit = item.unit;
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:center">${index+1}</td>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td style="text-align:center">${item.pack}</td>
+                    <td style="text-align:center">${item.issueQty}</td>
+                    <td style="text-align:center">${item.unit || '-'}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('ho-p-total').innerText = `${total} ${totalUnit}`;
+
+        window.print();
+    };
+    // --- END HAND OVER ---
+
+    // --- Continue with remaining logic (Standard Challans, Management, etc) ---
+    
     window.loadMPODetails = function() {
         const id = document.getElementById('gen-mpo').value;
         const fMpos = getFilteredData(data.mpos).filter(m => m.isActive !== false);
@@ -1824,6 +2161,10 @@
             const count = Object.keys(manualSelections).length;
             document.getElementById('manual-total-items').innerText = count;
             document.getElementById('btn-gen-manual').disabled = count === 0;
+        } else if(type === 'handover') {
+            const total = Object.values(handOverSelections).reduce((a, b) => a + b.qty, 0);
+            document.getElementById('ho-total-qty').innerText = total;
+            document.getElementById('btn-gen-ho').disabled = total === 0;
         }
     }
 
@@ -1835,7 +2176,7 @@
         document.getElementById('gen-mpo-gift').value = "";
         loadGiftMPODetails();
     };
-
+    
     window.loadManualMPODetails = function() {
         const id = document.getElementById('manual-mpo').value;
         const type = document.getElementById('manual-type-selector').value; 
@@ -2091,15 +2432,20 @@
     }
 
     window.viewChallanDetails = function(key) {
-        const c = data.challans.find(x => x.key === key);
+        let c = data.challans.find(x => x.key === key);
+        let isHandover = false;
+        if(!c) {
+            c = data.handovers.find(x => x.key === key);
+            isHandover = true;
+        }
         if(!c) return;
 
         const da = data.das.find(d => d.id === c.daId) || {name: 'N/A'};
         
-        document.getElementById('vc-mpo-name').innerText = c.mpoName;
-        document.getElementById('vc-mpo-id').innerText = c.mpoId;
-        document.getElementById('vc-territory').innerText = c.mpoTerritory;
-        document.getElementById('vc-da-name').innerText = da.name;
+        document.getElementById('vc-mpo-name').innerText = isHandover ? c.to : c.mpoName;
+        document.getElementById('vc-mpo-id').innerText = isHandover ? '-' : c.mpoId;
+        document.getElementById('vc-territory').innerText = isHandover ? `From: ${c.from}` : c.mpoTerritory;
+        document.getElementById('vc-da-name').innerText = isHandover ? '-' : da.name;
         document.getElementById('vc-date').innerText = c.date;
         document.getElementById('vc-type').innerText = c.type + (c.isManual ? " (Manual)" : "");
 
@@ -2120,7 +2466,8 @@
         const printBtn = document.getElementById('vc-print-btn');
         printBtn.onclick = function() {
             document.getElementById('view-challan-modal').style.display = 'none';
-            window.printChallan(key, c.type);
+            if(isHandover) window.printHandOverChallan(c);
+            else window.printChallan(key, c.type);
         };
 
         document.getElementById('view-challan-modal').style.display = 'flex';
@@ -2137,6 +2484,7 @@
         const depot = c.depotId || 'HQ';
 
         document.getElementById('print-stock-area').style.display = 'none';
+        document.getElementById('print-handover-area').style.display = 'none';
         document.getElementById('print-area').style.display = 'block';
 
         document.getElementById('p-mpo-id').innerText = c.mpoId;
@@ -2200,7 +2548,12 @@
         
         const typeFilter = document.getElementById('filter-type').value;
 
-        const list = fChallans.filter(c => {
+        let allRecords = [...fChallans, ...data.handovers.filter(h => {
+            if(currentUser.role === 'admin' && currentDepotFilter === 'ALL') return true;
+            return h.depotId === currentDepotFilter;
+        })];
+
+        const list = allRecords.filter(c => {
             const matchesMPO = !mpoFilter || c.mpoId === mpoFilter;
             const matchesDepot = !depotFilter || c.depotId === depotFilter;
             const matchesChallan = !challanFilter || c.id.toLowerCase().includes(challanFilter);
@@ -2215,17 +2568,15 @@
 
             let matchesType = true;
             if (typeFilter) {
-                if (typeFilter === 'Manual') {
-                    matchesType = c.isManual === true;
-                } else {
-                    matchesType = !c.isManual && c.type === typeFilter;
-                }
+                if (typeFilter === 'Manual') matchesType = c.isManual === true;
+                else if (typeFilter === 'Hand Over') matchesType = c.type === 'Hand Over';
+                else matchesType = !c.isManual && c.type === typeFilter;
             }
 
             return matchesMPO && matchesDepot && matchesChallan && matchesCategory && matchesDate && matchesType;
         }).sort((a, b) => {
-            const areaA = (a.mpoArea || '').toLowerCase();
-            const areaB = (b.mpoArea || '').toLowerCase();
+            const areaA = (a.mpoArea || a.to || '').toLowerCase();
+            const areaB = (b.mpoArea || b.to || '').toLowerCase();
             if (areaA < areaB) return -1;
             if (areaA > areaB) return 1;
             return b.timestamp - a.timestamp;
@@ -2251,7 +2602,7 @@
                                     <th width="80">Type</th>
                                     <th>Challan No</th>
                                     <th>Date</th>
-                                    <th>MPO Name</th>
+                                    <th>MPO / To</th>
                                     <th>Area</th>
                                     <th width="60">Items</th>
                                     <th width="200">Actions</th>
@@ -2260,24 +2611,34 @@
                             <tbody>`;
                 
                 list.forEach(c => {
-                    const da = data.das.find(d => d.id === c.daId) || {name:'N/A'};
                     let typeBadge = '';
-                    if(c.isManual) typeBadge = '<span style="background:var(--warning); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Manual</span>';
-                    else if (c.type === 'Gift') typeBadge = '<span style="background:var(--purple); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Gift</span>';
-                    else typeBadge = '<span style="background:var(--accent); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Prod</span>';
+                    let displayName = c.mpoName || '-';
+                    let displayArea = c.mpoArea || '-';
+                    
+                    if (c.type === 'Hand Over') {
+                        typeBadge = '<span style="background:var(--teal); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Hand Over</span>';
+                        displayName = `To: ${c.to}`;
+                        displayArea = `From: ${c.from}`;
+                    } else if(c.isManual) {
+                        typeBadge = '<span style="background:var(--warning); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Manual</span>';
+                    } else if (c.type === 'Gift') {
+                        typeBadge = '<span style="background:var(--purple); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Gift</span>';
+                    } else {
+                        typeBadge = '<span style="background:var(--accent); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Prod</span>';
+                    }
                     
                     html += `
                         <tr>
                             <td>${typeBadge}</td>
                             <td style="font-family:monospace; font-weight:bold;">${c.id}</td>
                             <td>${c.date}</td>
-                            <td>${c.mpoName}</td>
-                            <td>${c.mpoArea || '-'}</td>
+                            <td>${displayName}</td>
+                            <td>${displayArea}</td>
                             <td style="text-align:center">${c.items.length}</td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" onclick="window.viewChallanDetails('${c.key}')" title="View Items"><i class="fa-solid fa-eye"></i></button>
                                 <button class="btn btn-sm btn-primary" onclick="window.printChallan('${c.key}', '${c.type}')" title="Print"><i class="fa-solid fa-print"></i></button>
-                                <button class="btn btn-sm btn-danger" onclick="window.deleteChallan('${c.key}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="window.deleteChallan('${c.key}', '${c.type}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>`;
                 });
@@ -2285,12 +2646,14 @@
                 contentArea.innerHTML = html;
 
             } else {
+                // MONTH WISE VIEW
                 const groupedByMonth = {};
                 list.forEach(c => {
                     const dateObj = new Date(c.timestamp);
                     const monthKey = dateObj.toLocaleString('en-GB', { month: 'long', year: 'numeric' }); 
                     if (!groupedByMonth[monthKey]) groupedByMonth[monthKey] = [];
-                    groupedByMonth[monthKey].push(c);                });
+                    groupedByMonth[monthKey].push(c);
+                });
 
                 const sortedMonths = Object.keys(groupedByMonth).sort((a,b) => {
                     const d1 = new Date(a); 
@@ -2314,7 +2677,7 @@
                                             <th width="80">Type</th>
                                             <th>Challan No</th>
                                             <th>Date</th>
-                                            <th>MPO Name</th>
+                                            <th>MPO / To</th>
                                             <th>Area</th>
                                             <th width="60">Items</th>
                                             <th width="200">Actions</th>
@@ -2323,24 +2686,34 @@
                                     <tbody>`;
                     
                     monthChallans.forEach(c => {
-                        const da = data.das.find(d => d.id === c.daId) || {name:'N/A'};
                         let typeBadge = '';
-                        if(c.isManual) typeBadge = '<span style="background:var(--warning); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Manual</span>';
-                        else if (c.type === 'Gift') typeBadge = '<span style="background:var(--purple); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Gift</span>';
-                        else typeBadge = '<span style="background:var(--accent); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Prod</span>';
+                        let displayName = c.mpoName || '-';
+                        let displayArea = c.mpoArea || '-';
+
+                        if (c.type === 'Hand Over') {
+                            typeBadge = '<span style="background:var(--teal); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Hand Over</span>';
+                            displayName = `To: ${c.to}`;
+                            displayArea = `From: ${c.from}`;
+                        } else if(c.isManual) {
+                            typeBadge = '<span style="background:var(--warning); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Manual</span>';
+                        } else if (c.type === 'Gift') {
+                            typeBadge = '<span style="background:var(--purple); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Gift</span>';
+                        } else {
+                            typeBadge = '<span style="background:var(--accent); color:white; padding:4px 8px; border-radius:12px; font-size:0.75rem;">Prod</span>';
+                        }
 
                         html += `
                             <tr>
                                 <td>${typeBadge}</td>
                                 <td style="font-family:monospace; font-weight:bold;">${c.id}</td>
                                 <td>${c.date}</td>
-                                <td>${c.mpoName}</td>
-                                <td>${c.mpoArea || '-'}</td>
+                                <td>${displayName}</td>
+                                <td>${displayArea}</td>
                                 <td style="text-align:center">${c.items.length}</td>
                                 <td>
                                     <button class="btn btn-sm btn-secondary" onclick="window.viewChallanDetails('${c.key}')" title="View Items"><i class="fa-solid fa-eye"></i></button>
                                     <button class="btn btn-sm btn-primary" onclick="window.printChallan('${c.key}', '${c.type}')" title="Print"><i class="fa-solid fa-print"></i></button>
-                                    <button class="btn btn-sm btn-danger" onclick="window.deleteChallan('${c.key}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="window.deleteChallan('${c.key}', '${c.type}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>`;
                     });
@@ -2351,218 +2724,14 @@
         }
     };
 
-    window.deleteChallan = function(key) {
-        if(confirm('Delete this challan?')) remove(ref(db, 'challans/' + key)).then(() => showToast("Challan Deleted"));
-    };
-
-    // --- STOCK LOGIC START ---
-    window.renderStockReport = function(fProds, fGifts, fChallans) {
-        const table = document.getElementById('stock-report-table');
-        table.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Unit</th><th>Opening</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead>`;
+    window.deleteChallan = function(key, type) {
+        if(!confirm('Delete this record?')) return;
         
-        const allItems = [...fProds, ...fGifts];
-        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        let path = '';
+        if (type === 'Hand Over') path = 'handovers/' + key;
+        else path = 'challans/' + key;
 
-        // Calculate Used Quantities for Current Month
-        let monthlyUsage = {};
-        fChallans.forEach(c => {
-            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
-            if(cDate === currentMonth) {
-                if(c.items) {
-                    c.items.forEach(item => {
-                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
-                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
-                    });
-                }
-            }
-        });
-
-        allItems.forEach(p => {
-            const opening = Number(p.openingStock || 0);
-            const received = Number(p.receivedThisMonth || 0);
-            const used = monthlyUsage[p.id] || 0;
-            const closing = opening + received - used;
-
-            table.innerHTML += `<tr>
-                <td>${p.id}</td>
-                <td>${p.name}</td>
-                <td>${p.pack}</td>
-                <td>${p.unit}</td>
-                <td>${opening}</td>
-                <td>${received}</td>
-                <td>${used}</td>
-                <td style="font-weight:bold; color:${closing < 0 ? 'red' : 'green'}">${closing}</td>
-            </tr>`;
-        });
-    };
-
-    window.closeMonth = function() {
-        if(!confirm('Are you sure you want to Close Month? This will:\n1. Set Closing Stock as new Opening Stock.\n2. Reset Monthly Received to 0.')) return;
-        
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        const fChallans = getFilteredData(data.challans);
-        const fProds = data.prods;
-        const fGifts = data.gifts;
-
-        // Recalculate usage for safety
-        let monthlyUsage = {};
-        fChallans.forEach(c => {
-            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
-            if(cDate === currentMonth) {
-                if(c.items) {
-                    c.items.forEach(item => {
-                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
-                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
-                    });
-                }
-            }
-        });
-
-        const updates = [];
-        const allItems = [...fProds, ...fGifts];
-
-        allItems.forEach(p => {
-            const opening = Number(p.openingStock || 0);
-            const received = Number(p.receivedThisMonth || 0);
-            const used = monthlyUsage[p.id] || 0;
-            const closing = opening + received - used;
-
-            // Prepare update object
-            const updateObj = {
-                openingStock: closing, // New Opening
-                receivedThisMonth: 0,  // Reset Received
-                // Keep other data intact
-                name: p.name,
-                pack: p.pack,
-                unit: p.unit,
-                qtyA: p.qtyA,
-                qtyB: p.qtyB,
-                qtyC: p.qtyC,
-                qtyD: p.qtyD,
-                qtyE: p.qtyE,
-                isActive: p.isActive
-            };
-
-            // Determine path
-            let path = '';
-            if(fProds.includes(p)) path = `depots/${p.depotId}/products/${p.id}`;
-            else path = `depots/${p.depotId}/gifts/${p.id}`;
-
-            updates.push(update(ref(db, path), updateObj));
-        });
-
-        Promise.all(updates).then(() => {
-            showToast("Month Closed Successfully!");
-            window.renderStockReport(data.prods, data.gifts, getFilteredData(data.challans));
-        }).catch(err => showToast("Error: " + err.message));
-    };
-    // --- STOCK LOGIC END ---
-
-    window.exportStockToExcel = function() {
-        const fProds = data.prods; 
-        const fGifts = data.gifts;
-        const fChallans = getFilteredData(data.challans);
-        const currentMonth = new Date().toISOString().slice(0, 7);
-
-        let monthlyUsage = {};
-        fChallans.forEach(c => {
-            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
-            if(cDate === currentMonth) {
-                if(c.items) {
-                    c.items.forEach(item => {
-                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
-                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
-                    });
-                }
-            }
-        });
-
-        const exportData = [];
-        const allItems = [...fProds, ...fGifts];
-
-        allItems.forEach(p => {
-            const type = fProds.includes(p) ? 'Product' : 'Gift';
-            const opening = Number(p.openingStock || 0);
-            const received = Number(p.receivedThisMonth || 0);
-            const used = monthlyUsage[p.id] || 0;
-            const closing = opening + received - used;
-
-            exportData.push({
-                "ID": p.id,
-                "Name": p.name,
-                "Type": type,
-                "Pack": p.pack,
-                "Unit": p.unit,
-                "Opening": opening,
-                "Received": received,
-                "Used": used,
-                "Closing": closing
-            });
-        });
-
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
-
-        const dateStr = new Date().toISOString().slice(0,10);
-        XLSX.writeFile(wb, `Stock_Report_${dateStr}.xlsx`);
-        
-        showToast("Stock Report Exported to Excel");
-    };
-
-    window.printStockReport = function() {
-        document.getElementById('print-area').style.display = 'none';
-        const stockPrintArea = document.getElementById('print-stock-area');
-        stockPrintArea.style.display = 'block';
-
-        const depotText = currentUser.role === 'admin' && currentDepotFilter === 'ALL' ? 'ALL DEPOTS' : currentDepotFilter;
-        document.getElementById('sp-depot').innerText = depotText || 'ALL';
-        document.getElementById('sp-date').innerText = new Date().toLocaleDateString('en-GB');
-
-        const fProds = data.prods; 
-        const fGifts = data.gifts;
-        const fChallans = getFilteredData(data.challans);
-        const currentMonth = new Date().toISOString().slice(0, 7);
-
-        let monthlyUsage = {};
-        fChallans.forEach(c => {
-            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
-            if(cDate === currentMonth) {
-                if(c.items) {
-                    c.items.forEach(item => {
-                        if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
-                        else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
-                    });
-                }
-            }
-        });
-
-        const printTbody = document.getElementById('sp-table-body');
-        printTbody.innerHTML = '';
-
-        const allItems = [...fProds, ...fGifts];
-
-        allItems.forEach(p => {
-            const opening = Number(p.openingStock || 0);
-            const received = Number(p.receivedThisMonth || 0);
-            const used = monthlyUsage[p.id] || 0;
-            const closing = opening + received - used;
-
-            printTbody.innerHTML += `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${p.pack}</td>
-                    <td>${p.unit}</td>
-                    <td>${opening}</td>
-                    <td>${received}</td>
-                    <td>${used}</td>
-                    <td>${closing}</td>
-                </tr>
-            `;
-        });
-        
-        window.print();
+        remove(ref(db, path)).then(() => showToast("Record Deleted"));
     };
 
     // MANAGEMENT TABLES RENDERING
@@ -2651,7 +2820,6 @@
         filteredProds.forEach(p => {
             const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            // ACTION BUTTONS FOR PRODUCT
             const btnEditCat = `<button class="btn btn-sm btn-cyan" onclick="window.openModal('editCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
             const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('prod','${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
 
@@ -2684,7 +2852,6 @@
         filteredGifts.forEach(p => {
             const statusBadge = (p.isActive === false || p.isActive === 'false') ? '<span style="color:red; font-weight:bold;">Inactive</span>' : '<span style="color:var(--success); font-weight:bold;">Active</span>';
             
-            // ACTION BUTTONS FOR GIFT (As Requested)
             const btnEditCat = `<button class="btn btn-sm btn-purple" onclick="window.openModal('editGiftCategory','${p.id}')" title="Edit Category"><i class="fa-solid fa-layer-group"></i></button>`;
             const btnAddStock = `<button class="btn btn-sm btn-warning" onclick="window.openAddStockModal('gift','${p.id}')" title="Add Stock"><i class="fa-solid fa-plus"></i></button>`;
 
@@ -2743,7 +2910,6 @@
         update(ref(db, `depots/${gift.depotId}/gifts/${id}`), { isActive: newStatus }).then(() => showToast("Gift status updated")).catch(err => showToast("Error"));
     }
 
-    // Updated to handle both prod and gift
     window.openAddStockModal = function(type, id) {
         let item;
         if (type === 'prod') item = data.prods.find(p => p.id === id);
@@ -2751,12 +2917,15 @@
         
         if (!item) return;
 
-        editType = 'addStock' + (type === 'gift' ? 'Gift' : 'Prod'); // distinguish type
+        editType = 'addStock' + (type === 'gift' ? 'Gift' : 'Prod');
         editId = id;
         document.getElementById('modal').style.display = 'flex';
         document.getElementById('modal-title').innerText = `Add Stock - ${item.name}`;
         document.getElementById('modal-form').reset();
         
+        // Calculate real closing stock
+        const closingStock = getItemClosingStock(item);
+
         const container = document.getElementById('modal-fields');
         container.innerHTML = `
             <input type="hidden" name="depotId" value="${item.depotId}">
@@ -2766,8 +2935,8 @@
                 <input type="text" value="${item.name}" readonly style="background-color: #f8f9fa; font-weight:bold;">
             </div>
             <div class="form-group">
-                <label>Current Stock</label>
-                <input type="number" value="${item.receivedStock || 0}" readonly style="background-color: #f8f9fa; font-weight:bold; color:var(--accent);">
+                <label>Current Closing Stock (Opening + Received - Used)</label>
+                <input type="number" value="${closingStock}" readonly style="background-color: #eaf2f8; font-weight:bold; color:var(--accent); border:2px solid var(--accent);">
             </div>
             <div class="form-group">
                 <label style="color:var(--warning);">Stock to Add (This Month)</label>
@@ -3088,6 +3257,243 @@
             }
         };
         processUpload();
+    };
+
+    // --- STOCK LOGIC ---
+    window.renderStockReport = function(fProds, fGifts, fChallans) {
+        const table = document.getElementById('stock-report-table');
+        table.innerHTML = `<thead><tr><th>ID</th><th>Name</th><th>Pack</th><th>Unit</th><th>Opening</th><th>Received</th><th>Used</th><th>Closing</th></tr></thead>`;
+        
+        const allItems = [...fProds, ...fGifts];
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        // Calculate Used Quantities for Current Month (Regular + Hand Over)
+        let monthlyUsage = {};
+        
+        // Regular Challans
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        // Hand Overs
+        data.handovers.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            // Filter by depot if needed
+            if(currentUser.role !== 'admin' && c.depotId !== currentUser.depotId) return;
+            if(currentUser.role === 'admin' && currentDepotFilter !== 'ALL' && c.depotId !== currentDepotFilter) return;
+
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        allItems.forEach(p => {
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            table.innerHTML += `<tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.pack}</td>
+                <td>${p.unit}</td>
+                <td>${opening}</td>
+                <td>${received}</td>
+                <td>${used}</td>
+                <td style="font-weight:bold; color:${closing < 0 ? 'red' : 'green'}">${closing}</td>
+            </tr>`;
+        });
+    };
+
+    window.closeMonth = function() {
+        if(!confirm('Are you sure you want to Close Month? This will:\n1. Set Closing Stock as new Opening Stock.\n2. Reset Monthly Received to 0.')) return;
+        
+        const fChallans = getFilteredData(data.challans);
+        const fProds = data.prods;
+        const fGifts = data.gifts;
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        // Recalculate usage for safety (Regular + Hand Over)
+        let monthlyUsage = {};
+        
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        data.handovers.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(currentUser.role !== 'admin' && c.depotId !== currentUser.depotId) return;
+            if(currentUser.role === 'admin' && currentDepotFilter !== 'ALL' && c.depotId !== currentDepotFilter) return;
+
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        const updates = [];
+        const allItems = [...fProds, ...fGifts];
+
+        allItems.forEach(p => {
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            const updateObj = {
+                openingStock: closing,
+                receivedThisMonth: 0,
+                name: p.name, pack: p.pack, unit: p.unit,
+                qtyA: p.qtyA, qtyB: p.qtyB, qtyC: p.qtyC, qtyD: p.qtyD, qtyE: p.qtyE,
+                isActive: p.isActive
+            };
+
+            let path = '';
+            if(fProds.includes(p)) path = `depots/${p.depotId}/products/${p.id}`;
+            else path = `depots/${p.depotId}/gifts/${p.id}`;
+
+            updates.push(update(ref(db, path), updateObj));
+        });
+
+        Promise.all(updates).then(() => {
+            showToast("Month Closed Successfully!");
+            window.renderStockReport(data.prods, data.gifts, getFilteredData(data.challans));
+        }).catch(err => showToast("Error: " + err.message));
+    };
+
+    window.exportStockToExcel = function() {
+        const fProds = data.prods; 
+        const fGifts = data.gifts;
+        const fChallans = getFilteredData(data.challans);
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        let monthlyUsage = {};
+        
+        // Regular
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+        
+        // Hand Over
+        data.handovers.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+             if(currentUser.role !== 'admin' && c.depotId !== currentUser.depotId) return;
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        const exportData = [];
+        const allItems = [...fProds, ...fGifts];
+
+        allItems.forEach(p => {
+            const type = fProds.includes(p) ? 'Product' : 'Gift';
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            exportData.push({
+                "ID": p.id, "Name": p.name, "Type": type, "Pack": p.pack, "Unit": p.unit,
+                "Opening": opening, "Received": received, "Used": used, "Closing": closing
+            });
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
+
+        const dateStr = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, `Stock_Report_${dateStr}.xlsx`);
+        
+        showToast("Stock Report Exported to Excel");
+    };
+
+    window.printStockReport = function() {
+        document.getElementById('print-area').style.display = 'none';
+        document.getElementById('print-handover-area').style.display = 'none';
+        const stockPrintArea = document.getElementById('print-stock-area');
+        stockPrintArea.style.display = 'block';
+
+        const depotText = currentUser.role === 'admin' && currentDepotFilter === 'ALL' ? 'ALL DEPOTS' : currentDepotFilter;
+        document.getElementById('sp-depot').innerText = depotText || 'ALL';
+        document.getElementById('sp-date').innerText = new Date().toLocaleDateString('en-GB');
+
+        const fProds = data.prods; 
+        const fGifts = data.gifts;
+        const fChallans = getFilteredData(data.challans);
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        let monthlyUsage = {};
+        fChallans.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+        
+        // Hand Over usage
+        data.handovers.forEach(c => {
+            const cDate = new Date(c.timestamp).toISOString().slice(0, 7);
+            if(currentUser.role !== 'admin' && c.depotId !== currentUser.depotId) return;
+            if(cDate === currentMonth && c.items) {
+                c.items.forEach(item => {
+                    if(monthlyUsage[item.id]) monthlyUsage[item.id] += parseInt(item.issueQty || 0);
+                    else monthlyUsage[item.id] = parseInt(item.issueQty || 0);
+                });
+            }
+        });
+
+        const printTbody = document.getElementById('sp-table-body');
+        printTbody.innerHTML = '';
+
+        const allItems = [...fProds, ...fGifts];
+
+        allItems.forEach(p => {
+            const opening = Number(p.openingStock || 0);
+            const received = Number(p.receivedThisMonth || 0);
+            const used = monthlyUsage[p.id] || 0;
+            const closing = opening + received - used;
+
+            printTbody.innerHTML += `
+                <tr>
+                    <td>${p.id}</td><td>${p.name}</td><td>${p.pack}</td><td>${p.unit}</td>
+                    <td>${opening}</td><td>${received}</td><td>${used}</td><td>${closing}</td>
+                </tr>
+            `;
+        });
+        
+        window.print();
     };
 </script>
 
