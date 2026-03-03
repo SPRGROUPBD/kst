@@ -93,6 +93,11 @@
         .mgmt-header { background-color: #f8f9fa; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 1px solid #dee2e6; }
         .mgmt-body { padding: 10px; }
         
+        /* Approved Bill Summary Styles */
+        .summary-row-ok { background-color: #d4edda; }
+        .summary-row-warn { background-color: #fff3cd; }
+        .summary-row-danger { background-color: #f8d7da; }
+
         @media (max-width: 768px) {
             .btn-sm { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
             .form-control, .form-select { font-size: 0.85rem; }
@@ -131,12 +136,12 @@
         <ul class="nav nav-tabs no-print" id="myTab" role="tablist">
             <!-- Admin Dashboard Tab -->
             <li class="nav-item admin-only" role="presentation">
-                <button class="nav-link active" id="dash-tab" data-bs-toggle="tab" data-bs-target="#dashTab" type="button">Dashboard</button>
+                <button class="nav-link" id="dash-tab" data-bs-toggle="tab" data-bs-target="#dashTab" type="button">Dashboard</button>
             </li>
             
             <!-- User Only: Bill Entry -->
             <li class="nav-item user-only" role="presentation">
-                <button class="nav-link active" id="entry-tab" data-bs-toggle="tab" data-bs-target="#entryTab" type="button">Bill Entry</button>
+                <button class="nav-link" id="entry-tab" data-bs-toggle="tab" data-bs-target="#entryTab" type="button">Bill Entry</button>
             </li>
             
             <!-- Common: History -->
@@ -144,6 +149,11 @@
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
             
+            <!-- NEW: Admin Only Approved Bill Summary -->
+            <li class="nav-item admin-only" role="presentation">
+                <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approvedTab" type="button">Approved Bill</button>
+            </li>
+
             <!-- User Specific Tabs -->
             <li class="nav-item user-only" role="presentation">
                 <button class="nav-link" id="user_notif-tab" data-bs-toggle="tab" data-bs-target="#userNotifTab" type="button">Notifications</button>
@@ -165,7 +175,7 @@
         <div class="tab-content pt-2">
             
             <!-- NEW: ADMIN DASHBOARD TAB -->
-            <div class="tab-pane fade show active" id="dashTab" role="tabpanel">
+            <div class="tab-pane fade" id="dashTab" role="tabpanel">
                 <div class="row mb-3">
                     <!-- Summary Cards -->
                     <div class="col-4">
@@ -297,8 +307,8 @@
                                     <option>Pickup</option>
                                     <option>CNG</option>
                                     <option>Train</option>
-                                    <option>Other</option>
                                     <option>Laber</option>
+                                    <option>DA</option>
                                 </select>
                             </div>
                             <div class="col-3 col-md-2">
@@ -349,6 +359,33 @@
                 </div></div>
             </div>
 
+            <!-- NEW: Admin Only Approved Bill Summary Tab -->
+            <div class="tab-pane fade admin-only" id="approvedTab" role="tabpanel">
+                <div class="card dash-card no-print">
+                    <div class="card-header bg-info text-white py-2">
+                        <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> DA Wise Approved Bill vs IOU Summary</h6>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>DA Name</th>
+                                        <th class="text-end">Total IOU</th>
+                                        <th class="text-end">Total Approved Bill</th>
+                                        <th class="text-end">Balance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approved_summary_body">
+                                    <tr><td colspan="5" class="text-center">Loading data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab: User Notifications -->
             <div class="tab-pane fade user-only" id="userNotifTab" role="tabpanel">
                 <div class="card dash-card no-print">
@@ -368,8 +405,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Tab: User Contact Us -->
+             <!-- Tab: User Contact Us -->
             <div class="tab-pane fade user-only" id="contactTab" role="tabpanel">
                 <div class="card dash-card no-print">
                     <div class="card-header py-1 bg-success text-white">Contact Admin</div>
@@ -604,6 +640,7 @@
         let editingIouId = null; 
         let daListCache = {}; 
         let currentIouId = null;
+        let originalIouId = null; 
         
         // ================= AUTO SAVE LOGIC =================
         let autoSaveTimeout;
@@ -763,6 +800,19 @@
         function showNotifTab() {
             document.getElementById('user_notif-tab').click();
         }
+        
+        // ================= FIX: RESET ALL TABS FUNCTION =================
+        function resetAllTabs() {
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Remove show/active classes from all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+        }
 
         // ================= DASHBOARD VIEW =================
         function showDashboard() {
@@ -772,6 +822,9 @@
             
             document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'none');
             document.querySelectorAll('.user-only').forEach(item => item.style.display = 'none');
+            
+            // FIX: Reset tabs before applying role specific logic
+            resetAllTabs();
 
             if(currentUser.role !== 'admin') {
                 // USER VIEW
@@ -788,17 +841,14 @@
                 // ADMIN VIEW
                 document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'block');
                 
-                // Hide Bill Entry Tab completely for Admin
-                document.getElementById('entry-tab').classList.remove('active');
-                document.getElementById('entryTab').classList.remove('show', 'active');
-                
                 // Default Tab: Dashboard
                 document.getElementById('dash-tab').classList.add('active');
                 document.getElementById('dashTab').classList.add('show', 'active');
 
                 loadDAListForIOU();
-                loadAdminInbox(); // Load user messages
-                loadDashboardStats(); // Load Dashboard Data
+                loadAdminInbox(); 
+                loadDashboardStats(); 
+                loadApprovedBillSummary();
             }
 
             prepareBillEntryForm();
@@ -812,19 +862,15 @@
                 let totalBills = 0;
                 let pendingBills = 0;
                 let approvedBills = 0;
-                let draftBills = 0; // Only visible to admin in dashboard count if needed, usually ignored
                 
-                const daStats = {}; // Object to store stats per DA
+                const daStats = {}; 
 
                 if(snapshot.exists()) {
                     snapshot.forEach((depotSnapshot) => {
                         depotSnapshot.forEach((daSnapshot) => {
                             const daId = daSnapshot.key;
-                            const daName = daSnapshot.val(); // Need to get name from first bill or Users node
                             
-                            // Initialize DA Object if not exists
                             if(!daStats[daId]) {
-                                // We need the name. We can cache it from IOU list or extract from a bill
                                 daStats[daId] = { 
                                     name: 'Unknown', 
                                     total: 0, 
@@ -836,11 +882,8 @@
 
                             daSnapshot.forEach((billSnapshot) => {
                                 const bill = billSnapshot.val();
-                                // Set name from bill if available
                                 if(bill.daName) daStats[daId].name = bill.daName;
 
-                                // Count only non-draft for main totals? Or include draft?
-                                // Admin usually sees all.
                                 totalBills++;
                                 daStats[daId].total++;
                                 daStats[daId].amount += bill.totalAmount || 0;
@@ -857,7 +900,6 @@
                     });
                 }
 
-                // Update UI
                 document.getElementById('dash_total_count').innerText = totalBills;
                 document.getElementById('dash_pending_count').innerText = pendingBills;
                 document.getElementById('dash_approved_count').innerText = approvedBills;
@@ -882,6 +924,88 @@
                 if(sortedDAs.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center">No Bills Found</td></tr>';
                 }
+            });
+        }
+
+        // ================= NEW: APPROVED BILL SUMMARY LOGIC =================
+        function loadApprovedBillSummary() {
+            // 1. Get IOU Data
+            database.ref('IOU_List').on('value', (iouSnap) => {
+                const iouData = {}; // { daId: totalAmount }
+                
+                if(iouSnap.exists()) {
+                    iouSnap.forEach(child => {
+                        const iou = child.val();
+                        if(!iouData[iou.daId]) iouData[iou.daId] = { name: iou.daName, totalIou: 0 };
+                        iouData[iou.daId].totalIou += iou.taka || 0;
+                    });
+                }
+
+                // 2. Get Bill Data (Only Approved/Green)
+                database.ref('Bills').on('value', (billSnap) => {
+                    const billData = {}; // { daId: totalApprovedAmount }
+
+                    if(billSnap.exists()) {
+                        billSnap.forEach(depotSnap => {
+                            depotSnap.forEach(daSnap => {
+                                const daId = daSnap.key;
+                                if(!billData[daId]) {
+                                    let dName = (iouData[daId]) ? iouData[daId].name : 'Unknown';
+                                    billData[daId] = { name: dName, totalApproved: 0 };
+                                }
+                                
+                                daSnap.forEach(billChild => {
+                                    const bill = billChild.val();
+                                    if(bill.status === 'green') {
+                                        billData[daId].totalApproved += bill.totalAmount || 0;
+                                    }
+                                    if(billData[daId].name === 'Unknown' && bill.daName) {
+                                        billData[daId].name = bill.daName;
+                                    }
+                                });
+                            });
+                        });
+                    }
+
+                    const tbody = document.getElementById('approved_summary_body');
+                    tbody.innerHTML = '';
+                    
+                    const allDaIds = new Set([...Object.keys(iouData), ...Object.keys(billData)]);
+                    
+                    if(allDaIds.size === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No Data</td></tr>';
+                        return;
+                    }
+
+                    allDaIds.forEach(id => {
+                        const iouInfo = iouData[id] || { name: 'Unknown', totalIou: 0 };
+                        const billInfo = billData[id] || { name: iouInfo.name, totalApproved: 0 };
+                        
+                        const totalIou = iouInfo.totalIou || 0;
+                        const totalApp = billInfo.totalApproved || 0;
+                        const balance = totalApp - totalIou;
+                        const name = billInfo.name || iouInfo.name || id;
+
+                        let rowClass = '';
+                        if(balance > 0) rowClass = 'summary-row-ok';
+                        else if(balance < 0) rowClass = 'summary-row-danger';
+                        else rowClass = ''; 
+
+                        const tr = document.createElement('tr');
+                        tr.className = rowClass;
+                        tr.innerHTML = `
+                            <td>${name}</td>
+                            <td class="text-end fw-bold">${totalIou.toFixed(2)}</td>
+                            <td class="text-end fw-bold">${totalApp.toFixed(2)}</td>
+                            <td class="text-end fw-bold">${balance.toFixed(2)}</td>
+                            <td class="text-center">
+                                ${balance < 0 ? '<span class="badge bg-danger">Due Bill</span>' : '<span class="badge bg-success">Clear</span>'}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                });
             });
         }
 
@@ -917,7 +1041,7 @@
 
                 const data = [];
                 snapshot.forEach(child => { data.push({key: child.key, ...child.val()}); });
-                data.reverse(); // Show newest first
+                data.reverse(); 
 
                 data.forEach(item => {
                     const tr = document.createElement('tr');
@@ -1177,25 +1301,41 @@
 
             const basePath = 'Bills/' + billData.depot + '/' + targetDaId;
             
+            // IOU Handling Logic
+            const processIOU = () => {
+                if (editingBillId && originalIouId && originalIouId !== currentIouId) {
+                    database.ref('IOU_List/' + originalIouId).update({ status: 'active' });
+                }
+
+                if (currentIouId) {
+                    if (statusType === 'draft') {
+                        database.ref('IOU_List/' + currentIouId).update({ status: 'active' });
+                    } else {
+                        database.ref('IOU_List/' + currentIouId).update({ status: 'used' });
+                    }
+                }
+            };
+
             if (editingBillId) {
                 database.ref(basePath + '/' + editingBillId).update(billData, (error) => {
                     if (error) alert("Update Error");
-                    else { alert("Bill Updated!"); cancelEdit(); document.getElementById('history-tab').click(); }
+                    else {
+                        processIOU();
+                        alert("Bill Updated!"); 
+                        cancelEdit(); 
+                        document.getElementById('history-tab').click(); 
+                    }
                 });
             } else {
                 const newBillRef = database.ref(basePath).push();
                 newBillRef.set(billData, (error) => {
                     if (error) alert("Error");
                     else {
-                        if(currentIouId && (statusType === 'red' || statusType === 'green')) {
-                            database.ref('IOU_List/' + currentIouId).update({ status: 'used' });
-                        }
-                        
+                        processIOU();
                         clearLocalDraft();
                         
                         alert(statusType === 'draft' ? "Saved as Draft!" : "Bill Submitted!");
                         
-                        // Clear form inputs for new entry
                         document.getElementById('form_route').value = '';
                         document.getElementById('form_mpo').value = '';
                         document.getElementById('form_summary').value = '';
@@ -1206,10 +1346,11 @@
                         document.getElementById('form_cost_percent').innerText = '0%';
                         document.getElementById('expense_table_body').innerHTML = '';
                         
-                        calculateSoldValue(); // Update Sold Value to 0
-                        currentIouId = null; // Reset current IOU
+                        calculateSoldValue(); 
+                        currentIouId = null; 
+                        originalIouId = null;
                         
-                        prepareBillEntryForm(); // Reset dates
+                        prepareBillEntryForm(); 
                         document.getElementById('history-tab').click();
                     }
                 });
@@ -1223,6 +1364,8 @@
 
                 clearLocalDraft();
                 editingBillDaId = bill.daId; 
+                originalIouId = bill.iouId || null; 
+                currentIouId = bill.iouId || null;  
 
                 document.getElementById('form_da_name').value = bill.daName;
                 document.getElementById('form_depot').value = bill.depot;
@@ -1235,8 +1378,6 @@
                 document.getElementById('form_invoice_val').value = bill.invoiceVal;
                 document.getElementById('form_return_val').value = bill.returnVal;
                 document.getElementById('form_invoice_qty').value = bill.invoiceQty;
-                
-                currentIouId = bill.iouId || null;
 
                 const tbody = document.getElementById('expense_table_body');
                 tbody.innerHTML = '';
@@ -1265,10 +1406,10 @@
                 document.getElementById('main_submit_btn').classList.add('btn-warning');
                 document.getElementById('cancel_edit_btn').classList.remove('hidden');
                 
-                // Switch to Bill Entry Tab (For Admin, force show the tab content even if tab hidden)
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
                 document.getElementById('entryTab').classList.add('show', 'active');
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.getElementById('entry-tab').classList.add('active');
             });
         }
 
@@ -1283,9 +1424,7 @@
                     .then(() => {
                         alert("Bill Deleted!");
                         if (linkedIouId) {
-                            database.ref('IOU_List/' + linkedIouId).update({ status: 'active' })
-                                .then(() => console.log("IOU Reactivated"))
-                                .catch(err => console.error("Error reactivating IOU", err));
+                            database.ref('IOU_List/' + linkedIouId).update({ status: 'active' });
                         }
                     })
                     .catch(e => alert(e.message));
@@ -1296,6 +1435,7 @@
         function cancelEdit() {
             editingBillId = null;
             editingBillDaId = null; 
+            originalIouId = null;
             document.getElementById('main_submit_btn').innerText = "Submit Bill";
             document.getElementById('main_submit_btn').classList.add('btn-success');
             document.getElementById('main_submit_btn').classList.remove('btn-warning');
@@ -1303,7 +1443,6 @@
             clearLocalDraft();
             prepareBillEntryForm();
             
-            // Go back to history for admin, or stay on entry for user
             if(currentUser.role === 'admin') {
                 document.getElementById('history-tab').click();
             }
@@ -1401,7 +1540,6 @@
                 document.getElementById('iou_save_btn').innerText = "Update IOU Entry";
                 document.getElementById('iou_cancel_btn').classList.remove('hidden');
                 
-                // Open the IOU collapse if closed
                 const iouCollapse = document.getElementById('mgmtIouBody');
                 if(!iouCollapse.classList.contains('show')) {
                     new bootstrap.Collapse(iouCollapse, {toggle: true});
@@ -1436,7 +1574,6 @@
                 snap.forEach(child => {
                     const d = child.val();
                     
-                    // Filter Logic
                     let show = true;
                     if(filterFrom && d.date < filterFrom) show = false;
                     if(filterTo && d.date > filterTo) show = false;
@@ -1464,7 +1601,6 @@
                     }
                 });
                 
-                // Update Totals
                 document.getElementById('iou_tot_sales').innerText = tSales;
                 document.getElementById('iou_tot_qty').innerText = tQty;
                 document.getElementById('iou_tot_taka').innerText = tTaka;
@@ -1770,7 +1906,3 @@
     </script>
 </body>
 </html>
-
-
-
-
