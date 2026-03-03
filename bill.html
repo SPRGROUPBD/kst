@@ -56,6 +56,11 @@
         .clickable-row { cursor: pointer; }
         .clickable-row:hover { background-color: #e0f7fa; }
         
+        /* Management Tab Accordion Style */
+        .mgmt-section { border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 10px; }
+        .mgmt-header { background-color: #f8f9fa; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 1px solid #dee2e6; }
+        .mgmt-body { padding: 10px; }
+        
         @media (max-width: 768px) {
             .btn-sm { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
             .form-control, .form-select { font-size: 0.85rem; }
@@ -92,12 +97,16 @@
 
         <!-- Nav Tabs -->
         <ul class="nav nav-tabs no-print" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
+            <!-- User Only: Bill Entry -->
+            <li class="nav-item user-only" role="presentation">
                 <button class="nav-link active" id="entry-tab" data-bs-toggle="tab" data-bs-target="#entryTab" type="button">Bill Entry</button>
             </li>
+            
+            <!-- Common: History -->
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
+            
             <!-- User Specific Tabs -->
             <li class="nav-item user-only" role="presentation">
                 <button class="nav-link" id="user_notif-tab" data-bs-toggle="tab" data-bs-target="#userNotifTab" type="button">Notifications</button>
@@ -105,15 +114,14 @@
             <li class="nav-item user-only" role="presentation">
                 <button class="nav-link" id="iou_user-tab" data-bs-toggle="tab" data-bs-target="#iouUserTab" type="button">My IOU</button>
             </li>
-            <!-- Admin Specific Tabs -->
-            <li class="nav-item admin-only" role="presentation">
-                <button class="nav-link" id="iou_admin-tab" data-bs-toggle="tab" data-bs-target="#iouAdminTab" type="button">IOU Entry</button>
+             <!-- User Specific: Contact Us -->
+            <li class="nav-item user-only" role="presentation">
+                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contactTab" type="button">Contact Us</button>
             </li>
+
+            <!-- Admin Specific Tabs: Management -->
             <li class="nav-item admin-only" role="presentation">
-                <button class="nav-link" id="notif_admin-tab" data-bs-toggle="tab" data-bs-target="#notifAdminTab" type="button">Notify</button>
-            </li>
-            <li class="nav-item admin-only" role="presentation">
-                <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#addTab" type="button">Add DA</button>
+                <button class="nav-link" id="mgmt-tab" data-bs-toggle="tab" data-bs-target="#mgmtTab" type="button">Management</button>
             </li>
         </ul>
 
@@ -252,85 +260,126 @@
                 </div>
             </div>
 
-            <!-- Admin Tabs -->
-            <div class="tab-pane fade admin-only" id="iouAdminTab" role="tabpanel">
+            <!-- Tab 5: User Contact Us -->
+            <div class="tab-pane fade user-only" id="contactTab" role="tabpanel">
                 <div class="card no-print">
-                    <div class="card-header py-1">Admin IOU Entry</div>
-                    <div class="card-body">
-                        <!-- IOU Entry Form -->
-                        <div class="row g-2 mb-2">
-                            <div class="col-6 col-md-2"><label>Date</label><input type="date" id="iou_date" class="form-control form-control-sm"></div>
-                            <div class="col-6 col-md-2"><label>DA Name</label><select id="iou_da_name" class="form-select form-select-sm"></select></div>
-                            <div class="col-6 col-md-2"><label>Territory</label><input type="text" id="iou_territory" class="form-control form-control-sm"></div>
-                            <div class="col-6 col-md-2"><label>MPO Name</label><input type="text" id="iou_mpo" class="form-control form-control-sm"></div>
-                            <div class="col-4 col-md-1"><label>Summary</label><input type="text" id="iou_summary" class="form-control form-control-sm"></div>
-                            <div class="col-4 col-md-1"><label>Sales</label><input type="number" id="iou_sales" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
-                            <div class="col-4 col-md-1"><label>Inv Qty</label><input type="number" id="iou_qty" class="form-control form-control-sm"></div>
-                            <div class="col-6 col-md-1"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
-                            <div class="col-6 col-md-1"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
-                        </div>
-                        <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100 mb-2">Save IOU Entry</button>
-                        <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 mb-2 hidden">Cancel Edit</button>
-                        
-                        <!-- FILTER SECTION (NEW) -->
-                        <div class="row g-2 mb-2 p-2 bg-light border rounded align-items-end">
-                            <div class="col-6 col-md-3">
-                                <label class="fw-bold text-muted">From Date</label>
-                                <input type="date" id="filter_iou_from" class="form-control form-control-sm" onchange="loadAdminIOU()">
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <label class="fw-bold text-muted">To Date</label>
-                                <input type="date" id="filter_iou_to" class="form-control form-control-sm" onchange="loadAdminIOU()">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="fw-bold text-muted">Filter by DA</label>
-                                <select id="filter_iou_da" class="form-select form-select-sm" onchange="loadAdminIOU()">
-                                    <option value="">All DA</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-2">
-                                <button onclick="resetIOUFilter()" class="btn btn-outline-secondary btn-sm w-100">Reset</button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive"><table class="table table-bordered table-sm">
-                            <thead class="table-secondary">
-                                <tr><th>#</th><th>Date</th><th>DA Name</th><th>Territory</th><th>MPO</th><th>Summary</th><th>Sales</th><th>Qty</th><th>Taka</th><th>%</th><th>Action</th></tr>
-                            </thead>
-                            <tbody id="iou_admin_table_body"></tbody>
-                            <tfoot><tr class="fw-bold table-warning"><td colspan="6">Filtered Total</td><td id="iou_tot_sales">0</td><td id="iou_tot_qty">0</td><td id="iou_tot_taka">0</td><td></td><td></td></tr></tfoot>
-                        </table></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade admin-only" id="notifAdminTab" role="tabpanel">
-                <div class="card no-print">
-                    <div class="card-header py-1">Send Notification</div>
+                    <div class="card-header py-1 bg-success text-white">Contact Admin</div>
                     <div class="card-body">
                         <div class="mb-2">
-                            <textarea id="notif_msg" class="form-control" rows="2" placeholder="Type message..."></textarea>
+                            <label class="fw-bold">Message:</label>
+                            <textarea id="contact_msg_input" class="form-control" rows="3" placeholder="Write your message to admin..."></textarea>
                         </div>
-                        <button onclick="sendNotification()" class="btn btn-primary btn-sm w-100">Send to All Users</button>
+                        <button onclick="sendContactMessage()" class="btn btn-success w-100">Send Message</button>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-pane fade admin-only" id="addTab" role="tabpanel">
-                <div class="card">
-                    <div class="card-header bg-info text-white py-1">New DA Record</div>
-                    <div class="card-body">
-                         <div class="row g-2">
-                            <div class="col-6"><label>DA ID</label><input type="text" id="new_da_id" class="form-control form-control-sm"></div>
-                            <div class="col-6"><label>Name</label><input type="text" id="new_da_name" class="form-control form-control-sm"></div>
-                            <div class="col-6"><label>Phone</label><input type="text" id="new_da_phone" class="form-control form-control-sm"></div>
-                            <div class="col-6"><label>Depot</label><input type="text" id="new_da_depot" class="form-control form-control-sm" value="Kushtia"></div>
-                            <div class="col-6"><label>Username</label><input type="text" id="new_da_user" class="form-control form-control-sm"></div>
-                            <div class="col-6"><label>Password</label><input type="text" id="new_da_pass" class="form-control form-control-sm"></div>
-                            <div class="col-12"><button onclick="saveNewDA()" class="btn btn-success w-100 btn-sm">Save Record</button></div>
+            <!-- Admin Tab: Management (Combined) -->
+            <div class="tab-pane fade admin-only" id="mgmtTab" role="tabpanel">
+                
+                <!-- Section 1: User Messages -->
+                <div class="mgmt-section">
+                    <div class="mgmt-header" data-bs-toggle="collapse" data-bs-target="#mgmtMsgBody">
+                        <i class="bi bi-envelope"></i> User Messages
+                    </div>
+                    <div id="mgmtMsgBody" class="collapse show">
+                        <div class="mgmt-body p-1">
+                             <div class="table-responsive"><table class="table table-sm table-bordered">
+                                 <thead class="table-secondary"><tr><th>Time</th><th>From</th><th>Message</th><th>Action</th></tr></thead>
+                                 <tbody id="admin_inbox_body"><tr><td colspan="4" class="text-center">No messages</td></tr></tbody>
+                             </table></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Section 2: IOU Entry -->
+                <div class="mgmt-section">
+                    <div class="mgmt-header" data-bs-toggle="collapse" data-bs-target="#mgmtIouBody">
+                        <i class="bi bi-cash-stack"></i> IOU Entry
+                    </div>
+                    <div id="mgmtIouBody" class="collapse">
+                        <div class="mgmt-body">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6 col-md-2"><label>Date</label><input type="date" id="iou_date" class="form-control form-control-sm"></div>
+                                <div class="col-6 col-md-2"><label>DA Name</label><select id="iou_da_name" class="form-select form-select-sm"></select></div>
+                                <div class="col-6 col-md-2"><label>Territory</label><input type="text" id="iou_territory" class="form-control form-control-sm"></div>
+                                <div class="col-6 col-md-2"><label>MPO Name</label><input type="text" id="iou_mpo" class="form-control form-control-sm"></div>
+                                <div class="col-4 col-md-1"><label>Summary</label><input type="text" id="iou_summary" class="form-control form-control-sm"></div>
+                                <div class="col-4 col-md-1"><label>Sales</label><input type="number" id="iou_sales" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
+                                <div class="col-4 col-md-1"><label>Inv Qty</label><input type="number" id="iou_qty" class="form-control form-control-sm"></div>
+                                <div class="col-6 col-md-1"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
+                                <div class="col-6 col-md-1"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
+                            </div>
+                            <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100 mb-2">Save IOU Entry</button>
+                            <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 mb-2 hidden">Cancel Edit</button>
+                            
+                            <!-- FILTER SECTION -->
+                            <div class="row g-2 mb-2 p-2 bg-light border rounded align-items-end">
+                                <div class="col-6 col-md-3">
+                                    <label class="fw-bold text-muted">From Date</label>
+                                    <input type="date" id="filter_iou_from" class="form-control form-control-sm" onchange="loadAdminIOU()">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="fw-bold text-muted">To Date</label>
+                                    <input type="date" id="filter_iou_to" class="form-control form-control-sm" onchange="loadAdminIOU()">
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="fw-bold text-muted">Filter by DA</label>
+                                    <select id="filter_iou_da" class="form-select form-select-sm" onchange="loadAdminIOU()">
+                                        <option value="">All DA</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <button onclick="resetIOUFilter()" class="btn btn-outline-secondary btn-sm w-100">Reset</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive"><table class="table table-bordered table-sm">
+                                <thead class="table-secondary">
+                                    <tr><th>#</th><th>Date</th><th>DA Name</th><th>Territory</th><th>MPO</th><th>Summary</th><th>Sales</th><th>Qty</th><th>Taka</th><th>%</th><th>Action</th></tr>
+                                </thead>
+                                <tbody id="iou_admin_table_body"></tbody>
+                                <tfoot><tr class="fw-bold table-warning"><td colspan="6">Filtered Total</td><td id="iou_tot_sales">0</td><td id="iou_tot_qty">0</td><td id="iou_tot_taka">0</td><td></td><td></td></tr></tfoot>
+                            </table></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Send Notification -->
+                <div class="mgmt-section">
+                    <div class="mgmt-header" data-bs-toggle="collapse" data-bs-target="#mgmtNotifBody">
+                        <i class="bi bi-megaphone"></i> Send Notification
+                    </div>
+                    <div id="mgmtNotifBody" class="collapse">
+                        <div class="mgmt-body">
+                            <div class="mb-2">
+                                <textarea id="notif_msg" class="form-control" rows="2" placeholder="Type message..."></textarea>
+                            </div>
+                            <button onclick="sendNotification()" class="btn btn-primary btn-sm w-100">Send to All Users</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Add DA -->
+                <div class="mgmt-section">
+                    <div class="mgmt-header" data-bs-toggle="collapse" data-bs-target="#mgmtAddBody">
+                        <i class="bi bi-person-plus"></i> New DA Record
+                    </div>
+                    <div id="mgmtAddBody" class="collapse">
+                        <div class="mgmt-body">
+                             <div class="row g-2">
+                                <div class="col-6"><label>DA ID</label><input type="text" id="new_da_id" class="form-control form-control-sm"></div>
+                                <div class="col-6"><label>Name</label><input type="text" id="new_da_name" class="form-control form-control-sm"></div>
+                                <div class="col-6"><label>Phone</label><input type="text" id="new_da_phone" class="form-control form-control-sm"></div>
+                                <div class="col-6"><label>Depot</label><input type="text" id="new_da_depot" class="form-control form-control-sm" value="Kushtia"></div>
+                                <div class="col-6"><label>Username</label><input type="text" id="new_da_user" class="form-control form-control-sm"></div>
+                                <div class="col-6"><label>Password</label><input type="text" id="new_da_pass" class="form-control form-control-sm"></div>
+                                <div class="col-12"><button onclick="saveNewDA()" class="btn btn-success w-100 btn-sm">Save Record</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -614,22 +663,99 @@
             document.querySelectorAll('.user-only').forEach(item => item.style.display = 'none');
 
             if(currentUser.role !== 'admin') {
+                // USER VIEW
                 document.querySelectorAll('.user-only').forEach(item => item.style.display = 'block');
                 document.getElementById('notif_btn').classList.remove('hidden');
                 loadUserNotifications();
+                
+                // Default Tab: Bill Entry
+                document.getElementById('entry-tab').classList.add('active');
+                document.getElementById('entryTab').classList.add('show', 'active');
+                
+                loadUserIOU();
             } else {
+                // ADMIN VIEW
                 document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'block');
+                
+                // Hide Bill Entry Tab completely for Admin
                 document.getElementById('entry-tab').classList.remove('active');
                 document.getElementById('entryTab').classList.remove('show', 'active');
+                
+                // Default Tab: History
                 document.getElementById('history-tab').classList.add('active');
                 document.getElementById('billTab').classList.add('show', 'active');
+
                 loadDAListForIOU();
+                loadAdminInbox(); // Load user messages
             }
 
             prepareBillEntryForm();
             loadBills();
-            if(currentUser.role === 'user') loadUserIOU();
             if(currentUser.role === 'admin') loadAdminIOU();
+        }
+
+        // ================= USER CONTACT ADMIN =================
+        function sendContactMessage() {
+            const msg = document.getElementById('contact_msg_input').value;
+            if(!msg) { alert("Please write a message"); return; }
+
+            const data = {
+                senderId: currentUser.id,
+                senderName: currentUser.name,
+                message: msg,
+                timestamp: Date.now(),
+                read: false
+            };
+
+            database.ref('AdminInbox').push(data).then(() => {
+                alert("Message Sent to Admin!");
+                document.getElementById('contact_msg_input').value = '';
+            }).catch(e => alert("Error: " + e.message));
+        }
+
+        function loadAdminInbox() {
+            const inboxRef = database.ref('AdminInbox');
+            inboxRef.orderByChild('timestamp').on('value', (snapshot) => {
+                const tbody = document.getElementById('admin_inbox_body');
+                tbody.innerHTML = '';
+                
+                if(!snapshot.exists()) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No messages</td></tr>';
+                    return;
+                }
+
+                const data = [];
+                snapshot.forEach(child => { data.push({key: child.key, ...child.val()}); });
+                data.reverse(); // Show newest first
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = item.read ? '' : 'table-warning';
+                    tr.innerHTML = `
+                        <td>${new Date(item.timestamp).toLocaleString()}</td>
+                        <td>${item.senderName}</td>
+                        <td>${item.message}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="markMsgRead('${item.key}', this)">Mark Read</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteMsg('${item.key}')">X</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function markMsgRead(key, btn) {
+            database.ref('AdminInbox/' + key).update({ read: true });
+            btn.disabled = true;
+            btn.innerText = "Read";
+            btn.closest('tr').classList.remove('table-warning');
+        }
+
+        function deleteMsg(key) {
+            if(confirm("Delete this message?")) {
+                database.ref('AdminInbox/' + key).remove();
+            }
         }
 
         // ================= NOTIFICATION SYSTEM =================
@@ -948,10 +1074,12 @@
                 document.getElementById('main_submit_btn').classList.add('btn-warning');
                 document.getElementById('cancel_edit_btn').classList.remove('hidden');
                 
-                document.getElementById('entry-tab').classList.add('active'); 
+                // Switch to Bill Entry Tab (For Admin, force show the tab content even if tab hidden)
+                // Since we hid the tab for admin, we manually show the content
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
                 document.getElementById('entryTab').classList.add('show', 'active');
-                document.getElementById('history-tab').classList.remove('active');
-                document.getElementById('billTab').classList.remove('show', 'active');
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                // We don't activate the tab pill for admin since it's hidden, but content is visible
             });
         }
 
@@ -985,6 +1113,11 @@
             document.getElementById('cancel_edit_btn').classList.add('hidden');
             clearLocalDraft();
             prepareBillEntryForm();
+            
+            // Go back to history for admin, or stay on entry for user
+            if(currentUser.role === 'admin') {
+                document.getElementById('history-tab').click();
+            }
         }
 
         // ================= IOU LOGIC =================
@@ -1079,7 +1212,11 @@
                 document.getElementById('iou_save_btn').innerText = "Update IOU Entry";
                 document.getElementById('iou_cancel_btn').classList.remove('hidden');
                 
-                document.getElementById('iou_admin-tab').scrollIntoView();
+                // Open the IOU collapse if closed
+                const iouCollapse = document.getElementById('mgmtIouBody');
+                if(!iouCollapse.classList.contains('show')) {
+                    new bootstrap.Collapse(iouCollapse, {toggle: true});
+                }
             });
         }
 
