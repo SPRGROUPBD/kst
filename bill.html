@@ -1514,11 +1514,10 @@
                                         ${bill.status === 'red' ? `<button class="btn btn-secondary btn-sm" onclick="openCutModal('${billId}', '${bill.depot}', '${daId}', ${bill.totalAmount})">Cut</button>` : ''}
                                     </td>`;
                             } else {
-                                // User View
+                                // User View - UPDATED AS REQUESTED
+                                // Users ONLY see the original amount they claimed.
+                                // They do NOT see the approved amount or deductions in the list.
                                 let amtHtml = originalAmount.toFixed(2);
-                                if(deduction > 0) {
-                                     amtHtml = `<span class="cut-amount">${originalAmount.toFixed(2)}</span> <span class="payable-amount">${approvedAmount.toFixed(2)}</span>`;
-                                }
 
                                 if (bill.status === 'red' || bill.status === 'draft') {
                                     actionBtns = `<button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button> `;
