@@ -31,10 +31,6 @@
         .notif-item.unread { background-color: #e3f2fd; font-weight: bold; }
         .notif-item.read { background-color: #fff; color: #888; }
         
-        /* IOU Used Status */
-        .iou-used { color: #888; font-style: italic; }
-        .badge-used { background-color: #6c757d !important; }
-
         /* Dashboard UI Styles */
         .dash-card {
             border-radius: 10px;
@@ -101,6 +97,10 @@
         .scroll-box-sm { max-height: 200px; overflow-y: auto; }
         .scroll-box-md { max-height: 250px; overflow-y: auto; }
         .scroll-box-lg { max-height: 400px; overflow-y: auto; }
+        
+        /* Profile Image Styles */
+        .profile-img-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
+        .profile-img-lg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #0d6efd; }
 
         /* ========== MOBILE OPTIMIZATION STYLES ========== */
         @media (max-width: 768px) {
@@ -149,8 +149,20 @@
     <div id="dashboard_section" class="container-fluid mt-2 hidden">
         <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white shadow-sm rounded no-print">
             <h5 class="mb-0" id="welcome_msg">Welcome</h5>
-            <div class="d-flex align-items-center">
-                <button onclick="logout()" class="btn btn-outline-danger btn-sm">Logout</button>
+            
+            <!-- My Account Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-light border dropdown-toggle d-flex align-items-center" type="button" id="accountDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img id="header_profile_pic" src="https://via.placeholder.com/30" class="profile-img-thumb me-2">
+                    <span id="header_user_name">User</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdownBtn">
+                    <li><h6 class="dropdown-header">My Account</h6></li>
+                    <li><a class="dropdown-item" href="#" onclick="openProfileModal()"><i class="bi bi-person-circle me-2"></i>Edit Profile</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="openChangePassModal()"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
             </div>
         </div>
 
@@ -219,23 +231,39 @@
                         </div>
                     </div>
 
-                    <!-- Admin Dashboard Forms Row -->
-                    <div class="row mb-3">
-                        <!-- LEFT COLUMN: Controls -->
+                    <!-- Admin Dashboard Layout Main Row -->
+                    <div class="row">
+                        
+                        <!-- LEFT COLUMN: IOU (Top) & New User (Bottom) -->
                         <div class="col-md-6 mb-3">
                             
-                            <!-- Online Users Card (Top Priority) -->
+                            <!-- IOU Entry Form (Top) -->
                             <div class="card dash-card no-print mb-3">
-                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
-                                    <span class="badge bg-light text-success" id="online_count_badge">0</span>
-                                </div>
-                                <div class="card-body p-2 scroll-box-sm" id="online_users_list">
-                                    <div class="text-center text-muted p-2">Checking...</div>
+                                <div class="card-header bg-info text-white py-2">IOU Entry</div>
+                                <div class="card-body">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6 col-md-3"><label>Date</label><input type="date" id="iou_date" class="form-control form-control-sm"></div>
+                                        <div class="col-6 col-md-3"><label>DA Name</label><select id="iou_da_name" class="form-select form-select-sm"></select></div>
+                                        <div class="col-6 col-md-3"><label>Territory</label><input type="text" id="iou_territory" class="form-control form-control-sm"></div>
+                                        <div class="col-6 col-md-3"><label>MPO</label><input type="text" id="iou_mpo" class="form-control form-control-sm"></div>
+                                        
+                                        <div class="col-4 col-md-2"><label>Summary</label><input type="text" id="iou_summary" class="form-control form-control-sm"></div>
+                                        <div class="col-4 col-md-2"><label>Sales</label><input type="number" id="iou_sales" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
+                                        <div class="col-4 col-md-2"><label>Return</label><input type="number" id="iou_return" class="form-control form-control-sm" value="0" oninput="calcIouPercent()"></div>
+                                        <div class="col-4 col-md-2"><label>Sold</label><input type="number" id="iou_sold" class="form-control form-control-sm" readonly></div>
+                                        <div class="col-4 col-md-2"><label>Qty</label><input type="number" id="iou_qty" class="form-control form-control-sm"></div>
+                                        <div class="col-4 col-md-2"><label>Bund</label><input type="number" id="iou_bundle_qty" class="form-control form-control-sm"></div>
+                                        
+                                        <div class="col-4 col-md-2"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
+                                        <div class="col-4 col-md-2"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
+                                    </div>
+
+                                    <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100">Save IOU Entry</button>
+                                    <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 hidden">Cancel Edit</button>
                                 </div>
                             </div>
 
-                            <!-- New User Record -->
+                            <!-- New User Record (Bottom) -->
                             <div class="card dash-card no-print">
                                 <div class="card-header bg-primary text-white py-2">New User Record</div>
                                 <div class="card-body">
@@ -248,6 +276,14 @@
                                             <label class="fw-bold text-muted">Name</label>
                                             <input type="text" id="new_user_name" class="form-control form-control-sm" placeholder="Full Name">
                                         </div>
+                                        
+                                        <!-- Photo Upload -->
+                                        <div class="col-md-6">
+                                            <label class="fw-bold text-muted">Photo</label>
+                                            <input type="file" id="new_user_photo" class="form-control form-control-sm" accept="image/*" onchange="previewUserPhoto(this)">
+                                            <img id="photo_preview" src="" class="mt-1 hidden" width="40" height="40" style="border-radius:50%; object-fit:cover;">
+                                        </div>
+
                                         <div class="col-md-6">
                                             <label class="fw-bold text-muted">Phone</label>
                                             <input type="text" id="new_user_phone" class="form-control form-control-sm" placeholder="01xxxxxxxxx">
@@ -284,39 +320,20 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT COLUMN: IOU Entry Form -->
+                        <!-- RIGHT COLUMN: Tables & Messages -->
                         <div class="col-md-6 mb-3">
-                            <div class="card dash-card no-print">
-                                <div class="card-header bg-info text-white py-2">IOU Entry</div>
-                                <div class="card-body">
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-6 col-md-3"><label>Date</label><input type="date" id="iou_date" class="form-control form-control-sm"></div>
-                                        <div class="col-6 col-md-3"><label>DA Name</label><select id="iou_da_name" class="form-select form-select-sm"></select></div>
-                                        <div class="col-6 col-md-3"><label>Territory</label><input type="text" id="iou_territory" class="form-control form-control-sm"></div>
-                                        <div class="col-6 col-md-3"><label>MPO</label><input type="text" id="iou_mpo" class="form-control form-control-sm"></div>
-                                        
-                                        <div class="col-4 col-md-2"><label>Summary</label><input type="text" id="iou_summary" class="form-control form-control-sm"></div>
-                                        <div class="col-4 col-md-2"><label>Sales</label><input type="number" id="iou_sales" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
-                                        <div class="col-4 col-md-2"><label>Return</label><input type="number" id="iou_return" class="form-control form-control-sm" value="0" oninput="calcIouPercent()"></div>
-                                        <div class="col-4 col-md-2"><label>Sold</label><input type="number" id="iou_sold" class="form-control form-control-sm" readonly></div>
-                                        <div class="col-4 col-md-2"><label>Qty</label><input type="number" id="iou_qty" class="form-control form-control-sm"></div>
-                                        <div class="col-4 col-md-2"><label>Bund</label><input type="number" id="iou_bundle_qty" class="form-control form-control-sm"></div>
-                                        
-                                        <div class="col-4 col-md-2"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
-                                        <div class="col-4 col-md-2"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
-                                    </div>
-
-                                    <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100">Save IOU Entry</button>
-                                    <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 hidden">Cancel Edit</button>
+                            
+                            <!-- Online Users Card (Moved Here) -->
+                            <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
+                                    <span class="badge bg-light text-success" id="online_count_badge">0</span>
+                                </div>
+                                <div class="card-body p-2 scroll-box-sm" id="online_users_list">
+                                    <div class="text-center text-muted p-2">Checking...</div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Admin Dashboard Data Tables Row -->
-                    <div class="row">
-                        <!-- LEFT COLUMN: Tables -->
-                        <div class="col-md-6 mb-3">
                             <!-- DA Wise Bill Status -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-white py-2">
@@ -343,7 +360,7 @@
                             </div>
 
                             <!-- Approved Bill vs IOU Summary -->
-                            <div class="card dash-card no-print">
+                            <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> Approved Bill vs IOU Summary</h6>
                                 </div>
@@ -366,10 +383,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- RIGHT COLUMN: Messages & Notifications -->
-                        <div class="col-md-6 mb-3">
                              <!-- Send Notification -->
                              <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-white py-2">
@@ -379,7 +393,6 @@
                                     <div class="mb-2">
                                         <textarea id="notif_msg_dash" class="form-control" rows="2" placeholder="Type message..."></textarea>
                                     </div>
-                                    <!-- Aligned Right -->
                                     <div class="text-end">
                                         <button onclick="sendNotification()" class="btn btn-primary btn-sm"><i class="bi bi-send"></i> Send to All Users</button>
                                     </div>
@@ -643,6 +656,83 @@
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div class="modal fade no-print" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title"><i class="bi bi-person-badge me-2"></i>Edit Profile</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="prof_prev_img" src="https://via.placeholder.com/100" class="profile-img-lg mb-2">
+                        <div class="mt-2">
+                            <label class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-camera"></i> Upload Photo
+                                <input type="file" id="prof_photo_input" accept="image/*" onchange="previewProfilePhoto(this)" hidden>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Name</label>
+                        <input type="text" id="prof_name" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Phone</label>
+                        <input type="text" id="prof_phone" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Depot</label>
+                        <select id="prof_depot" class="form-select form-select-sm">
+                            <option value="Kushtia">Kushtia</option>
+                            <option value="Other Depot">Other Depot</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Username</label>
+                        <input type="text" id="prof_username" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button onclick="saveProfile()" type="button" class="btn btn-primary btn-sm">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade no-print" id="changePassModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning py-2">
+                    <h5 class="modal-title"><i class="bi bi-key me-2"></i>Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Current Password</label>
+                        <input type="password" id="cp_current" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">New Password</label>
+                        <input type="password" id="cp_new" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Confirm Password</label>
+                        <input type="password" id="cp_confirm" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button onclick="changePassword()" type="button" class="btn btn-success btn-sm">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Cut Bill Modal -->
     <div class="modal fade no-print" id="cutBillModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -757,6 +847,8 @@
         let currentIouId = null;
         let originalIouId = null; 
         let iouListGlobal = {}; 
+        let userPhotoBase64 = null; 
+        let profilePhotoBase64 = null; 
 
         // ================= AUTO SAVE LOGIC =================
         let autoSaveTimeout;
@@ -943,7 +1035,8 @@
                                 name: userData.name,
                                 role: userData.role || 'user', 
                                 depot: userData.depot,
-                                id: childSnapshot.key
+                                id: childSnapshot.key,
+                                photoUrl: userData.photoUrl || null
                             };
                             showDashboard();
                         } else { alert("Password Incorrect!"); }
@@ -967,6 +1060,104 @@
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
         }
+        
+        // ================= PROFILE MODAL LOGIC =================
+        function openProfileModal() {
+            if(!currentUser || currentUser.id === 'admin_001') {
+                alert("Admin profile cannot be edited here.");
+                return;
+            }
+            profilePhotoBase64 = null; // Reset
+            database.ref('Users/' + currentUser.id).once('value', snap => {
+                const u = snap.val();
+                if(u) {
+                    document.getElementById('prof_name').value = u.name || '';
+                    document.getElementById('prof_phone').value = u.phone || '';
+                    document.getElementById('prof_depot').value = u.depot || 'Kushtia';
+                    document.getElementById('prof_username').value = u.username || '';
+                    
+                    const img = document.getElementById('prof_prev_img');
+                    img.src = u.photoUrl || 'https://via.placeholder.com/100';
+                }
+                new bootstrap.Modal(document.getElementById('profileModal')).show();
+            });
+        }
+
+        function previewProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('prof_prev_img').src = e.target.result;
+                    profilePhotoBase64 = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('prof_name').value;
+            const phone = document.getElementById('prof_phone').value;
+            const depot = document.getElementById('prof_depot').value;
+            const username = document.getElementById('prof_username').value;
+
+            if(!name || !username) { alert("Name and Username required"); return; }
+
+            const updates = {
+                name: name,
+                phone: phone,
+                depot: depot,
+                username: username
+            };
+
+            if(profilePhotoBase64) {
+                updates.photoUrl = profilePhotoBase64;
+            }
+
+            database.ref('Users/' + currentUser.id).update(updates).then(() => {
+                alert("Profile Updated!");
+                currentUser.name = name;
+                currentUser.depot = depot;
+                currentUser.photoUrl = profilePhotoBase64 || currentUser.photoUrl;
+                
+                // Update Header
+                document.getElementById('header_user_name').innerText = name;
+                if(currentUser.photoUrl) document.getElementById('header_profile_pic').src = currentUser.photoUrl;
+                
+                bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
+            }).catch(e => alert(e.message));
+        }
+
+        function openChangePassModal() {
+            if(!currentUser || currentUser.id === 'admin_001') {
+                alert("Admin password cannot be changed here.");
+                return;
+            }
+            document.getElementById('cp_current').value = '';
+            document.getElementById('cp_new').value = '';
+            document.getElementById('cp_confirm').value = '';
+            new bootstrap.Modal(document.getElementById('changePassModal')).show();
+        }
+
+        function changePassword() {
+            const curr = document.getElementById('cp_current').value;
+            const newP = document.getElementById('cp_new').value;
+            const conf = document.getElementById('cp_confirm').value;
+
+            if(!curr || !newP || !conf) { alert("Fill all fields"); return; }
+            if(newP !== conf) { alert("New passwords do not match"); return; }
+
+            database.ref('Users/' + currentUser.id).once('value', snap => {
+                const u = snap.val();
+                if(u.password !== curr) {
+                    alert("Current password is incorrect");
+                    return;
+                }
+
+                database.ref('Users/' + currentUser.id).update({ password: newP })
+                .then(() => { alert("Password changed successfully!"); bootstrap.Modal.getInstance(document.getElementById('changePassModal')).hide(); })
+                .catch(e => alert(e.message));
+            });
+        }
 
         // ================= PRESENCE SYSTEM =================
         function setupPresence() {
@@ -985,12 +1176,15 @@
             document.getElementById('login_section').classList.add('hidden');
             document.getElementById('dashboard_section').classList.remove('hidden');
             
-            let welcomeText = `Welcome: ${currentUser.name}`;
-            if(currentUser.role === 'admin' && currentUser.designation) {
-                welcomeText += ` (${currentUser.designation})`;
+            // Update Header Info
+            document.getElementById('header_user_name').innerText = currentUser.name;
+            const headerPic = document.getElementById('header_profile_pic');
+            if(currentUser.photoUrl) {
+                headerPic.src = currentUser.photoUrl;
+            } else {
+                headerPic.src = "https://via.placeholder.com/30"; 
             }
-            document.getElementById('welcome_msg').innerText = welcomeText;
-            
+
             document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'none');
             document.querySelectorAll('.user-only').forEach(item => item.style.display = 'none');
             
@@ -999,7 +1193,7 @@
             document.getElementById('dash-tab').classList.add('active');
             document.getElementById('dashTab').classList.add('show', 'active');
 
-            setupPresence(); // Setup online status
+            setupPresence(); 
 
             if(currentUser.role !== 'admin') {
                 document.querySelectorAll('.user-only').forEach(item => item.style.display = 'block');
@@ -1243,6 +1437,19 @@
         }
 
         function markNotifRead(notifId) { database.ref('UserNotifications/' + currentUser.id + '/' + notifId).update({ read: true }); }
+
+        // ================= IMAGE HANDLING =================
+        function previewUserPhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('photo_preview').src = e.target.result;
+                    document.getElementById('photo_preview').classList.remove('hidden');
+                    userPhotoBase64 = e.target.result; 
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         // ================= BILL ENTRY LOGIC =================
         function prepareBillEntryForm() {
@@ -1890,12 +2097,36 @@
             const role = document.getElementById('new_user_role').value;
 
             if (!name || !username || !password || !userIdManual) { alert("Fill required fields"); return; }
+            
             const newUserRef = database.ref('Users').push();
-            newUserRef.set({ userId: userIdManual, name: name, phone: phone, depot: depot, username: username, password: password, role: role }, (error) => {
-                if(error) alert("Error"); else { alert("User Created!"); 
-                    document.getElementById('new_user_id').value = ''; document.getElementById('new_user_name').value = ''; document.getElementById('new_user_phone').value = '';
-                    document.getElementById('new_user_username').value = ''; document.getElementById('new_user_pass').value = ''; document.getElementById('new_user_depot').value = 'Kushtia';
+            const userData = { 
+                userId: userIdManual, 
+                name: name, 
+                phone: phone, 
+                depot: depot, 
+                username: username, 
+                password: password, 
+                role: role 
+            };
+
+            // Add photo if available
+            if(userPhotoBase64) {
+                userData.photoUrl = userPhotoBase64;
+            }
+
+            newUserRef.set(userData, (error) => {
+                if(error) alert("Error"); else { 
+                    alert("User Created!"); 
+                    document.getElementById('new_user_id').value = ''; 
+                    document.getElementById('new_user_name').value = ''; 
+                    document.getElementById('new_user_phone').value = '';
+                    document.getElementById('new_user_username').value = ''; 
+                    document.getElementById('new_user_pass').value = ''; 
+                    document.getElementById('new_user_depot').value = 'Kushtia';
                     document.getElementById('new_user_role').value = 'user';
+                    document.getElementById('new_user_photo').value = '';
+                    document.getElementById('photo_preview').classList.add('hidden');
+                    userPhotoBase64 = null;
                     loadDAListForIOU(); 
                 }
             });
