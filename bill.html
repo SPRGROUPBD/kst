@@ -88,15 +88,14 @@
         .clickable-row { cursor: pointer; }
         .clickable-row:hover { background-color: #e0f7fa; }
         
-        /* Management Tab Accordion Style */
-        .mgmt-section { border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 10px; }
-        .mgmt-header { background-color: #f8f9fa; padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 1px solid #dee2e6; }
-        .mgmt-body { padding: 10px; }
+        /* Admin Inbox Item Style */
+        .inbox-item { border-bottom: 1px solid #eee; padding: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .inbox-item.unread { background-color: #fff3cd; }
+        .inbox-item.read { background-color: #fff; opacity: 0.7; }
         
-        /* Approved Bill Summary Styles */
-        .summary-row-ok { background-color: #d4edda; }
-        .summary-row-warn { background-color: #fff3cd; }
-        .summary-row-danger { background-color: #f8d7da; }
+        /* Online User Dot */
+        .online-dot { width: 8px; height: 8px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
         /* Scrollable List Styles */
         .scroll-box-sm { max-height: 200px; overflow-y: auto; }
@@ -124,7 +123,7 @@
                 min-width: 75px;
             }
             #expense_table_body th:nth-child(1), #expense_table_body td:nth-child(1) { min-width: 95px; }
-            #expense_table_body th:nth-child(4), #expense_table_body td:nth-child(4) { min-width: 60px; }
+            #expense_table_body th:nth-child(4), #expense_table_body td:nth-child(4] { min-width: 60px; }
             
             .quick-entry-card .row.g-1 > div {
                 margin-bottom: 5px;
@@ -166,7 +165,6 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
-            <!-- Admin Specific Tabs -->
             <li class="nav-item admin-only" role="presentation">
                 <button class="nav-link" id="iou-tab" data-bs-toggle="tab" data-bs-target="#iouTab" type="button">IOU List</button>
             </li>
@@ -223,10 +221,23 @@
 
                     <!-- Admin Dashboard Forms Row -->
                     <div class="row mb-3">
-                        <!-- LEFT COLUMN: New User Record -->
+                        <!-- LEFT COLUMN: Controls -->
                         <div class="col-md-6 mb-3">
+                            
+                            <!-- Online Users Card (Top Priority) -->
+                            <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
+                                    <span class="badge bg-light text-success" id="online_count_badge">0</span>
+                                </div>
+                                <div class="card-body p-2 scroll-box-sm" id="online_users_list">
+                                    <div class="text-center text-muted p-2">Checking...</div>
+                                </div>
+                            </div>
+
+                            <!-- New User Record -->
                             <div class="card dash-card no-print">
-                                <div class="card-header bg-success text-white py-2">New User Record</div>
+                                <div class="card-header bg-primary text-white py-2">New User Record</div>
                                 <div class="card-body">
                                     <div class="row g-2">
                                         <div class="col-md-6">
@@ -267,7 +278,7 @@
                                                 <option value="admin">Admin</option>
                                             </select>
                                         </div>
-                                        <div class="col-12"><button onclick="saveNewUser()" class="btn btn-success w-100 btn-sm mt-2">Save Record</button></div>
+                                        <div class="col-12"><button onclick="saveNewUser()" class="btn btn-primary w-100 btn-sm mt-2">Save Record</button></div>
                                     </div>
                                 </div>
                             </div>
@@ -276,7 +287,7 @@
                         <!-- RIGHT COLUMN: IOU Entry Form -->
                         <div class="col-md-6 mb-3">
                             <div class="card dash-card no-print">
-                                <div class="card-header bg-primary text-white py-2">IOU Entry</div>
+                                <div class="card-header bg-info text-white py-2">IOU Entry</div>
                                 <div class="card-body">
                                     <div class="row g-2 mb-2">
                                         <div class="col-6 col-md-3"><label>Date</label><input type="date" id="iou_date" class="form-control form-control-sm"></div>
@@ -368,7 +379,10 @@
                                     <div class="mb-2">
                                         <textarea id="notif_msg_dash" class="form-control" rows="2" placeholder="Type message..."></textarea>
                                     </div>
-                                    <button onclick="sendNotification()" class="btn btn-primary btn-sm w-100">Send to All Users</button>
+                                    <!-- Aligned Right -->
+                                    <div class="text-end">
+                                        <button onclick="sendNotification()" class="btn btn-primary btn-sm"><i class="bi bi-send"></i> Send to All Users</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -378,11 +392,7 @@
                                     <h6 class="mb-0"><i class="bi bi-envelope"></i> User Messages</h6>
                                 </div>
                                 <div class="card-body p-0 scroll-box-md" id="admin_inbox_container">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0">
-                                            <tbody id="admin_inbox_body_dash"><tr><td class="text-center p-2">Loading...</td></tr></tbody>
-                                        </table>
-                                    </div>
+                                    <div class="text-center p-2 text-muted">Loading...</div>
                                 </div>
                             </div>
                         </div>
@@ -591,7 +601,7 @@
                 </div></div>
             </div>
 
-            <!-- Admin Tab: IOU List (Previously IOU Entry) -->
+            <!-- Admin Tab: IOU List -->
             <div class="tab-pane fade admin-only" id="iouTab" role="tabpanel">
                 <div class="card dash-card no-print">
                     <div class="card-header bg-primary text-white py-2">IOU List & Management</div>
@@ -945,11 +955,29 @@
             });
         }
 
-        function logout() { currentUser = null; location.reload(); }
+        function logout() { 
+            if(currentUser) {
+                database.ref('OnlineUsers/' + currentUser.id).remove();
+            }
+            currentUser = null; 
+            location.reload(); 
+        }
         
         function resetAllTabs() {
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+        }
+
+        // ================= PRESENCE SYSTEM =================
+        function setupPresence() {
+            if (!currentUser) return;
+            const presenceRef = database.ref('OnlineUsers/' + currentUser.id);
+            presenceRef.set({
+                name: currentUser.name,
+                role: currentUser.role,
+                lastOnline: firebase.database.ServerValue.TIMESTAMP
+            });
+            presenceRef.onDisconnect().remove();
         }
 
         // ================= DASHBOARD VIEW =================
@@ -971,6 +999,8 @@
             document.getElementById('dash-tab').classList.add('active');
             document.getElementById('dashTab').classList.add('show', 'active');
 
+            setupPresence(); // Setup online status
+
             if(currentUser.role !== 'admin') {
                 document.querySelectorAll('.user-only').forEach(item => item.style.display = 'block');
                 loadUserDashboardData(); 
@@ -980,6 +1010,7 @@
                 loadAdminDashboardData(); 
                 loadIOUListGlobal(); 
                 loadAdminIOU(); 
+                listenForOnlineUsers(); 
             }
 
             prepareBillEntryForm();
@@ -1035,19 +1066,57 @@
             loadDashboardStats(); 
             loadApprovedBillSummary(); 
 
-            database.ref('AdminInbox').orderByChild('timestamp').limitToLast(6).on('value', snap => {
-                const tbody = document.getElementById('admin_inbox_body_dash');
-                tbody.innerHTML = '';
-                if(!snap.exists()) { tbody.innerHTML = '<tr><td class="text-center p-2">No messages</td></tr>'; return; }
+            database.ref('AdminInbox').orderByChild('timestamp').limitToLast(10).on('value', snap => {
+                const container = document.getElementById('admin_inbox_container');
+                container.innerHTML = '';
+                if(!snap.exists()) { container.innerHTML = '<div class="text-center p-2 text-muted">No messages</div>'; return; }
                 
                 const data = [];
                 snap.forEach(c => data.push({key: c.key, ...c.val()}));
                 data.reverse().forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.className = item.read ? '' : 'table-warning';
-                    tr.innerHTML = `<td><small>${new Date(item.timestamp).toLocaleString()}</small><br><b>${item.senderName}:</b> ${item.message}</td>`;
-                    tbody.appendChild(tr);
+                    const div = document.createElement('div');
+                    div.className = `inbox-item ${item.read ? 'read' : 'unread'}`;
+                    
+                    const dateStr = new Date(item.timestamp).toLocaleString();
+                    
+                    div.innerHTML = `
+                        <div style="flex-grow: 1;">
+                            <div><small class="text-muted">${dateStr}</small></div>
+                            <div><b>${item.senderName}:</b> ${item.message}</div>
+                        </div>
+                        <div>
+                            ${!item.read ? `<button class="btn btn-sm btn-outline-secondary" onclick="markAdminMsgRead('${item.key}')"><i class="bi bi-check2"></i> Read</button>` : '<small class="text-success"><i class="bi bi-check-all"></i></small>'}
+                        </div>
+                    `;
+                    container.appendChild(div);
                 });
+            });
+        }
+
+        function markAdminMsgRead(msgId) {
+            database.ref('AdminInbox/' + msgId).update({ read: true });
+        }
+
+        // Listen for Online Users
+        function listenForOnlineUsers() {
+            const listContainer = document.getElementById('online_users_list');
+            const countBadge = document.getElementById('online_count_badge');
+
+            database.ref('OnlineUsers').on('value', snap => {
+                listContainer.innerHTML = '';
+                let count = 0;
+                if(snap.exists()) {
+                    snap.forEach(child => {
+                        const u = child.val();
+                        count++;
+                        const div = document.createElement('div');
+                        div.className = 'p-1 d-flex align-items-center';
+                        div.innerHTML = `<span class="online-dot"></span> ${u.name} <small class="text-muted ms-auto">${u.role === 'admin' ? 'Admin' : 'DA'}</small>`;
+                        listContainer.appendChild(div);
+                    });
+                }
+                countBadge.innerText = count;
+                if(count === 0) listContainer.innerHTML = '<div class="text-center text-muted p-2">No users online</div>';
             });
         }
 
@@ -1383,7 +1452,6 @@
                 const selectAdd = document.getElementById('iou_da_name');
                 const selectFilter = document.getElementById('filter_iou_da');
                 
-                // Reset cache
                 daListCache = {}; 
 
                 if(selectAdd) selectAdd.innerHTML = '<option value="">Select DA</option>'; 
@@ -1401,12 +1469,10 @@
                     });
                 }
 
-                // Update History Filter
                 populateHistoryDAFilter();
             });
         }
 
-        // Helper to populate history filter
         function populateHistoryDAFilter() {
             const select = document.getElementById('filter_history_da');
             if(!select) return;
@@ -1462,7 +1528,6 @@
                 document.getElementById('iou_bundle_qty').value = d.bundleQty || 0; 
                 document.getElementById('iou_taka').value = d.taka; document.getElementById('iou_percent').value = d.percent;
                 editingIouId = id; document.getElementById('iou_save_btn').innerText = "Update"; document.getElementById('iou_cancel_btn').classList.remove('hidden');
-                // Switch to Dashboard to show the form (since form is on dashboard now)
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active')); 
                 document.getElementById('dashTab').classList.add('show', 'active');
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); 
@@ -1554,10 +1619,7 @@
             const tableBody = document.getElementById('bill_table_body');
             const tableFoot = document.getElementById('bill_table_foot');
             
-            // Get filter value
             const selectedDA = document.getElementById('filter_history_da')?.value || '';
-
-            // Prepare Totals
             let sumSales = 0, sumIOU = 0, sumClaimed = 0, sumApproved = 0;
 
             tableBody.innerHTML = '<tr><td colspan="12" class="text-center">Loading...</td></tr>';
@@ -1586,9 +1648,7 @@
                             const billId = billSnapshot.key;
                             const daId = bill.daId;
 
-                            // Admin Filter Logic
                             if (currentUser.role === 'admin' && selectedDA && bill.daId !== selectedDA) return;
-
                             if (currentUser.role === 'user' && bill.daId !== currentUser.id) return;
                             if (currentUser.role === 'admin' && bill.status === 'draft') return;
 
@@ -1617,8 +1677,6 @@
                             const approvedPercent = sales > 0 ? ((approvedAmount / sales) * 100).toFixed(1) : 0;
 
                             if (currentUser.role === 'admin') {
-                                
-                                // Add to totals (Admin Only for filtered view)
                                 sumSales += sales;
                                 sumIOU += iou;
                                 sumClaimed += originalAmount;
@@ -1680,9 +1738,7 @@
                     });
                 });
 
-                // Update Footer with Totals (Admin Only)
                 if(currentUser.role === 'admin') {
-                    // Calculate Total Percentages
                     const totalClaimedPercent = sumSales > 0 ? ((sumClaimed / sumSales) * 100).toFixed(1) + "%" : "0%";
                     const totalApprovedPercent = sumSales > 0 ? ((sumApproved / sumSales) * 100).toFixed(1) + "%" : "0%";
 
@@ -1840,7 +1896,7 @@
                     document.getElementById('new_user_id').value = ''; document.getElementById('new_user_name').value = ''; document.getElementById('new_user_phone').value = '';
                     document.getElementById('new_user_username').value = ''; document.getElementById('new_user_pass').value = ''; document.getElementById('new_user_depot').value = 'Kushtia';
                     document.getElementById('new_user_role').value = 'user';
-                    loadDAListForIOU(); // Reloads list and updates History filter
+                    loadDAListForIOU(); 
                 }
             });
         }
