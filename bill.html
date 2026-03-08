@@ -27,11 +27,6 @@
         .quick-entry-card label { font-size: 11px; font-weight: bold; color: #0d47a1; }
         #auto_save_status { font-size: 11px; margin-left: 10px; }
 
-        /* Notification Styles - Kept for internal logic if needed, but UI removed */
-        .notif-item { cursor: pointer; border-bottom: 1px solid #eee; padding: 10px; }
-        .notif-item.unread { background-color: #e3f2fd; font-weight: bold; }
-        .notif-item.read { background-color: #fff; color: #888; }
-        
         /* Dashboard UI Styles */
         .dash-card {
             border-radius: 10px;
@@ -54,18 +49,22 @@
         .bg-dash-pending { background: linear-gradient(45deg, #ffc107, #e0a800); }
         .bg-dash-approved { background: linear-gradient(45deg, #28a745, #218838); }
         
-        .user-card {
-            border-left: 4px solid #0d6efd;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .user-card:hover {
-            background-color: #f8f9fa;
-            border-left-color: #0a58ca;
-        }
+        /* Online User Dot */
+        .online-dot { width: 8px; height: 8px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* Scrollable List Styles */
+        .scroll-box-sm { max-height: 200px; overflow-y: auto; }
+        .scroll-box-md { max-height: 250px; overflow-y: auto; }
+        .scroll-box-lg { max-height: 400px; overflow-y: auto; }
+        
+        /* Profile Image Styles */
+        .profile-img-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
+        .profile-img-lg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #0d6efd; }
 
         /* Print Style */
-        .print-container { display: none; }
+        .print-container { display: none; position: relative; }
+        
         @media print {
             body * { visibility: hidden; }
             .print-container, .print-container * { visibility: visible; }
@@ -84,52 +83,14 @@
         .payable-amount { color: green; font-weight: bold; }
         .clickable-row { cursor: pointer; }
         .clickable-row:hover { background-color: #e0f7fa; }
-        
-        /* Admin Inbox Item Style */
-        .inbox-item { border-bottom: 1px solid #eee; padding: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .inbox-item.unread { background-color: #fff3cd; }
-        .inbox-item.read { background-color: #fff; opacity: 0.7; }
-        
-        /* Online User Dot */
-        .online-dot { width: 8px; height: 8px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-        /* Scrollable List Styles */
-        .scroll-box-sm { max-height: 200px; overflow-y: auto; }
-        .scroll-box-md { max-height: 250px; overflow-y: auto; }
-        .scroll-box-lg { max-height: 400px; overflow-y: auto; }
-        
-        /* Profile Image Styles */
-        .profile-img-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
-        .profile-img-lg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #0d6efd; }
-
-        /* ========== MOBILE OPTIMIZATION STYLES ========== */
+        /* Mobile Optimization */
         @media (max-width: 768px) {
             .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
             .form-control, .form-select { font-size: 0.85rem; }
             h3 { font-size: 1.2rem; } h5 { font-size: 1rem; }
-
-            #expense_table_body input, 
-            #expense_table_body select {
-                font-size: 11px; 
-                padding: 0.2rem 0.3rem; 
-                height: 26px;
-            }
-            #expense_table_body .btn-sm {
-                padding: 0.1rem 0.3rem;
-                font-size: 10px;
-            }
-            #expense_table_body th:nth-child(2), #expense_table_body td:nth-child(2),
-            #expense_table_body th:nth-child(3), #expense_table_body td:nth-child(3) {
-                min-width: 75px;
-            }
-            #expense_table_body th:nth-child(1), #expense_table_body td:nth-child(1) { min-width: 95px; }
-            #expense_table_body th:nth-child(4), #expense_table_body td:nth-child(4] { min-width: 60px; }
-            
-            .quick-entry-card .row.g-1 > div {
-                margin-bottom: 5px;
-            }
-            .nav-tabs .nav-link { padding: 8px 10px; font-size: 12px; }
+            #expense_table_body input, #expense_table_body select { font-size: 11px; padding: 0.2rem 0.3rem; height: 26px; }
+            #expense_table_body .btn-sm { padding: 0.1rem 0.3rem; font-size: 10px; }
         }
     </style>
 </head>
@@ -179,8 +140,6 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
-            <!-- Notification and Contact Us Tabs REMOVED from here -->
-            
             <li class="nav-item admin-only" role="presentation">
                 <button class="nav-link" id="iou-tab" data-bs-toggle="tab" data-bs-target="#iouTab" type="button">IOU List</button>
             </li>
@@ -190,8 +149,7 @@
             
             <!-- DASHBOARD TAB -->
             <div class="tab-pane fade" id="dashTab" role="tabpanel">
-                
-                <!-- ADMIN DASHBOARD VIEW -->
+                <!-- Admin Dashboard Content -->
                 <div class="admin-only">
                     <div class="row mb-3">
                         <div class="col-4">
@@ -235,13 +193,9 @@
                         </div>
                     </div>
 
-                    <!-- Admin Dashboard Layout Main Row -->
                     <div class="row">
-                        
-                        <!-- LEFT COLUMN: IOU (Top) & New User (Bottom) -->
                         <div class="col-md-6 mb-3">
-                            
-                            <!-- IOU Entry Form (Top) -->
+                            <!-- IOU Entry Form -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">IOU Entry</div>
                                 <div class="card-body">
@@ -261,13 +215,12 @@
                                         <div class="col-4 col-md-2"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
                                         <div class="col-4 col-md-2"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
                                     </div>
-
                                     <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100">Save IOU Entry</button>
                                     <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 hidden">Cancel Edit</button>
                                 </div>
                             </div>
 
-                            <!-- New User Record (Bottom) -->
+                            <!-- New User Record -->
                             <div class="card dash-card no-print">
                                 <div class="card-header bg-primary text-white py-2">New User Record</div>
                                 <div class="card-body">
@@ -280,14 +233,11 @@
                                             <label class="fw-bold text-muted">Name</label>
                                             <input type="text" id="new_user_name" class="form-control form-control-sm" placeholder="Full Name">
                                         </div>
-                                        
-                                        <!-- Photo Upload -->
                                         <div class="col-md-6">
                                             <label class="fw-bold text-muted">Photo</label>
                                             <input type="file" id="new_user_photo" class="form-control form-control-sm" accept="image/*" onchange="previewUserPhoto(this)">
                                             <img id="photo_preview" src="" class="mt-1 hidden" width="40" height="40" style="border-radius:50%; object-fit:cover;">
                                         </div>
-
                                         <div class="col-md-6">
                                             <label class="fw-bold text-muted">Phone</label>
                                             <input type="text" id="new_user_phone" class="form-control form-control-sm" placeholder="01xxxxxxxxx">
@@ -299,10 +249,8 @@
                                                 <option value="Other Depot">Other Depot</option>
                                             </select>
                                         </div>
-                                        
                                         <div class="col-12"><hr class="my-1"></div>
                                         <h6 class="text-muted col-12 mb-1">Login Information</h6>
-
                                         <div class="col-md-6">
                                             <label class="fw-bold text-muted">Username</label>
                                             <input type="text" id="new_user_username" class="form-control form-control-sm" placeholder="Login ID">
@@ -325,10 +273,7 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT COLUMN: Tables & Messages -->
                         <div class="col-md-6 mb-3">
-                            
-                            <!-- Online Users Card -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
@@ -339,7 +284,6 @@
                                 </div>
                             </div>
 
-                            <!-- DA Wise Bill Status -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-people"></i> DA Wise Bill Status</h6>
@@ -364,7 +308,6 @@
                                 </div>
                             </div>
 
-                            <!-- Approved Bill vs IOU Summary -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> Approved Bill vs IOU Summary</h6>
@@ -388,7 +331,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -396,9 +338,7 @@
                 <!-- USER DASHBOARD VIEW -->
                 <div class="user-only">
                     <div class="row">
-                        <!-- LEFT COLUMN: IOU Section -->
                         <div class="col-md-6 mb-3">
-                            <!-- User: Active IOU -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-primary text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-cash-stack"></i> My Active IOU</h6>
@@ -413,7 +353,6 @@
                                 </div>
                             </div>
                             
-                            <!-- User: Used IOU -->
                             <div class="card dash-card no-print">
                                 <div class="card-header bg-secondary text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-check-circle"></i> Used IOU</h6>
@@ -429,9 +368,17 @@
                             </div>
                         </div>
                         
-                        <!-- RIGHT COLUMN: Quick Links -->
                         <div class="col-md-6 mb-3">
-                            <!-- User: Quick Actions -->
+                             <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Online Users</h6>
+                                    <span class="badge bg-light text-success" id="user_online_count_badge">0</span>
+                                </div>
+                                <div class="card-body p-2 scroll-box-sm" id="user_online_list_view">
+                                    <div class="text-center text-muted p-2">Checking...</div>
+                                </div>
+                            </div>
+
                             <div class="card dash-card no-print">
                                 <div class="card-header bg-info text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-lightning"></i> Quick Links</h6>
@@ -441,7 +388,6 @@
                                     <ul>
                                         <li>Create a <strong>New Bill</strong> (Bill Entry Tab)</li>
                                         <li>View your <strong>Bill History</strong></li>
-                                        <!-- Removed Notification and Contact links -->
                                     </ul>
                                 </div>
                             </div>
@@ -561,7 +507,6 @@
             <!-- Tab: Bill History -->
             <div class="tab-pane fade" id="billTab" role="tabpanel">
                 
-                <!-- ADMIN FILTER SECTION -->
                 <div class="card dash-card no-print mb-2 admin-only">
                     <div class="card-body p-2">
                         <div class="row g-2 align-items-end">
@@ -587,17 +532,11 @@
                 </div></div>
             </div>
 
-            <!-- Notification Tab REMOVED -->
-
-            <!-- Contact Us Tab REMOVED -->
-
             <!-- Admin Tab: IOU List -->
             <div class="tab-pane fade admin-only" id="iouTab" role="tabpanel">
                 <div class="card dash-card no-print">
                     <div class="card-header bg-primary text-white py-2">IOU List & Management</div>
                     <div class="card-body">
-                        
-                        <!-- Filters Only -->
                         <div class="row g-2 mb-2 p-2 bg-light border rounded align-items-end">
                             <div class="col-6 col-md-3">
                                 <label class="fw-bold text-muted">From Date</label>
@@ -633,7 +572,7 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
+    <!-- Modals -->
     <div class="modal fade no-print" id="profileModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -680,7 +619,6 @@
         </div>
     </div>
 
-    <!-- Change Password Modal -->
     <div class="modal fade no-print" id="changePassModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -710,12 +648,11 @@
         </div>
     </div>
 
-    <!-- Cut Bill Modal (For Admin/DIC) -->
     <div class="modal fade no-print" id="cutBillModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-warning py-1">
-                    <h5 class="modal-title">Bill Checking & Deduction (DIC)</h5>
+                    <h5 class="modal-title">Bill Checking & Deduction</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-2">
@@ -728,7 +665,7 @@
                 </div>
                 <div class="modal-footer py-1">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    <button onclick="saveDeduction()" type="button" class="btn btn-success btn-sm">Save & Send for Approval</button>
+                    <button onclick="saveDeduction()" type="button" class="btn btn-success btn-sm">Save & Mark as Checked</button>
                 </div>
             </div>
         </div>
@@ -782,18 +719,17 @@
             </div>
         </div>
         
-        <!-- Signature Section Logic -->
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <tr class="sign-row">
                 <td style="width: 25%; text-align: center; vertical-align: bottom; font-weight: bold;"><span id="p_prepared_by"></span></td>
                 <td style="width: 25%; text-align: center; vertical-align: bottom; font-weight: bold;"><span id="p_checked_by"></span></td>
-                <td style="width: 25%; text-align: center; vertical-align: bottom; font-weight: bold;"><span id="p_approved_by"></span></td>
+                <td style="width: 25%; text-align: center; vertical-align: bottom; font-weight: bold;"><span id="p_rechecked_by"></span></td>
                 <td style="width: 25%; text-align: center; vertical-align: bottom;"></td>
             </tr>
             <tr>
                 <td style="width: 25%; text-align: center;">Prepared By</td>
                 <td style="width: 25%; text-align: center;">Checked By DIC</td>
-                <td style="width: 25%; text-align: center;">ReChecked By RSM</td>
+                <td style="width: 25%; text-align: center;">Rechecked By RSM</td>
                 <td style="width: 25%; text-align: center;">Approved By</td>
             </tr>
         </table>
@@ -830,7 +766,7 @@
         let originalIouId = null; 
         let iouListGlobal = {}; 
         let userPhotoBase64 = null; 
-        let profilePhotoBase64 = null; 
+        let profilePhotoBase64 = null;
 
         // ================= AUTO SAVE LOGIC =================
         let autoSaveTimeout;
@@ -1002,7 +938,6 @@
             const passVal = document.getElementById('password').value;
 
             if (userVal === 'KS' && passVal === 'Monico@Ku007') {
-                // Hardcoded Super Admin
                 currentUser = { name: 'Md Sajjad Ahmed', role: 'superadmin', depot: 'Kushtia', designation: 'RSM', id: 'admin_001' };
                 showDashboard();
                 return;
@@ -1050,7 +985,7 @@
                 alert("Admin profile cannot be edited here.");
                 return;
             }
-            profilePhotoBase64 = null; // Reset
+            profilePhotoBase64 = null; 
             database.ref('Users/' + currentUser.id).once('value', snap => {
                 const u = snap.val();
                 if(u) {
@@ -1102,7 +1037,6 @@
                 currentUser.depot = depot;
                 currentUser.photoUrl = profilePhotoBase64 || currentUser.photoUrl;
                 
-                // Update Header
                 document.getElementById('header_user_name').innerText = name;
                 if(currentUser.photoUrl) document.getElementById('header_profile_pic').src = currentUser.photoUrl;
                 
@@ -1159,7 +1093,6 @@
             document.getElementById('login_section').classList.add('hidden');
             document.getElementById('dashboard_section').classList.remove('hidden');
             
-            // Update Header Info
             document.getElementById('header_user_name').innerText = currentUser.name;
             const headerPic = document.getElementById('header_profile_pic');
             if(currentUser.photoUrl) {
@@ -1168,7 +1101,6 @@
                 headerPic.src = "https://via.placeholder.com/30"; 
             }
 
-            // Role Based Visibility
             document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'none');
             document.querySelectorAll('.user-only').forEach(item => item.style.display = 'none');
             document.querySelectorAll('.superadmin-only').forEach(item => item.style.display = 'none');
@@ -1180,10 +1112,11 @@
 
             setupPresence(); 
 
+            listenForOnlineUsers(); 
+
             if(currentUser.role === 'user') {
                 document.querySelectorAll('.user-only').forEach(item => item.style.display = 'block');
                 loadUserDashboardData(); 
-                // Removed listenForUserNotifications
             } else {
                 // Both Admin and SuperAdmin see admin dashboard
                 document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'block');
@@ -1191,8 +1124,6 @@
                 loadAdminDashboardData(); 
                 loadIOUListGlobal(); 
                 loadAdminIOU(); 
-                listenForOnlineUsers();
-                // Removed listenForAdminInbox
             }
 
             prepareBillEntryForm();
@@ -1225,7 +1156,6 @@
             });
 
             loadUserIOU(); 
-            // Removed loadUserSentMessages
         }
 
         // ================= ADMIN DASHBOARD DATA =================
@@ -1234,26 +1164,41 @@
             loadApprovedBillSummary(); 
         }
 
-        // Listen for Online Users
         function listenForOnlineUsers() {
-            const listContainer = document.getElementById('online_users_list');
-            const countBadge = document.getElementById('online_count_badge');
+            const adminListContainer = document.getElementById('online_users_list');
+            const adminCountBadge = document.getElementById('online_count_badge');
+            
+            const userListContainer = document.getElementById('user_online_list_view');
+            const userCountBadge = document.getElementById('user_online_count_badge');
 
             database.ref('OnlineUsers').on('value', snap => {
-                listContainer.innerHTML = '';
+                let adminHtml = '';
+                let userHtml = '';
                 let count = 0;
+                
                 if(snap.exists()) {
                     snap.forEach(child => {
                         const u = child.val();
                         count++;
-                        const div = document.createElement('div');
-                        div.className = 'p-1 d-flex align-items-center';
-                        div.innerHTML = `<span class="online-dot"></span> ${u.name} <small class="text-muted ms-auto">${u.role === 'superadmin' ? 'Super Admin' : u.role === 'admin' ? 'Admin' : 'DA'}</small>`;
-                        listContainer.appendChild(div);
+                        let itemHtml = `<div class="p-1 d-flex align-items-center">
+                            <span class="online-dot"></span> ${u.name} 
+                            <small class="text-muted ms-auto">${u.role === 'superadmin' ? 'Super Admin' : u.role === 'admin' ? 'Admin' : 'DA'}</small>
+                        </div>`;
+                        
+                        adminHtml += itemHtml;
+                        userHtml += itemHtml;
                     });
                 }
-                countBadge.innerText = count;
-                if(count === 0) listContainer.innerHTML = '<div class="text-center text-muted p-2">No users online</div>';
+
+                if(adminListContainer) {
+                    adminListContainer.innerHTML = adminHtml || '<div class="text-center text-muted p-2">No users online</div>';
+                    adminCountBadge.innerText = count;
+                }
+                
+                if(userListContainer) {
+                    userListContainer.innerHTML = userHtml || '<div class="text-center text-muted p-2">No users online</div>';
+                    userCountBadge.innerText = count;
+                }
             });
         }
 
@@ -1261,9 +1206,8 @@
         function loadDashboardStats() {
             database.ref('Bills').on('value', (snapshot) => {
                 let totalBills = 0;
-                let pendingBills = 0; // Red
-                let checkedBills = 0; // Orange
-                let approvedBills = 0; // Green
+                let pendingBills = 0; 
+                let approvedBills = 0; 
                 const daStats = {}; 
 
                 if(snapshot.exists()) {
@@ -1278,16 +1222,22 @@
                                 daStats[daId].total++;
                                 daStats[daId].amount += bill.totalAmount || 0;
                                 
-                                if(bill.status === 'red') { pendingBills++; daStats[daId].pending++; } 
-                                else if(bill.status === 'orange') { checkedBills++; } 
-                                else if(bill.status === 'green') { approvedBills++; daStats[daId].approved++; }
+                                // Status Logic for Stats
+                                if(bill.status === 'green') {
+                                    approvedBills++; 
+                                    daStats[daId].approved++;
+                                } else {
+                                    // Both 'red' and 'orange' are pending for approval from Super Admin perspective or User perspective
+                                    pendingBills++; 
+                                    daStats[daId].pending++;
+                                }
                             });
                         });
                     });
                 }
 
                 document.getElementById('dash_total_count').innerText = totalBills;
-                document.getElementById('dash_pending_count').innerText = pendingBills + checkedBills; 
+                document.getElementById('dash_pending_count').innerText = pendingBills; 
                 document.getElementById('dash_approved_count').innerText = approvedBills;
 
                 const tbody = document.getElementById('dash_da_table_body');
@@ -1344,10 +1294,8 @@
                         const totalApp = billInfo.totalApproved || 0;
                         const balance = totalApp - totalIou;
                         const name = billInfo.name || iouInfo.name || id;
-                        let rowClass = '';
 
                         const tr = document.createElement('tr');
-                        tr.className = rowClass;
                         tr.innerHTML = `<td>${name}</td><td class="text-end fw-bold">${totalIou.toFixed(2)}</td><td class="text-end fw-bold">${totalApp.toFixed(2)}</td><td class="text-end fw-bold">${balance.toFixed(2)}</td><td class="text-center">${balance < 0 ? '<span class="badge bg-danger">Due Bill</span>' : '<span class="badge bg-success">Clear</span>'}</td>`;
                         tbody.appendChild(tr);
                     });
@@ -1464,7 +1412,8 @@
                 originalAmount: grandTotal, 
                 status: statusType, timestamp: Date.now(), 
                 iouId: currentIouId,
-                iouAmount: iouAmount 
+                iouAmount: iouAmount,
+                deduction: 0
             };
             
             let expenses = [];
@@ -1744,15 +1693,17 @@
             const tableFoot = document.getElementById('bill_table_foot');
             
             const selectedDA = document.getElementById('filter_history_da')?.value || '';
-            let sumSales = 0, sumIOU = 0, sumClaimed = 0, sumApproved = 0;
 
             tableBody.innerHTML = '<tr><td colspan="12" class="text-center">Loading...</td></tr>';
             tableFoot.innerHTML = '';
             
-            if(currentUser.role !== 'user') {
-                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Depot</th><th>Route</th><th>IOU</th><th>SALES</th><th>Amount</th><th>%</th><th>Approved Amt</th><th>%</th><th>Status</th><th>Action</th></tr>`;
-            } else {
-                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Depot</th><th>Route</th><th>Amount</th><th>Status</th><th>Action</th></tr>`;
+            // Table Headers based on Role
+            if (currentUser.role === 'user') {
+                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Depot</th><th>Route</th><th>Amount</th><th>Status</th></tr>`;
+            } else if (currentUser.role === 'admin') {
+                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>Claimed</th><th>Deduct</th><th>Payable</th><th>Status</th><th>Action</th></tr>`;
+            } else { // Super Admin
+                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Payable</th><th>Payable %</th><th>Status</th><th>Action</th></tr>`;
             }
 
             const billsRef = database.ref('Bills');
@@ -1760,7 +1711,7 @@
             billsRef.on('value', (snapshot) => {
                 tableBody.innerHTML = '';
                 if (!snapshot.exists()) { 
-                    const colSpan = currentUser.role === 'user' ? '7' : '12';
+                    const colSpan = currentUser.role === 'user' ? '6' : '10';
                     tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center text-danger">No Bills Found</td></tr>`; 
                     return; 
                 }
@@ -1772,24 +1723,30 @@
                             const billId = billSnapshot.key;
                             const daId = bill.daId;
 
-                            if (currentUser.role !== 'user' && selectedDA && bill.daId !== selectedDA) return;
+                            // Permissions Logic
                             if (currentUser.role === 'user' && bill.daId !== currentUser.id) return;
-                            if (currentUser.role !== 'user' && bill.status === 'draft') return;
+                            
+                            // Admin View: Show red (Pending) and orange (Checked)
+                            if (currentUser.role === 'admin' && bill.status === 'green') return; 
+
+                            // Super Admin View: Show orange (Checked) and green (Approved)
+                            if (currentUser.role === 'superadmin' && bill.status === 'red') return; 
+                            
+                            // Admin Filter
+                            if (currentUser.role === 'admin' && selectedDA && bill.daId !== selectedDA) return;
 
                             const tr = document.createElement('tr');
                             if(bill.status === 'draft') tr.classList.add('status-draft');
                             else if (bill.status === 'red') tr.classList.add('status-red');
-                            else if (bill.status === 'orange') tr.classList.add('status-orange'); // Checked
+                            else if (bill.status === 'orange') tr.classList.add('status-orange');
                             else tr.classList.add('status-green');
 
                             let statusText = bill.status.toUpperCase();
                             if(bill.status === 'red') statusText = "PENDING";
-                            if(bill.status === 'orange') statusText = "CHECKED";
-                            
-                            let actionBtns = '';
+                            if(bill.status === 'orange') statusText = "CHECKED BY DIC";
+                            if(bill.status === 'green') statusText = "APPROVED";
                             
                             const sales = bill.invoiceVal || 0;
-                            
                             let iou = bill.iouAmount || 0;
                             if (!iou && bill.iouId && iouListGlobal[bill.iouId]) {
                                 iou = iouListGlobal[bill.iouId].taka || 0;
@@ -1798,85 +1755,91 @@
                             const deduction = bill.deduction || 0;
                             const originalAmount = bill.originalAmount || (bill.totalAmount + deduction); 
                             const approvedAmount = bill.totalAmount || 0;
-                            
-                            const claimedPercent = sales > 0 ? ((originalAmount / sales) * 100).toFixed(1) : 0;
-                            const approvedPercent = sales > 0 ? ((approvedAmount / sales) * 100).toFixed(1) : 0;
 
-                            // Logic for Admin Columns
-                            if (currentUser.role !== 'user') {
-                                sumSales += sales;
-                                sumIOU += iou;
-                                sumClaimed += originalAmount;
-                                if(bill.status === 'green') sumApproved += approvedAmount;
-
-                                let amtHtml = originalAmount.toFixed(2);
-                                let appAmtHtml = '-';
-                                let appPctHtml = '-';
-
-                                if (bill.status === 'orange') {
-                                    // Checked state - Show deducted amount as pending approval
-                                    if(deduction > 0) {
-                                        appAmtHtml = `<span class="text-warning fw-bold">${approvedAmount.toFixed(2)}</span> <small>(Pending)</small>`;
-                                    } else {
-                                        appAmtHtml = `<span class="text-warning fw-bold">${approvedAmount.toFixed(2)}</span>`;
-                                    }
-                                    appPctHtml = approvedPercent + '%';
-                                } else if (bill.status === 'green') {
-                                    if(deduction > 0) {
-                                        appAmtHtml = `<span class="cut-amount">${originalAmount.toFixed(2)}</span> <span class="payable-amount">${approvedAmount.toFixed(2)}</span>`;
-                                    } else {
-                                        appAmtHtml = `<span class="payable-amount">${approvedAmount.toFixed(2)}</span>`;
-                                    }
-                                    appPctHtml = approvedPercent + '%';
-                                } 
-
-                                // ACTION BUTTONS LOGIC
-                                // Admin (DIC) can Cut 'red' bills. SuperAdmin can Approve 'orange' bills.
-                                let btnAction = '';
-                                if (bill.status === 'red') {
-                                    if(currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-                                        btnAction = `<button class="btn btn-secondary btn-sm" onclick="openCutModal('${billId}', '${bill.depot}', '${daId}', ${bill.totalAmount})">Check</button>`;
-                                    }
-                                } else if (bill.status === 'orange') {
-                                    if(currentUser.role === 'superadmin') {
-                                        btnAction = `<button class="btn btn-success btn-sm" onclick="approveBill('${billId}', '${bill.depot}', '${daId}')">Approve</button>`;
-                                    }
+                            // ROW GENERATION
+                            if (currentUser.role === 'user') {
+                                // USER VIEW
+                                // User sees Original Amount. Does not see Deduction.
+                                // Actions: Edit/Delete only if status is 'red' (Pending) and deduction is 0.
+                                
+                                let actions = '';
+                                if (bill.status === 'red' && deduction === 0) {
+                                    actions += `<button class="btn btn-warning btn-sm" onclick="editBill('${billId}', '${bill.depot}', '${daId}')">Edit</button> `;
+                                    actions += `<button class="btn btn-danger btn-sm" onclick="deleteBill('${billId}', '${bill.depot}', '${daId}')">Delete</button>`;
+                                } else if (bill.status === 'red' && deduction > 0) {
+                                    // If admin deducted but bill is still red (should not happen based on logic, but fallback)
+                                    // User cannot edit.
                                 }
-
+                                // No Print button for User
+                                
                                 tr.innerHTML = `
                                     <td>${formatDate(bill.submitDate || bill.depDate)}</td>
                                     <td>${bill.daName}</td>
                                     <td>${bill.depot}</td>
                                     <td>${bill.route || 'N/A'}</td>
-                                    <td class="text-end fw-bold text-primary">${iou.toFixed(2)}</td>
-                                    <td class="text-end">${sales.toFixed(2)}</td>
-                                    <td class="text-end fw-bold">${amtHtml}</td>
-                                    <td class="text-end">${claimedPercent}%</td>
-                                    <td class="text-end fw-bold text-success">${appAmtHtml}</td>
-                                    <td class="text-end">${appPctHtml}</td>
-                                    <td><b>${statusText}</b></td>
-                                    <td>
-                                        <button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button>
-                                        ${btnAction}
-                                    </td>`;
-                            } else {
-                                // User View
-                                let amtHtml = originalAmount.toFixed(2);
+                                    <td class="fw-bold">${originalAmount.toFixed(2)}</td>
+                                    <td><b>${statusText}</b></td>`;
+                            } else if (currentUser.role === 'admin') {
+                                // ADMIN VIEW
+                                let actionBtns = '';
+                                let dedDisplay = deduction > 0 ? `<span class="text-danger fw-bold">${deduction.toFixed(2)}</span>` : '-';
+                                let payDisplay = deduction > 0 ? `<span class="cut-amount">${originalAmount.toFixed(2)}</span> <span class="payable-amount">${approvedAmount.toFixed(2)}</span>` : originalAmount.toFixed(2);
 
-                                if (bill.status === 'red' || bill.status === 'draft') {
-                                    actionBtns = `<button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button> `;
+                                // Edit: Only if deduction is 0 (and status red, implied)
+                                if(deduction === 0 && bill.status === 'red') {
                                     actionBtns += `<button class="btn btn-warning btn-sm" onclick="editBill('${billId}', '${bill.depot}', '${daId}')">Edit</button> `;
-                                    actionBtns += `<button class="btn btn-danger btn-sm" onclick="deleteBill('${billId}', '${bill.depot}', '${daId}')">Del</button>`;
-                                } else if (bill.status === 'orange') {
-                                    actionBtns = `<button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button>`;
                                 }
+                                
+                                // Print Checking Copy (Show deductions)
+                                actionBtns += `<button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button> `;
+                                
+                                // Check/Deduct button
+                                if(bill.status === 'red') {
+                                    actionBtns += `<button class="btn btn-secondary btn-sm" onclick="openCutModal('${billId}', '${bill.depot}', '${daId}')">Check/Deduct</button> `;
+                                }
+                                
+                                actionBtns += `<button class="btn btn-danger btn-sm" onclick="deleteBill('${billId}', '${bill.depot}', '${daId}')">Del</button>`;
 
                                 tr.innerHTML = `
                                     <td>${formatDate(bill.submitDate || bill.depDate)}</td>
                                     <td>${bill.daName}</td>
-                                    <td>${bill.depot}</td>
                                     <td>${bill.route || 'N/A'}</td>
-                                    <td>${amtHtml}</td>
+                                    <td class="text-end">${iou.toFixed(2)}</td>
+                                    <td class="text-end">${sales.toFixed(2)}</td>
+                                    <td class="text-end">${originalAmount.toFixed(2)}</td>
+                                    <td class="text-end">${dedDisplay}</td>
+                                    <td class="text-end fw-bold">${payDisplay}</td>
+                                    <td><b>${statusText}</b></td>
+                                    <td>${actionBtns}</td>`;
+                            } else {
+                                // SUPER ADMIN VIEW
+                                let actionBtns = '';
+                                
+                                // Approve button for 'orange' (Checked) bills
+                                if(bill.status === 'orange') {
+                                    actionBtns += `<button class="btn btn-success btn-sm" onclick="approveBill('${billId}', '${bill.depot}', '${daId}')">Approve</button> `;
+                                }
+                                
+                                // Print button for 'green' (Approved) bills
+                                if(bill.status === 'green') {
+                                    actionBtns += `<button class="btn btn-info btn-sm text-white" onclick="printBill('${billId}', '${bill.depot}', '${daId}')">Print</button>`;
+                                }
+                                
+                                let payDisplay = deduction > 0 ? `<span class="cut-amount">${originalAmount.toFixed(2)}</span> <span class="payable-amount">${approvedAmount.toFixed(2)}</span>` : originalAmount.toFixed(2);
+
+                                let userBillPer = sales > 0 ? ((originalAmount/sales)*100).toFixed(1) : '0';
+                                let payPer = sales > 0 ? ((approvedAmount/sales)*100).toFixed(1) : '0';
+
+                                tr.innerHTML = `
+                                    <td>${formatDate(bill.submitDate || bill.depDate)}</td>
+                                    <td>${bill.daName}</td>
+                                    <td>${bill.route || 'N/A'}</td>
+                                    <td class="text-end">${iou.toFixed(2)}</td>
+                                    <td class="text-end">${sales.toFixed(2)}</td>
+                                    <td class="text-end">${originalAmount.toFixed(2)}</td>
+                                    <td class="text-end">${userBillPer}%</td>
+                                    <td class="text-end fw-bold">${payDisplay}</td>
+                                    <td class="text-end">${payPer}%</td>
                                     <td><b>${statusText}</b></td>
                                     <td>${actionBtns}</td>`;
                             }
@@ -1886,22 +1849,6 @@
                     });
                 });
 
-                if(currentUser.role !== 'user') {
-                    const totalClaimedPercent = sumSales > 0 ? ((sumClaimed / sumSales) * 100).toFixed(1) + "%" : "0%";
-                    const totalApprovedPercent = sumSales > 0 ? ((sumApproved / sumSales) * 100).toFixed(1) + "%" : "0%";
-
-                    tableFoot.innerHTML = `<tr>
-                        <td colspan="4" class="text-end">Total</td>
-                        <td class="text-end fw-bold">${sumIOU.toFixed(2)}</td>
-                        <td class="text-end fw-bold">${sumSales.toFixed(2)}</td>
-                        <td class="text-end fw-bold">${sumClaimed.toFixed(2)}</td>
-                        <td class="text-end fw-bold">${totalClaimedPercent}</td>
-                        <td class="text-end fw-bold text-success">${sumApproved.toFixed(2)}</td>
-                        <td class="text-end fw-bold text-success">${totalApprovedPercent}</td>
-                        <td colspan="2"></td>
-                    </tr>`;
-                }
-
             }, (error) => {
                 console.error("Firebase Read Failed: ", error);
                 tableBody.innerHTML = `<tr><td colspan="12" class="text-center text-danger">Database Error</td></tr>`;
@@ -1910,8 +1857,7 @@
 
         // ================= ADMIN DEDUCTION & APPROVAL LOGIC =================
         
-        // 1. DIC/Admin Checks and Cuts -> Status becomes 'orange' (Checked)
-        function openCutModal(billId, depot, daId, amount) {
+        function openCutModal(billId, depot, daId) {
             document.getElementById('edit_bill_id').value = billId; document.getElementById('edit_depot').value = depot;
             document.getElementById('edit_depot').dataset.daId = daId;
             database.ref('Bills/' + depot + '/' + daId + '/' + billId).once('value', (snapshot) => {
@@ -1967,24 +1913,24 @@
                 totalDeduction += ded;
             });
             
+            // Updated Logic: Status becomes 'orange' (Checked by DIC)
             database.ref('Bills/' + depot + '/' + daId + '/' + billId).update({ 
                 expenses: newExpenses, 
                 totalAmount: newTotalAmount, 
                 deduction: totalDeduction, 
                 originalAmount: originalAmt, 
-                status: 'orange', // Set status to Checked (Pending Approval)
-                checkedBy: currentUser.name // Save DIC Name
+                status: 'orange', // Checked by DIC
+                checkedBy: currentUser.name // Record Admin Name
             }, (error) => {
-                if (error) alert("Failed"); else { alert("Checked! Sent for Approval."); bootstrap.Modal.getInstance(document.getElementById('cutBillModal')).hide(); }
+                if (error) alert("Failed"); else { alert("Checked & Saved! Moved to Checked List."); bootstrap.Modal.getInstance(document.getElementById('cutBillModal')).hide(); }
             });
         }
 
-        // 2. Super Admin Approves -> Status becomes 'green' (Approved)
         function approveBill(billId, depot, daId) {
             if(confirm("Approve this bill?")) {
                 database.ref('Bills/' + depot + '/' + daId + '/' + billId).update({
                     status: 'green',
-                    approvedBy: currentUser.name // Save RSM Name
+                    approvedBy: currentUser.name // Record Super Admin Name
                 }, (error) => {
                     if(error) alert("Error"); else alert("Bill Approved!");
                 });
@@ -2013,8 +1959,10 @@
                 document.getElementById('p_prepared_by').innerText = bill.daName;
                 
                 // Dynamic Signatories
-                document.getElementById('p_checked_by').innerText = bill.checkedBy || ''; // DIC Name
-                document.getElementById('p_approved_by').innerText = bill.approvedBy || ''; // RSM Name
+                // Checked By DIC -> Admin Name
+                document.getElementById('p_checked_by').innerText = bill.checkedBy || ''; 
+                // Rechecked By RSM -> Super Admin Name
+                document.getElementById('p_rechecked_by').innerText = bill.approvedBy || ''; 
 
                 const tbody = document.getElementById('p_expense_body'); tbody.innerHTML = '';
                 if(bill.expenses) {
@@ -2027,6 +1975,7 @@
                         tbody.innerHTML += `<tr><td style="padding: 2px; text-align: left;">${formatDate(exp.date)}</td><td style="padding: 2px; text-align: left;">${exp.from}</td><td style="padding: 2px; text-align: left;">${exp.to}</td><td style="padding: 2px; text-align: left;">${exp.mode}</td><td style="padding: 2px; text-align: left;">${amt}</td><td style="padding: 2px; text-align: left;">${da}</td><td style="padding: 2px; text-align: left; color:red;">${ded || ''}</td><td style="padding: 2px; text-align: left;">${totalDisplay}</td></tr>`;
                     });
                 }
+                
                 window.print();
             });
         }
@@ -2039,7 +1988,7 @@
             let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
             if (!n) return; 
             let str = '';
-                        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
             str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
             str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
             str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
@@ -2070,7 +2019,6 @@
                 role: role 
             };
 
-            // Add photo if available
             if(userPhotoBase64) {
                 userData.photoUrl = userPhotoBase64;
             }
@@ -2078,7 +2026,6 @@
             newUserRef.set(userData, (error) => {
                 if(error) alert("Error creating user"); else { 
                     alert("User Created Successfully!"); 
-                    // Clear Form
                     document.getElementById('new_user_id').value = ''; 
                     document.getElementById('new_user_name').value = ''; 
                     document.getElementById('new_user_phone').value = '';
@@ -2089,7 +2036,7 @@
                     document.getElementById('new_user_photo').value = '';
                     document.getElementById('photo_preview').classList.add('hidden');
                     userPhotoBase64 = null;
-                    loadDAListForIOU(); // Refresh lists
+                    loadDAListForIOU(); 
                 }
             });
         }
