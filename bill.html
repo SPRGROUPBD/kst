@@ -142,7 +142,7 @@
             <li class="nav-item user-only" role="presentation">
                 <button class="nav-link" id="entry-tab" data-bs-toggle="tab" data-bs-target="#entryTab" type="button">Bill Entry</button>
             </li>
-            <!-- History Tab: Hidden for Super Admin via JS, visible for User/Admin -->
+            <!-- History Tab: Visible for User, Admin AND Super Admin -->
             <li class="nav-item" id="history_tab_li" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
@@ -514,7 +514,7 @@
                 </div>
             </div>
 
-            <!-- Tab: Bill History (Pending for Admin, Own History for User) -->
+            <!-- Tab: Bill History -->
             <div class="tab-pane fade" id="billTab" role="tabpanel">
                 
                 <div class="card dash-card no-print mb-2 admin-only">
@@ -718,7 +718,7 @@
                 </div>
                 <div class="modal-footer py-1">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    <button onclick="saveDeduction()" type="button" class="btn btn-success btn-sm">Save & Mark as Checked</button>
+                    <button onclick="saveDeduction()" type="button" class="btn btn-success btn-sm">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -730,7 +730,7 @@
             <h2 style="margin:0; letter-spacing: 2px;">MONICO PHARMA LTD</h2>
             <h4 style="margin:0; text-decoration:">Delivery Expense Bill</h4>
             <h5 style="margin:0; text-decoration: ">Kushtia Depot</h5>
-            <h5 style="margin:0; text-decoration:">04-01, Dr Anowarul Korim Sarok, Kanabiler More, Jugiya, Kushtia-7000</h5>
+            <h6 style="margin:0; text-decoration:">04-01, Dr Anowarul Korim Sarok, Kanabiler More, Jugiya, Kushtia-7000</h6>
         </div>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
@@ -1194,21 +1194,14 @@
 
             if(currentUser.role === 'user') {
                 document.querySelectorAll('.user-only').forEach(item => item.style.display = 'block');
-                // Show History Tab for User
                 document.getElementById('history_tab_li').style.display = 'block';
                 loadUserDashboardData(); 
             } else {
-                // Both Admin and SuperAdmin see admin dashboard
                 document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'block');
                 document.querySelectorAll('.admin-superadmin-only').forEach(item => item.style.display = 'block'); 
                 
-                // Logic to hide History Tab for Super Admin
-                if(currentUser.role === 'superadmin') {
-                    document.getElementById('history_tab_li').style.display = 'none';
-                } else {
-                    // Admin can see History Tab
-                    document.getElementById('history_tab_li').style.display = 'block';
-                }
+                // Super Admin CAN see History Tab
+                document.getElementById('history_tab_li').style.display = 'block';
 
                 loadDAListForIOU(); 
                 loadAdminDashboardData(); 
@@ -1790,8 +1783,8 @@
                 tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Depot</th><th>Route</th><th>Amount</th><th>Status</th></tr>`;
             } else if (currentUser.role === 'admin') {
                 tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Status</th><th>Action</th></tr>`;
-            } else { // Super Admin
-                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Status</th><th>Action</th></tr>`;
+            } else { // Super Admin Headers (Updated)
+                tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Payable</th><th>Payable %</th><th>Status</th><th>Action</th></tr>`;
             }
 
             const billsRef = database.ref('Bills');
@@ -1801,7 +1794,7 @@
                 approvedTableBody.innerHTML = '';
                 
                 if (!snapshot.exists()) { 
-                    const colSpan = currentUser.role === 'user' ? '6' : '10';
+                    const colSpan = currentUser.role === 'user' ? '6' : '12';
                     tableBody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center text-danger">No Bills Found</td></tr>`; 
                     approvedTableBody.innerHTML = `<tr><td colspan="11" class="text-center text-danger">No Bills Found</td></tr>`;
                     return; 
@@ -1915,15 +1908,22 @@
                                 }
 
                             } 
-                            // Logic for Super Admin
+                            // Logic for Super Admin (Updated)
                             else {
-                                // History Tab (Orange - Pending for Super Admin)
+                                // History Tab (Orange - Checked by DIC, Pending for RSM)
                                 if(bill.status === 'orange') {
                                     const tr = document.createElement('tr');
                                     tr.classList.add('status-orange');
-                                    let actionBtns = '';
-                                    actionBtns += `<button class="btn btn-success btn-sm" onclick="approveBill('${billId}', '${bill.depot}', '${daId}')">Approve</button> `;
                                     
+                                    let actionBtns = '';
+                                    // Recheck Button - Opens modal to adjust deduction
+                                    actionBtns += `<button class="btn btn-warning btn-sm" onclick="openCutModal('${billId}', '${bill.depot}', '${daId}')">Recheck</button> `;
+                                    // Approve Button
+                                    actionBtns += `<button class="btn btn-success btn-sm" onclick="approveBill('${billId}', '${bill.depot}', '${daId}')">Approve</button>`;
+                                    
+                                    // Logic for Payable Display
+                                    let payDisplay = deduction > 0 ? `<span class="cut-amount">${originalAmount.toFixed(2)}</span> <span class="payable-amount">${approvedAmount.toFixed(2)}</span>` : approvedAmount.toFixed(2);
+
                                     tr.innerHTML = `
                                         <td>${formatDate(bill.submitDate || bill.depDate)}</td>
                                         <td>${bill.daName}</td>
@@ -1932,6 +1932,8 @@
                                         <td class="text-end">${sales.toFixed(2)}</td>
                                         <td class="text-end">${originalAmount.toFixed(2)}</td>
                                         <td class="text-end">${userBillPer}%</td>
+                                        <td class="text-end fw-bold">${payDisplay}</td>
+                                        <td class="text-end">${payPer}%</td>
                                         <td><b>CHECKED</b></td>
                                         <td>${actionBtns}</td>`;
                                     tableBody.appendChild(tr);
@@ -2047,16 +2049,27 @@
                 totalDeduction += ded;
             });
             
-            // Updated Logic: Status becomes 'orange' (Checked by DIC)
-            database.ref('Bills/' + depot + '/' + daId + '/' + billId).update({ 
+            // Status Update: Admin -> 'orange' (Checked), Super Admin -> 'orange' (Rechecked)
+            // We keep status 'orange' so Super Admin can Approve it next.
+            // We store who checked it.
+            let updateData = { 
                 expenses: newExpenses, 
                 totalAmount: newTotalAmount, 
                 deduction: totalDeduction, 
                 originalAmount: originalAmt, 
-                status: 'orange', // Checked by DIC
-                checkedBy: currentUser.name // Record Admin Name
-            }, (error) => {
-                if (error) alert("Failed"); else { alert("Checked & Saved! Moved to Checked List."); bootstrap.Modal.getInstance(document.getElementById('cutBillModal')).hide(); }
+                status: 'orange'
+            };
+
+            // If Super Admin is rechecking, we update recheckedBy field
+            if(currentUser.role === 'superadmin') {
+                updateData.recheckedBy = currentUser.name;
+            } else {
+                // If Admin is checking
+                updateData.checkedBy = currentUser.name;
+            }
+
+            database.ref('Bills/' + depot + '/' + daId + '/' + billId).update(updateData, (error) => {
+                if (error) alert("Failed"); else { alert("Changes Saved!"); bootstrap.Modal.getInstance(document.getElementById('cutBillModal')).hide(); }
             });
         }
 
@@ -2095,7 +2108,8 @@
                 
                 // Dynamic Signatories
                 document.getElementById('p_checked_by').innerText = bill.checkedBy || ''; 
-                document.getElementById('p_rechecked_by').innerText = bill.approvedBy || ''; 
+                // For RSM signature, we prioritize 'recheckedBy' (if RSM modified it), else 'approvedBy'
+                document.getElementById('p_rechecked_by').innerText = bill.recheckedBy || bill.approvedBy || ''; 
 
                 const tbody = document.getElementById('p_expense_body'); tbody.innerHTML = '';
                 
@@ -2115,7 +2129,7 @@
                         // Accumulate Totals
                         totAmt += amt;
                         totDa += da;
-                        totTotal += total; // Added Total Sum
+                        totTotal += total; 
                         totDed += ded;
                         totNet += netAmount;
 
@@ -2143,7 +2157,7 @@
                 // Populate Footer
                 document.getElementById('p_foot_amt').innerText = totAmt;
                 document.getElementById('p_foot_da').innerText = totDa;
-                document.getElementById('p_foot_total').innerText = totTotal; // Added Total Sum Display
+                document.getElementById('p_foot_total').innerText = totTotal; 
                 document.getElementById('p_foot_ded').innerText = totDed;
                 document.getElementById('p_total_amount').innerText = totNet;
                 
@@ -2181,8 +2195,8 @@
             
             const newUserRef = database.ref('Users').push();
             const userData = { 
-                userId: userIdManual, 
-                name: name, 
+                userId: userIdManual,
+                                name: name, 
                 phone: phone, 
                 depot: depot, 
                 username: username, 
@@ -2195,8 +2209,11 @@
             }
 
             newUserRef.set(userData, (error) => {
-                if(error) alert("Error creating user"); else { 
+                if(error) {
+                    alert("Error creating user"); 
+                } else { 
                     alert("User Created Successfully!"); 
+                    // Clear Form
                     document.getElementById('new_user_id').value = ''; 
                     document.getElementById('new_user_name').value = ''; 
                     document.getElementById('new_user_phone').value = '';
@@ -2207,6 +2224,8 @@
                     document.getElementById('new_user_photo').value = '';
                     document.getElementById('photo_preview').classList.add('hidden');
                     userPhotoBase64 = null;
+                    
+                    // Refresh DA List in IOU section
                     loadDAListForIOU(); 
                 }
             });
