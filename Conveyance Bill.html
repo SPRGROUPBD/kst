@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<style>
+body{margin:0; font-family:Arial; background:#f4f6f9; }
+
+/* Topbar */
+.topbar{background:#1f2d3d; color:white; padding:15px; font-size:20px; }
+
+/* Menu */
+.nav{display:flex; background:#2f4050; flex-wrap:wrap; }
+.nav button{flex:1; padding:12px; border:none; background:#2f4050; color:white; cursor:pointer; font-size:14px; min-width:120px; }
+.nav button:hover, .nav button.active{background:#1ab394; }
+
+/* Content */
+.container{padding:20px; }
+.card{background:white; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px; }
+
+/* Responsive Table Wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Form Layout */
+.form-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 15px;
+margin-bottom: 20px;
+}
+.form-group { margin-bottom: 0; }
+.form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+input, select, textarea{width:100%; padding:8px; box-sizing:border-box; border: 1px solid #ddd; border-radius: 4px; }
+
+button.action{background:#1ab394; color:white; border:none; padding:10px 20px; cursor:pointer; border-radius:4px; margin-right:5px; margin-bottom:5px; }
+button.reset{background:#777; color:white;}
+button.delete{background:#e74c3c; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; }
+button.edit-btn{background:#f39c12; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; }
+button.print-btn{background:#3498db; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; }
+button.secondary{background:#3498db; color:white; border:none; padding:8px 12px; cursor:pointer; border-radius:4px; font-size:12px; margin-bottom:10px; white-space: nowrap; }
+
+table{width:100%; border-collapse:collapse; margin-top:15px; min-width: 600px; } /* min-width for mobile scroll */
+table th, table td{border:1px solid #ddd; padding:8px; text-align:center; font-size:13px; }
+table th{background:#eee; }
+table input, table select{ border: 1px solid #ccc; text-align:center; }
+
+.total-row td { font-weight: bold; background-color: #f8f9fa; font-size: 14px; }
+
+.hidden{display:none; }
+.section-title { border-bottom: 2px solid #1ab394; padding-bottom: 5px; margin-bottom: 15px; color: #2f4050; }
+.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; color: white; }
+.badge.pending { background: #f39c12; }
+.badge.used { background: #27ae60; }
+
+/* Quick Entry Styles */
+.quick-entry-bar {
+    display: flex;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.quick-entry-bar .input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 100px;
+}
+.quick-entry-bar label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #555;
+}
+
+/* ========================================= */
+/* PRINT STYLES */
+/* ========================================= */
+@media screen {
+    .print-container { display: none; }
+}
+
+@media print {
+    body { background: #fff; }
+    .topbar, .nav, .container, .no-print { display: none !important; }
+    .print-container { display: block !important; width: 100%; }
+    
+    @page { size: A5 portrait; margin: 10mm; }
+    body { font-family: Arial; }
+    .bill { width: 100%; border: 2px solid #000; padding: 6px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; margin-bottom: 5px; }
+    .title { font-size: 20px; font-weight: bold; width: 100%; text-align: center; }
+    
+    /* ALL BORDERS SOLID BLACK */
+    .info-table, .info-table th, .info-table td { border: 1px solid #000 !important; padding: 4px; font-size: 12px; border-collapse: collapse; }
+    .details-table, .details-table th, .details-table td { border: 1px solid #000 !important; padding: 4px; font-size: 12px; border-collapse: collapse; }
+    
+    .total-col { text-align: right; font-weight: bold; }
+    
+    /* Footer Grid Layout */
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+    }
+    .footer-box {
+        border-top: 1px solid #000;
+        padding-top: 5px;
+        margin-top: 20px; /* Space for signature */
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">Admin Dashboard</div>
+
+<div class="nav">
+<button onclick="showPage('dashboard')" id="nav-dashboard" class="active">Dashboard</button>
+<button onclick="showPage('entry')" id="nav-entry">Conveyance Entry</button>
+<button onclick="showPage('history')" id="nav-history">Bill History</button>
+<button onclick="showPage('iou')" id="nav-iou">IOU Entry</button>
+</div>
+
+<div class="container">
+
+<!-- ========================================= -->
+<!-- DASHBOARD -->
+<!-- ========================================= -->
+<div id="dashboard" class="card">
+<h3 class="section-title">Dashboard Overview</h3>
+<h4>My Active IOU</h4>
+<div class="table-responsive">
+    <table><thead><tr><th>Date</th><th>Route / Purpose</th><th>Taka</th><th>Action</th></tr></thead>
+    <tbody id="activeIouTable"><tr><td colspan="4" style="color:#999">Loading...</td></tr></tbody></table>
+</div>
+<hr style="margin: 30px 0; border-top: 1px solid #ddd;">
+<h4>Used IOU</h4>
+<div class="table-responsive">
+    <table><thead><tr><th>Date</th><th>Route / Purpose</th><th>Taka</th><th>Status</th></tr></thead>
+    <tbody id="usedIouTable"><tr><td colspan="4" style="color:#999">Loading...</td></tr></tbody></table>
+</div>
+</div>
+
+<!-- ========================================= -->
+<!-- CONVEYANCE ENTRY -->
+<!-- ========================================= -->
+<div id="entry" class="card hidden">
+<h3 style="margin-top:0; color:#2f4050; border-bottom:2px solid #1ab394; padding-bottom:10px;">Conveyance Bill Entry (Admin Only)</h3>
+
+<input type="hidden" id="editBillId">
+
+<div class="form-grid">
+<div class="form-group"><label>Name</label><input type="text" id="entryName" value="MD SAJJA AHMED"></div>
+<div class="form-group"><label>Depot</label><input type="text" id="entryDepot" value="KUSHTIA"></div>
+<div class="form-group"><label>Designation</label><input type="text" id="entryDesig" value="DEPOT IN-CHARGE"></div>
+<div class="form-group"><label>Department</label><input type="text" id="entryDept" value="Distribution"></div>
+<div class="form-group"><label>Destination Point</label><input type="text" id="entryDestPoint" placeholder="Enter Destination"></div>
+<div class="form-group"><label>Bill Date</label><input type="date" id="entryDate"></div>
+</div>
+
+<hr>
+<h4>Travel Details – Quick Entry</h4>
+
+<!-- QUICK ENTRY INPUTS -->
+<div class="quick-entry-bar">
+    <div class="input-box">
+        <label>From</label>
+        <input type="text" id="quickFrom" placeholder="From">
+    </div>
+    <div class="input-box">
+        <label>To</label>
+        <input type="text" id="quickTo" placeholder="To">
+    </div>
+    <div class="input-box">
+        <label>Mode</label>
+        <select id="quickMode">
+            <option>Auto</option>
+            <option>Rickshaw</option>
+            <option>VAN</option>
+            <option>CNG</option>
+            <option>Bus</option>
+            <option>Train</option>
+        </select>
+    </div>
+    <div class="input-box">
+        <label>Amount (Tk)</label>
+        <input type="number" id="quickAmount" placeholder="0">
+    </div>
+    <div class="input-box">
+        <label>Reference</label>
+        <input type="text" id="quickRef" placeholder="Ref">
+    </div>
+    <div class="input-box">
+        <label>Remarks</label>
+        <input type="text" id="quickRemarks" placeholder="Remarks">
+    </div>
+    <div class="input-box">
+        <label>&nbsp;</label>
+        <button class="secondary" onclick="processQuickEntry()">+ Add Row</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table id="travelTable">
+    <thead><tr><th>From</th><th>To</th><th>Mode Of Transport</th><th>Amount(Tk)</th><th>Reference</th><th>Remarks</th><th>X</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr class="total-row"><td colspan="3" style="text-align:right;">Total =</td><td id="grandTotal">0</td><td colspan="2"></td></tr></tfoot>
+    </table>
+</div>
+
+<br>
+<button class="action" onclick="saveConveyanceBill()">Save Bill</button>
+<button class="action reset" onclick="resetBillForm()">Reset</button>
+</div>
+
+<!-- ========================================= -->
+<!-- BILL HISTORY (NEW PAGE) -->
+<!-- ========================================= -->
+<div id="history" class="card hidden">
+<h3 class="section-title">Conveyance Bill History</h3>
+<div class="table-responsive">
+    <table id="historyTable">
+    <thead><tr><th>Date</th><th>Name</th><th>Destination</th><th>Total</th><th>Action</th></tr></thead>
+    <tbody id="historyBody"><tr><td colspan="5" style="color:#999">Loading...</td></tr></tbody>
+    </table>
+</div>
+</div>
+
+<!-- ========================================= -->
+<!-- IOU ENTRY -->
+<!-- ========================================= -->
+<div id="iou" class="card hidden">
+<h3 class="section-title">IOUEntry Form</h3>
+<div class="form-grid">
+<div class="form-group"><label>IOU No:</label><input type="text" id="iouNo" placeholder="e.g. IOU-001"></div>
+<div class="form-group"><label>Date:</label><input type="date" id="iouDate"></div>
+<div class="form-group"><label>Name:</label><select id="iouName"><option value="">Select Employee</option><option>Md Sajjad Ahmed</option></select></div>
+<div class="form-group"><label>Depot:</label><select id="iouDepot"><option value="Kushtia">Kushtia</option><option>Other</option></select></div>
+<div class="form-group"><label>Purpose:</label><input type="text" id="iouPurpose"></div>
+<div class="form-group"><label>Amount (Tk):</label><input type="number" id="iouAmount"></div>
+<div class="form-group"><label>Mode of Payment:</label><select id="iouMode"><option>Cash</option><option>Bank</option><option>Mobile Banking</option></select></div>
+<div class="form-group"><label>Reference:</label><input type="text" id="iouRef"></select></div>
+<div class="form-group"><label>Status:</label><select id="iouStatus"><option>Pending</option><option>Adjusted</option></select></div>
+</div>
+<input type="hidden" id="editIouId">
+<button class="action" onclick="saveIou()">✔ Save IOU</button>
+<button class="action reset" onclick="resetIouForm()">✔ Reset</button>
+<hr style="margin-top:30px;">
+<h3>IOU Entry Table</h3>
+<div class="table-responsive">
+    <table>
+    <thead><tr><th>IOU No</th><th>Date</th><th>Name</th><th>Depot</th><th>Purpose</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody id="iouAdminTable"><tr><td colspan="8" style="color:#999">Loading...</td></tr></tbody>
+    </table>
+</div>
+</div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- PRINT TEMPLATE (Hidden on screen) -->
+<!-- ========================================= -->
+<div class="print-container">
+    <div class="bill">
+        <div class="header">
+            <div class="title">Conveyance Bill</div>
+        </div>
+        
+        <table class="info-table" style="margin-bottom:5px;">
+            <tr>
+                <td style="width:120px">Name</td>
+                <td id="pt-name"></td>
+                <td style="width:100px">Depot</td>
+                <td id="pt-depot"></td>
+            </tr>
+            <tr>
+                <td>Designation</td>
+                <td id="pt-desig"></td>
+                <td>Department</td>
+                <td id="pt-dept"></td>
+            </tr>
+            <tr>
+                <td>Destination Point</td>
+                <td id="pt-dest"></td>
+                <td>Bill Date</td>
+                <td id="pt-date"></td>
+            </tr>
+        </table>
+
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Mode Of Transport</th>
+                    <th>Amount(Tk)</th>
+                    <th>Reference</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="pt-rows"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="total-col">Total =</td>
+                    <td id="pt-total"></td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <table style="margin-top:5px; border:none; width:100%;">
+            <tr>
+                <td style="width:100px; border:none; text-align:left; font-weight:bold;">In Words:</td>
+                <td id="pt-words" style="border:none; text-align:left;"></td>
+            </tr>
+        </table>
+
+        <div class="footer-grid">
+            <div>
+                <br><br>
+                <div class="footer-box">Prepared By</div>
+            </div>
+            <div>
+                <br><br>
+                <div class="footer-box">Checked By RSM</div>
+            </div>
+            <div>
+                <br><br>
+                <div class="footer-box">Approved By</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== FIREBASE CONFIGURATION =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAYZsMKqvLLB4hRes00zPmiOBW0NpH0uuo",
+  authDomain: "delivery-bill-report.firebaseapp.com",
+  databaseURL: "https://delivery-bill-report-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "delivery-bill-report",
+  storageBucket: "delivery-bill-report.firebasestorage.app",
+  messagingSenderId: "956980153576",
+  appId: "1:956980153576:web:690c129f48c0179ca8cd5d",
+  measurementId: "G-Y9XEBB6X74"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let linkedIouKey = ""; 
+
+// ===== NAVIGATION =====
+function showPage(page){
+    document.querySelectorAll(".card").forEach(p=>p.classList.add("hidden"));
+    document.getElementById(page).classList.remove("hidden");
+    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+    document.getElementById("nav-" + page).classList.add("active");
+}
+
+// ===== DATE FORMATTER =====
+// Converts YYYY-MM-DD to MM-DD-YYYY
+function formatDate(dateStr) {
+    if(!dateStr) return "-";
+    const parts = dateStr.split('-');
+    if(parts.length === 3) {
+        return `${parts[1]}-${parts[2]}-${parts[0]}`;
+    }
+    return dateStr;
+}
+
+// ===== INITIALIZATION =====
+window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("entryDate").value = today;
+    document.getElementById("iouDate").value = today;
+    loadBills();
+    loadIous();
+};
+
+// ===== NUMBER TO WORDS HELPER =====
+function numberToWords(num) {
+    let a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+    let b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    if ((num = num.toString()).length > 9) return 'overflow';
+    let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return; 
+    let str = '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only ' : 'Only';
+    return "Taka " + str;
+}
+
+// ===== FIREBASE LOADERS =====
+function loadBills() {
+    db.ref('conveyanceBills').on('value', (snapshot) => {
+        renderBillHistory(snapshot.val());
+    });
+}
+
+function loadIous() {
+    db.ref('ious').on('value', (snapshot) => {
+        renderIouTables(snapshot.val());
+    });
+}
+
+// ===== IOU LOGIC =====
+function generateIouNo() {
+    db.ref('ious').limitToLast(1).once('value', (snapshot) => {
+        if(snapshot.exists()){
+            const lastEntry = Object.values(snapshot.val())[0];
+            const lastNo = parseInt(lastEntry.no.replace('IOU-', ''));
+            document.getElementById("iouNo").value = "IOU-" + (lastNo + 1).toString().padStart(3, '0');
+        } else {
+            document.getElementById("iouNo").value = "IOU-001";
+        }
+    });
+}
+
+function saveIou() {
+    let id = document.getElementById("editIouId").value;
+    let data = {
+        no: document.getElementById("iouNo").value,
+        date: document.getElementById("iouDate").value,
+        name: document.getElementById("iouName").value,
+        depot: document.getElementById("iouDepot").value,
+        purpose: document.getElementById("iouPurpose").value,
+        amount: parseFloat(document.getElementById("iouAmount").value || 0),
+        mode: document.getElementById("iouMode").value,
+        ref: document.getElementById("iouRef").value,
+        status: document.getElementById("iouStatus").value,
+        isUsed: false
+    };
+    if(!data.name || !data.amount) return alert("Fill Name and Amount");
+
+    if(id) {
+        db.ref('ious/' + id).update(data);
+        alert("IOU Updated!");
+    } else {
+        const newKey = db.ref('ious').push().key;
+        db.ref('ious/' + newKey).set(data);
+        alert("IOU Saved!");
+    }
+    resetIouForm();
+}
+
+function editIou(key, data) {
+    document.getElementById("editIouId").value = key;
+    document.getElementById("iouNo").value = data.no;
+    document.getElementById("iouDate").value = data.date;
+    document.getElementById("iouName").value = data.name;
+    document.getElementById("iouDepot").value = data.depot;
+    document.getElementById("iouPurpose").value = data.purpose;
+    document.getElementById("iouAmount").value = data.amount;
+    document.getElementById("iouMode").value = data.mode;
+    document.getElementById("iouRef").value = data.ref;
+    document.getElementById("iouStatus").value = data.status;
+}
+
+function deleteIou(key) {
+    if(confirm("Delete IOU?")) db.ref('ious/' + key).remove();
+}
+
+function resetIouForm() {
+    document.getElementById("editIouId").value = "";
+    document.getElementById("iouDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("iouName").value = "";
+    document.getElementById("iouPurpose").value = "";
+    document.getElementById("iouAmount").value = "";
+    document.getElementById("iouRef").value = "";
+    generateIouNo();
+}
+
+// ===== CONVEYANCE LOGIC =====
+
+// 1. Process Quick Entry Bar
+function processQuickEntry() {
+    let from = document.getElementById("quickFrom").value;
+    let to = document.getElementById("quickTo").value;
+    let mode = document.getElementById("quickMode").value;
+    let amount = document.getElementById("quickAmount").value;
+    let ref = document.getElementById("quickRef").value; // New Field
+    let remarks = document.getElementById("quickRemarks").value;
+
+    if(!amount) return alert("Enter amount at least.");
+
+    let data = { from, to, mode, amount, ref, remarks }; // Updated object
+    
+    addTravelRow(data);
+
+    document.getElementById("quickFrom").value = "";
+    document.getElementById("quickTo").value = "";
+    document.getElementById("quickAmount").value = "";
+    document.getElementById("quickRef").value = "";
+    document.getElementById("quickRemarks").value = "";
+}
+
+// 2. Add Row to Table
+function addTravelRow(data = {}) {
+    const tbody = document.querySelector("#travelTable tbody");
+    const row = document.createElement("tr");
+    
+    row.innerHTML = `
+        <td><input type="text" value="${data.from || ''}"></td>
+        <td><input type="text" value="${data.to || ''}"></td>
+        <td>
+            <select style="width:100%;">
+                <option ${data.mode === 'Auto' ? 'selected' : ''}>Auto</option>
+                <option ${data.mode === 'Rickshaw' ? 'selected' : ''}>Rickshaw</option>
+                <option ${data.mode === 'VAN' ? 'selected' : ''}>VAN</option>
+                <option ${data.mode === 'CNG' ? 'selected' : ''}>CNG</option>
+                <option ${data.mode === 'Bus' ? 'selected' : ''}>Bus</option>
+                <option ${data.mode === 'Train' ? 'selected' : ''}>Train</option>
+            </select>
+        </td>
+        <td><input type="number" class="amount-input" oninput="calculateTotal()" value="${data.amount || ''}"></td>
+        <td><input type="text" value="${data.ref || ''}"></td>
+        <td><input type="text" value="${data.remarks || ''}"></td>
+        <td><button class="delete" onclick="removeRow(this)">X</button></td>
+    `;
+    tbody.appendChild(row);
+    calculateTotal();
+}
+
+function removeRow(btn) {
+    btn.parentNode.parentNode.remove();
+    calculateTotal();
+}
+
+function calculateTotal() {
+    let sum = 0;
+    document.querySelectorAll('.amount-input').forEach(inp => {
+        let val = parseFloat(inp.value);
+        if(!isNaN(val)) sum += val;
+    });
+    document.getElementById("grandTotal").innerText = sum.toFixed(2);
+    return sum;
+}
+
+function saveConveyanceBill() {
+    let id = document.getElementById("editBillId").value;
+    
+    let travelRows = [];
+    let rows = document.querySelectorAll("#travelTable tbody tr");
+    rows.forEach(r => {
+        travelRows.push({
+            from: r.cells[0].querySelector('input').value,
+            to: r.cells[1].querySelector('input').value,
+            mode: r.cells[2].querySelector('select').value,
+            amount: parseFloat(r.cells[3].querySelector('input').value) || 0,
+            ref: r.cells[4].querySelector('input').value, // New Field
+            remarks: r.cells[5].querySelector('input').value
+        });
+    });
+
+    let billData = {
+        date: document.getElementById("entryDate").value,
+        name: document.getElementById("entryName").value,
+        depot: document.getElementById("entryDepot").value,
+        dest: document.getElementById("entryDestPoint").value,
+        designation: document.getElementById("entryDesig").value,
+        department: document.getElementById("entryDept").value,
+        total: calculateTotal(),
+        rows: travelRows,
+        iouId: linkedIouKey || null
+    };
+
+    if(!billData.name) return alert("Enter Name");
+
+    if(id) {
+        db.ref('conveyanceBills/' + id).update(billData);
+        alert("Bill Updated!");
+    } else {
+        const newKey = db.ref('conveyanceBills').push().key;
+        db.ref('conveyanceBills/' + newKey).set(billData);
+        
+        if(linkedIouKey) {
+            db.ref('ious/' + linkedIouKey).update({ isUsed: true });
+            alert("Bill Saved & IOU Settled!");
+            linkedIouKey = ""; 
+        } else {
+            alert("Bill Saved!");
+        }
+    }
+    
+    resetBillForm();
+}
+
+function editBill(key, data) {
+    document.getElementById("editBillId").value = key;
+    document.getElementById("entryName").value = data.name;
+    document.getElementById("entryDepot").value = data.depot;
+    document.getElementById("entryDesig").value = data.designation || "";
+    document.getElementById("entryDept").value = data.department || "";
+    document.getElementById("entryDestPoint").value = data.dest;
+    document.getElementById("entryDate").value = data.date;
+    
+    linkedIouKey = data.iouId || "";
+    
+    document.querySelector("#travelTable tbody").innerHTML = "";
+    if(data.rows && data.rows.length > 0) {
+        data.rows.forEach(r => addTravelRow(r));
+    } else {
+        // Legacy support: add empty row
+        addTravelRow({from: '', to: '', mode: 'Auto', amount: 0, ref: '', remarks: ''});
+    }
+    
+    showPage('entry');
+}
+
+function deleteBill(key) {
+    if(confirm("Delete this Bill?")) {
+        db.ref('conveyanceBills/' + key).once('value', (snapshot) => {
+            const billData = snapshot.val();
+            
+            if(billData && billData.iouId) {
+                db.ref('ious/' + billData.iouId).update({ isUsed: false }, (error) => {
+                    if(error) {
+                        console.log("Error reactivating IOU", error);
+                    } else {
+                        console.log("IOU Reactivated: " + billData.iouId);
+                    }
+                });
+            }
+            
+            db.ref('conveyanceBills/' + key).remove();
+        });
+    }
+}
+
+function resetBillForm() {
+    document.getElementById("editBillId").value = "";
+    document.getElementById("entryName").value = "MD SAJJA AHMED";
+    document.getElementById("entryDepot").value = "KUSHTIA";
+    document.getElementById("entryDesig").value = "DEPOT IN-CHARGE";
+    document.getElementById("entryDept").value = "Distribution";
+    
+    document.getElementById("entryDestPoint").value = "";
+    document.getElementById("entryDate").value = new Date().toISOString().split('T')[0];
+    document.querySelector("#travelTable tbody").innerHTML = "";
+    linkedIouKey = "";
+}
+
+function makeBill(key, data) {
+    linkedIouKey = key; 
+    document.getElementById("entryName").value = data.name;
+    document.getElementById("entryDepot").value = data.depot;
+    document.getElementById("entryDestPoint").value = data.purpose;
+    document.getElementById("entryDate").value = data.date;
+    showPage('entry');
+    alert("IOU loaded. Please complete details and Save.");
+}
+
+// ===== PRINT LOGIC =====
+function printBill(key, data) {
+    document.getElementById('pt-name').innerText = data.name;
+    document.getElementById('pt-depot').innerText = data.depot;
+    document.getElementById('pt-desig').innerText = data.designation || 'N/A';
+    document.getElementById('pt-dept').innerText = data.department || 'N/A';
+    document.getElementById('pt-dest').innerText = data.dest;
+    document.getElementById('pt-date').innerText = formatDate(data.date); // Formatted Date
+    document.getElementById('pt-total').innerText = data.total.toFixed(2);
+    document.getElementById('pt-words').innerText = numberToWords(Math.round(data.total));
+
+    const tbody = document.getElementById('pt-rows');
+    tbody.innerHTML = "";
+    
+    if(data.rows && data.rows.length > 0) {
+        data.rows.forEach(r => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.from}</td>
+                    <td>${r.to}</td>
+                    <td>${r.mode}</td>
+                    <td>${r.amount.toFixed(2)}</td>
+                    <td>${r.ref || ''}</td>
+                    <td>${r.remarks}</td>
+                </tr>
+            `;
+        });
+    } else {
+         tbody.innerHTML += `
+            <tr>
+                <td>-</td><td>-</td><td>-</td>
+                <td>${data.total.toFixed(2)}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        `;
+    }
+
+    window.print();
+}
+
+// ===== RENDER FUNCTIONS =====
+function renderBillHistory(data) {
+    const tbody = document.getElementById("historyBody");
+    tbody.innerHTML = "";
+    if(!data) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:#999">No Records</td></tr>';
+        return;
+    }
+    Object.keys(data).reverse().forEach(key => {
+        const item = data[key];
+        tbody.innerHTML += `
+            <tr>
+                <td>${formatDate(item.date)}</td>
+                <td>${item.name}</td>
+                <td>${item.dest || '-'}</td>
+                <td>${item.total ? item.total.toFixed(2) : '0.00'}</td>
+                <td>
+                    <button class="edit-btn" onclick='editBill("${key}", ${JSON.stringify(item)})'>Edit</button>
+                    <button class="delete" onclick="deleteBill('${key}')">Delete</button>
+                    <button class="print-btn" onclick='printBill("${key}", ${JSON.stringify(item)})'>Print</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function renderIouTables(data) {
+    const adminBody = document.getElementById("iouAdminTable");
+    const activeBody = document.getElementById("activeIouTable");
+    const usedBody = document.getElementById("usedIouTable");
+    
+    adminBody.innerHTML = "";
+    activeBody.innerHTML = "";
+    usedBody.innerHTML = "";
+
+    if(!data) {
+        adminBody.innerHTML = '<tr><td colspan="8" style="color:#999">No Records</td></tr>';
+        activeBody.innerHTML = '<tr><td colspan="4" style="color:#999">No Active IOU</td></tr>';
+        usedBody.innerHTML = '<tr><td colspan="4" style="color:#999">No Used IOU</td></tr>';
+        return;
+    }
+
+    let hasActive = false;
+    let hasUsed = false;
+
+    Object.keys(data).reverse().forEach(key => {
+        const item = data[key];
+        adminBody.innerHTML += `
+            <tr>
+                <td>${item.no}</td>
+                <td>${formatDate(item.date)}</td>
+                <td>${item.name}</td>
+                <td>${item.depot}</td>
+                <td>${item.purpose}</td>
+                <td>${item.amount.toFixed(2)}</td>
+                <td><span class="badge ${item.isUsed ? 'used' : 'pending'}">${item.isUsed ? 'Used' : item.status}</span></td>
+                <td>
+                    <button class="edit-btn" onclick='editIou("${key}", ${JSON.stringify(item)})'>Edit</button>
+                    <button class="delete" onclick="deleteIou('${key}')">Del</button>
+                </td>
+            </tr>
+        `;
+
+        if(item.isUsed) {
+            hasUsed = true;
+            usedBody.innerHTML += `<tr><td>${formatDate(item.date)}</td><td>${item.purpose}</td><td>${item.amount.toFixed(2)}</td><td><span class="badge used">Used</span></td></tr>`;
+        } else {
+            hasActive = true;
+            activeBody.innerHTML += `<tr><td>${formatDate(item.date)}</td><td>${item.purpose}</td><td>${item.amount.toFixed(2)}</td><td><button class="action" onclick='makeBill("${key}", ${JSON.stringify(item)})'>MAKE BILL</button></td></tr>`;
+        }
+    });
+
+    if(!hasActive) activeBody.innerHTML = '<tr><td colspan="4" style="color:#999">No Active IOU</td></tr>';
+    if(!hasUsed) usedBody.innerHTML = '<tr><td colspan="4" style="color:#999">No Used IOU</td></tr>';
+}
+
+</script>
+</body>
+</html>
