@@ -336,6 +336,7 @@
                                 </div>
                             </div>
 
+                            <!-- DA Wise Bill Status (UPDATED) -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-people"></i> DA Wise Bill Status</h6>
@@ -346,6 +347,7 @@
                                             <thead class="table-light">
                                                 <tr>
                                                     <th>DA Name</th>
+                                                    <th class="text-end">IOU TOTAL</th>
                                                     <th class="text-center">Total</th>
                                                     <th class="text-center text-warning">Pending</th>
                                                     <th class="text-center text-success">Approved</th>
@@ -353,13 +355,14 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="dash_da_table_body">
-                                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Approved Bill vs IOU Summary (UPDATED) -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> Approved Bill vs IOU Summary</h6>
@@ -373,11 +376,12 @@
                                                     <th class="text-end">Total IOU</th>
                                                     <th class="text-end">Appr. Bill</th>
                                                     <th class="text-end">Balance</th>
+                                                    <th class="text-center">Bund Qty</th>
                                                     <th>Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="approved_summary_body">
-                                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -490,6 +494,11 @@
                         <div class="col-4"><label>Bundle Qty:</label><input type="number" id="form_bundle_qty" class="form-control form-control-sm" oninput="triggerAutoSave()"></div>
                     </div>
 
+                    <!-- REMARKS FIELD (USER ENTRY) -->
+                    <div class="row mb-2">
+                         <div class="col-12"><label class="fw-bold">Remarks:</label><input type="text" id="form_remarks" class="form-control form-control-sm" placeholder="Any specific notes..." oninput="triggerAutoSave()"></div>
+                    </div>
+                    
                     <div class="quick-entry-card no-print">
                         <h6 class="text-primary mb-2"><i class="bi bi-lightning-charge-fill"></i> Quick Entry</h6>
                         <div class="row g-1">
@@ -781,6 +790,12 @@
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <!-- REMARKS INPUT (ADMIN) -->
+                        <div class="mt-2">
+                            <label class="fw-bold">Remarks (Will be printed):</label>
+                            <input type="text" id="modal_remarks" class="form-control form-control-sm" placeholder="Enter checking remarks here...">
+                        </div>
                     </div>
                 
                 </div>
@@ -856,6 +871,10 @@
             <div style="display: flex; justify-content: space-between;">
                 <div style="width: 60%;"><strong>Total In Words:</strong> <span id="p_total_words"></span></div>
                 <div style="width: 35%; text-align: right;"><strong>Cost (%):</strong> <span id="p_cost_percent"></span></div>
+            </div>
+            <!-- REMARKS PRINT DISPLAY -->
+            <div style="margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 2px;">
+                <strong>Remarks:</strong> <span id="p_remarks"></span>
             </div>
         </div>
         
@@ -956,7 +975,8 @@
                 invoiceQty: document.getElementById('form_invoice_qty').value,
                 bundleQty: document.getElementById('form_bundle_qty').value,
                 iouId: currentIouId,
-                iouAmount: document.getElementById('form_iou_amount').value, 
+                iouAmount: document.getElementById('form_iou_amount').value,
+                remarks: document.getElementById('form_remarks').value, // Added Remarks
                 expenses: []
             };
 
@@ -992,7 +1012,8 @@
                 document.getElementById('form_return_val').value = data.returnVal || 0;
                 document.getElementById('form_invoice_qty').value = data.invoiceQty || '';
                 document.getElementById('form_bundle_qty').value = data.bundleQty || '';
-                document.getElementById('form_iou_amount').value = data.iouAmount || 0; 
+                document.getElementById('form_iou_amount').value = data.iouAmount || 0;
+                document.getElementById('form_remarks').value = data.remarks || ''; // Load Remarks
                 
                 currentIouId = data.iouId || null;
                 
@@ -1057,7 +1078,8 @@
                 document.getElementById('form_return_val').value = 0; 
                 document.getElementById('form_invoice_qty').value = '';
                 document.getElementById('form_bundle_qty').value = '';
-                document.getElementById('form_iou_amount').value = 0; 
+                document.getElementById('form_iou_amount').value = 0;
+                document.getElementById('form_remarks').value = ''; // Clear Remarks
                 
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('form_dep_date').value = today;
@@ -1323,7 +1345,7 @@
         function loadAdminDashboardData() {
             loadDashboardStats(); 
             loadApprovedBillSummary();
-            loadUnbilledIOUList(); // NEW FUNCTION CALL
+            loadUnbilledIOUList(); 
         }
 
         // NEW FUNCTION: Load Unbilled IOU List
@@ -1364,10 +1386,6 @@
                     }
 
                     const tr = document.createElement('tr');
-                    // Clickable row to autofill if admin wants to enter bill for user (optional, but useful)
-                    // tr.classList.add('clickable-row'); 
-                    // tr.onclick = () => { autofill logic for admin? };
-                    
                     tr.innerHTML = `
                         <td>${formatDate(d.date)} ${daysPassed}</td>
                         <td>${d.daName}</td>
@@ -1427,6 +1445,19 @@
         function loadDashboardStats() {
             const monthFilter = document.getElementById('dash_filter_month')?.value || '';
 
+            // We need to load IOU data separately to aggregate IOU TOTAL per DA
+            // We'll use the global iouListGlobal if populated, otherwise fetch.
+            // For reliability, let's compute IOU totals locally.
+            
+            let iouTotalsPerDA = {};
+            if(iouListGlobal) {
+                Object.keys(iouListGlobal).forEach(key => {
+                    const iou = iouListGlobal[key];
+                    if(!iouTotalsPerDA[iou.daId]) iouTotalsPerDA[iou.daId] = 0;
+                    iouTotalsPerDA[iou.daId] += (iou.taka || 0);
+                });
+            }
+
             database.ref('Bills').on('value', (snapshot) => {
                 let totalBills = 0;
                 let pendingBills = 0; 
@@ -1468,21 +1499,38 @@
                 const tbody = document.getElementById('dash_da_table_body');
                 tbody.innerHTML = '';
                 const sortedDAs = Object.values(daStats).sort((a,b) => a.name.localeCompare(b.name));
-                sortedDAs.forEach(da => {
-                    // Only show if they have activity in the selected month
-                    if(da.total > 0){
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td><i class="bi bi-person-badge me-1"></i>${da.name}</td><td class="text-center"><span class="badge bg-primary">${da.total}</span></td><td class="text-center"><span class="badge bg-warning text-dark">${da.pending}</span></td><td class="text-center"><span class="badge bg-success">${da.approved}</span></td><td class="text-end fw-bold">${da.amount.toFixed(2)}</td>`;
-                        tbody.appendChild(tr);
-                    }
-                });
-                if(sortedDAs.length === 0 || totalBills === 0) tbody.innerHTML = '<tr><td colspan="5" class="text-center">No Data for selected period</td></tr>';
+                
+                if(sortedDAs.length === 0 || totalBills === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No Data for selected period</td></tr>';
+                } else {
+                    sortedDAs.forEach(da => {
+                        // Get IOU Total for this DA
+                        const daId = Object.keys(daStats).find(key => daStats[key].name === da.name); // Find key (inefficient but safe for this scale) or better, store ID in loop.
+                        // Refactoring loop to keep ID
+                    });
+                    
+                    // Re-iterating safely with IDs
+                    Object.keys(daStats).forEach(daId => {
+                         const da = daStats[daId];
+                         // Only show if they have activity in the selected month
+                        if(da.total > 0){
+                            const iouTotal = iouTotalsPerDA[daId] || 0;
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `<td><i class="bi bi-person-badge me-1"></i>${da.name}</td>
+                            <td class="text-end text-primary">${iouTotal.toFixed(2)}</td>
+                            <td class="text-center"><span class="badge bg-primary">${da.total}</span></td>
+                            <td class="text-center"><span class="badge bg-warning text-dark">${da.pending}</span></td>
+                            <td class="text-center"><span class="badge bg-success">${da.approved}</span></td>
+                            <td class="text-end fw-bold">${da.amount.toFixed(2)}</td>`;
+                            tbody.appendChild(tr);
+                        }
+                    });
+                }
             });
         }
 
         function loadApprovedBillSummary() {
-            // This function currently loads ALL time data. 
-            // Keeping it global as it's a summary view (IOU vs Bill balance).
+            // This function loads ALL time data. 
             database.ref('IOU_List').on('value', (iouSnap) => {
                 const iouData = {};
                 if(iouSnap.exists()) {
@@ -1495,17 +1543,23 @@
 
                 database.ref('Bills').on('value', (billSnap) => {
                     const billData = {};
+                    // Initialize billData with structure: { daId: { name, totalApproved, totalBundleQty } }
+                    
                     if(billSnap.exists()) {
                         billSnap.forEach(depotSnap => {
                             depotSnap.forEach(daSnap => {
                                 const daId = daSnap.key;
+                                // Initialize if not exists, preserving name from iouData if possible
                                 if(!billData[daId]) {
                                     let dName = (iouData[daId]) ? iouData[daId].name : 'Unknown';
-                                    billData[daId] = { name: dName, totalApproved: 0 };
+                                    billData[daId] = { name: dName, totalApproved: 0, totalBundleQty: 0 };
                                 }
                                 daSnap.forEach(billChild => {
                                     const bill = billChild.val();
-                                    if(bill.status === 'green') billData[daId].totalApproved += bill.totalAmount || 0;
+                                    if(bill.status === 'green') {
+                                        billData[daId].totalApproved += bill.totalAmount || 0;
+                                        billData[daId].totalBundleQty += (bill.bundleQty || 0);
+                                    }
                                     if(billData[daId].name === 'Unknown' && bill.daName) billData[daId].name = bill.daName;
                                 });
                             });
@@ -1515,18 +1569,25 @@
                     const tbody = document.getElementById('approved_summary_body');
                     tbody.innerHTML = '';
                     const allDaIds = new Set([...Object.keys(iouData), ...Object.keys(billData)]);
-                    if(allDaIds.size === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center">No Data</td></tr>'; return; }
+                    if(allDaIds.size === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">No Data</td></tr>'; return; }
 
                     allDaIds.forEach(id => {
                         const iouInfo = iouData[id] || { name: 'Unknown', totalIou: 0 };
-                        const billInfo = billData[id] || { name: iouInfo.name, totalApproved: 0 };
+                        const billInfo = billData[id] || { name: iouInfo.name, totalApproved: 0, totalBundleQty: 0 };
+                        
                         const totalIou = iouInfo.totalIou || 0;
                         const totalApp = billInfo.totalApproved || 0;
+                        const totalBund = billInfo.totalBundleQty || 0;
                         const balance = totalApp - totalIou;
                         const name = billInfo.name || iouInfo.name || id;
 
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${name}</td><td class="text-end fw-bold">${totalIou.toFixed(2)}</td><td class="text-end fw-bold">${totalApp.toFixed(2)}</td><td class="text-end fw-bold">${balance.toFixed(2)}</td><td class="text-center">${balance < 0 ? '<span class="badge bg-danger">Due Bill</span>' : '<span class="badge bg-success">Clear</span>'}</td>`;
+                        tr.innerHTML = `<td>${name}</td>
+                        <td class="text-end fw-bold">${totalIou.toFixed(2)}</td>
+                        <td class="text-end fw-bold">${totalApp.toFixed(2)}</td>
+                        <td class="text-end fw-bold">${balance.toFixed(2)}</td>
+                        <td class="text-center fw-bold">${totalBund}</td>
+                        <td class="text-center">${balance < 0 ? '<span class="badge bg-danger">Due Bill</span>' : '<span class="badge bg-success">Clear</span>'}</td>`;
                         tbody.appendChild(tr);
                     });
                 });
@@ -1630,6 +1691,7 @@
             
             const grandTotal = parseFloat(document.getElementById('grand_total').value) || 0;
             const iouAmount = parseFloat(document.getElementById('form_iou_amount').value) || 0;
+            const remarks = document.getElementById('form_remarks').value; // Get Remarks
 
             const billData = {
                 daName: targetDaName, daId: targetDaId, depot: targetDepot,
@@ -1643,6 +1705,7 @@
                 status: statusType, timestamp: Date.now(), 
                 iouId: currentIouId,
                 iouAmount: iouAmount,
+                remarks: remarks, // Save Remarks
                 deduction: 0
             };
             
@@ -1669,6 +1732,7 @@
                         document.getElementById('form_route').value = ''; document.getElementById('form_mpo').value = ''; document.getElementById('form_summary').value = '';
                         document.getElementById('form_invoice_val').value = ''; document.getElementById('form_return_val').value = 0; document.getElementById('form_invoice_qty').value = '';
                         document.getElementById('form_bundle_qty').value = '';
+                        document.getElementById('form_remarks').value = ''; // Clear Remarks
                         document.getElementById('grand_total').value = '0'; document.getElementById('form_cost_percent').innerText = '0%'; document.getElementById('expense_table_body').innerHTML = '';
                         document.getElementById('form_iou_amount').value = 0; 
                         calculateSoldValue(); currentIouId = null; originalIouId = null; prepareBillEntryForm(); document.getElementById('history-tab').click();
@@ -1690,6 +1754,7 @@
                 document.getElementById('form_invoice_qty').value = bill.invoiceQty;
                 document.getElementById('form_bundle_qty').value = bill.bundleQty || 0;
                 document.getElementById('form_iou_amount').value = bill.iouAmount || 0; 
+                document.getElementById('form_remarks').value = bill.remarks || ''; // Load Remarks
                 
                 const tbody = document.getElementById('expense_table_body'); tbody.innerHTML = '';
                 if(bill.expenses) {
@@ -1731,6 +1796,10 @@
                 iouListGlobal = {};
                 if(snap.exists()) {
                     snap.forEach(child => { iouListGlobal[child.key] = child.val(); });
+                }
+                // Refresh Dashboard stats if IOU data changes, as IOU Totals depend on it
+                if(currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
+                    loadDashboardStats();
                 }
             });
         }
@@ -2232,6 +2301,10 @@
                         row.innerHTML = `<td><input type="text" class="form-control form-control-sm" value="${formatDate(exp.date)}" disabled></td><td><input type="text" class="form-control form-control-sm" value="${exp.from}" disabled></td><td><input type="text" class="form-control form-control-sm" value="${exp.to}" disabled></td><td><input type="text" class="form-control form-control-sm" value="${exp.mode}" disabled></td><td><input type="number" class="form-control form-control-sm text-end row-amt" value="${amt}" disabled></td><td><input type="number" class="form-control form-control-sm text-end row-da" value="${da}" disabled></td><td><input type="number" class="form-control form-control-sm text-danger row-deduction" value="${currentDed}" placeholder="0" oninput="calculateModalTotals()"></td><td><span class="fw-bold row-total">${currentTot}</span></td>`;
                     });
                 }
+                
+                // Load Remarks into Modal
+                document.getElementById('modal_remarks').value = bill.remarks || '';
+                
                 calculateModalTotals();
             });
             new bootstrap.Modal(document.getElementById('cutBillModal')).show();
@@ -2270,6 +2343,7 @@
         function saveDeduction() {
             const billId = document.getElementById('edit_bill_id').value; const depot = document.getElementById('edit_depot').value; const daId = document.getElementById('edit_depot').dataset.daId;
             let newExpenses = []; let newTotalAmount = 0; let totalDeduction = 0;
+            let remarks = document.getElementById('modal_remarks').value; // Get Remarks from Modal
             
             let originalAmt = 0;
 
@@ -2290,14 +2364,13 @@
             });
             
             // Status Update: Admin -> 'orange' (Checked), Super Admin -> 'orange' (Rechecked)
-            // We keep status 'orange' so Super Admin can Approve it next.
-            // We store who checked it.
             let updateData = { 
                 expenses: newExpenses, 
                 totalAmount: newTotalAmount, 
                 deduction: totalDeduction, 
                 originalAmount: originalAmt, 
-                status: 'orange'
+                status: 'orange',
+                remarks: remarks // Save Remarks
             };
 
             // If Super Admin is rechecking, we update recheckedBy field
@@ -2345,6 +2418,9 @@
                 document.getElementById('p_total_words').innerText = numberToEnglish(bill.totalAmount) + " Taka Only";
                 document.getElementById('p_cost_percent').innerText = costPercent; 
                 document.getElementById('p_prepared_by').innerText = bill.daName;
+                
+                // Print Remarks
+                document.getElementById('p_remarks').innerText = bill.remarks || '';
                 
                 // Dynamic Signatories
                 document.getElementById('p_checked_by').innerText = bill.checkedBy || ''; 
