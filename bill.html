@@ -8,48 +8,45 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         body { background-color: #C0C0C0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; }
-    body{
-background:#C0C0C0;
-font-family:Tahoma;
-}
+        
+        /* container */
+        .login-container{
+            max-width:350px;
+            margin:120px auto;
+        }
 
-/* container */
-.login-container{
-max-width:350px;
-margin:120px auto;
-}
+        /* card = VB6 form */
+        .card{
+            background:#C0C0C0;
+            border:2px solid #808080;
+            box-shadow: inset 2px 2px #ffffff, inset -2px -2px #404040;
+        }
 
-/* card = VB6 form */
-.card{
-background:#C0C0C0;
-border:2px solid #808080;
-box-shadow: inset 2px 2px #ffffff, inset -2px -2px #404040;
-}
+        /* title bar */
+        .card-header{
+            background:#000080 !important;
+            color:white !important;
+            font-weight:bold;
+        }
 
-/* title bar */
-.card-header{
-background:#000080 !important;
-color:white !important;
-font-weight:bold;
-}
+        /* textbox */
+        .form-control{
+            border:2px inset #808080;
+            border-radius:0;
+        }
 
-/* textbox */
-.form-control{
-border:2px inset #808080;
-border-radius:0;
-}
+        /* button */
+        .btn-primary{
+            background:#C0C0C0;
+            color:black;
+            border:2px outset #808080;
+        }
 
-/* button */
-.btn-primary{
-background:#C0C0C0;
-color:black;
-border:2px outset #808080;
-}
-
-.btn-primary:active{
-border:2px inset #808080;
-}
-  .status-red { background-color: #ffebee; border-left: 5px solid #ef5350; }
+        .btn-primary:active{
+            border:2px inset #808080;
+        }
+        
+        .status-red { background-color: #ffebee; border-left: 5px solid #ef5350; }
         .status-green { background-color: #e8f5e9; border-left: 5px solid #66bb6a; }
         .status-orange { background-color: #fff3e0; border-left: 5px solid #ffa726; } 
         .status-draft { background-color: #eceff1; border-left: 5px solid #90a4ae; }
@@ -102,22 +99,17 @@ border:2px inset #808080;
         .profile-img-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
         .profile-img-lg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #0d6efd; }
 
-        /* Print Style - UPDATED TO FIX CONFLICT */
+        /* Print Style */
         .print-container { display: none; position: relative; }
         .print-summary-container { display: none; position: relative; } 
         
         @media print {
-            /* Hide everything by default */
             body * { visibility: hidden; }
             .no-print { display: none !important; }
-            
-            /* Hide both print containers initially */
             .print-container, .print-summary-container {
                 display: none !important;
                 visibility: hidden;
             }
-
-            /* Logic: Only show the container with the 'active-print' class */
             .active-print {
                 display: block !important;
                 position: absolute;
@@ -126,18 +118,13 @@ border:2px inset #808080;
                 width: 100%;
                 visibility: visible !important;
             }
-
-            /* Ensure children of active print are visible */
             .active-print * {
                 visibility: visible !important;
             }
-
-            /* Page Footer Styling */
             #pageFooter, #pageFooterSummary {
                 position: fixed; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 12px;
             }
             #pageFooter:after, #pageFooterSummary:after { content: "PAGE : " counter(page); }
-            
             thead { display: table-header-group; } tfoot { display: table-footer-group; }
             table, th, td { border: 1px solid #000 !important; border-collapse: collapse; }
             th, td { padding: 2px 4px; font-size: 11px; line-height: 1.2; }
@@ -150,62 +137,48 @@ border:2px inset #808080;
         .clickable-row { cursor: pointer; }
         .clickable-row:hover { background-color: #e0f7fa; }
 
+        input:disabled, select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            border-color: #ced4da;
+            opacity: 0.7;
+        }
+
         /* Mobile Optimization */
-        /* Mobile Optimization: Horizontal Scroll & Auto-Fit Columns */
 @media (max-width: 768px) {
-    
-    /* 1. Enable Horizontal Scroll */
     .table-responsive {
         overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on Android/iOS */
+        -webkit-overflow-scrolling: touch;
         border: 1px solid #dee2e6;
         border-radius: 5px;
     }
-
-    /* 2. Force Table Width to maintain structure */
     #entryTab table {
-        min-width: 650px; /* Table minimum width so columns don't crush */
+        min-width: 650px;
         width: 100%;
         font-size: 11px;
-        table-layout: fixed; /* Ensures columns distribute space evenly */
+        table-layout: fixed;
     }
-
-    /* 3. Define Column Widths (Auto-Fit Logic) */
-    /* You can adjust these percentages to fit your needs */
-    #entryTab th:nth-child(1), #entryTab td:nth-child(1) { width: 14%; } /* Date */
-    #entryTab th:nth-child(2), #entryTab td:nth-child(2) { width: 18%; } /* From */
-    #entryTab th:nth-child(3), #entryTab td:nth-child(3) { width: 18%; } /* To */
-    #entryTab th:nth-child(4), #entryTab td:nth-child(4) { width: 18%; } /* Mode */
-    #entryTab th:nth-child(5), #entryTab td:nth-child(5) { width: 10%; } /* Amount */
-    #entryTab th:nth-child(6), #entryTab td:nth-child(6) { width: 10%; } /* DA */
-    #entryTab th:nth-child(7), #entryTab td:nth-child(7) { width: 10%; } /* Total */
-    #entryTab th:nth-child(8), #entryTab td:nth-child(8) { width: 2%;  } /* X Button */
-
-    /* 4. Shrink Inputs to fit Cells */
-    #entryTab input, 
-    #entryTab select {
+    #entryTab th:nth-child(1), #entryTab td:nth-child(1) { width: 14%; }
+    #entryTab th:nth-child(2), #entryTab td:nth-child(2) { width: 18%; }
+    #entryTab th:nth-child(3), #entryTab td:nth-child(3) { width: 18%; }
+    #entryTab th:nth-child(4), #entryTab td:nth-child(4) { width: 18%; }
+    #entryTab th:nth-child(5), #entryTab td:nth-child(5) { width: 10%; }
+    #entryTab th:nth-child(6), #entryTab td:nth-child(6) { width: 10%; }
+    #entryTab th:nth-child(7), #entryTab td:nth-child(7) { width: 10%; }
+    #entryTab th:nth-child(8), #entryTab td:nth-child(8) { width: 2%;  }
+    #entryTab input, #entryTab select {
         width: 100% !important;
         padding: 2px 4px !important;
         font-size: 11px !important;
-        min-width: 35px; /* Minimum clickable area */
+        min-width: 35px;
         border: 1px solid #ced4da;
     }
-
-    /* 5. Adjust Cell Padding */
-    #entryTab th, #entryTab td {
-        padding: 4px 2px !important;
-    }
-
-    /* 6. Optional: Hide Table Headers text if too crowded, keep only first letters or icons */
-    /* #entryTab th span { display: none; } */ 
+    #entryTab th, #entryTab td { padding: 4px 2px !important; }
 }
         
-        /* Summary Table Style */
         .summary-table th { background-color: #e9ecef; font-size: 12px; text-align: center; }
         .summary-table td { font-size: 13px; text-align: center; font-weight: bold; }
         .summary-table .value-highlight { color: #0d6efd; font-size: 14px; }
-        
-        /* Footer Total Style */
         tfoot td { font-weight: bold; background-color: #e9ecef; }
     </style>
 </head>
@@ -252,15 +225,12 @@ border:2px inset #808080;
             <li class="nav-item user-only" role="presentation">
                 <button class="nav-link" id="entry-tab" data-bs-toggle="tab" data-bs-target="#entryTab" type="button">Bill Entry</button>
             </li>
-            <!-- History Tab: Visible for User, Admin AND Super Admin -->
             <li class="nav-item" id="history_tab_li" role="presentation">
                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#billTab" type="button">History</button>
             </li>
-            <!-- NEW: Bill Summary Tab (Admin Only) -->
             <li class="nav-item admin-superadmin-only" role="presentation">
                 <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summaryTab" type="button">Bill Summary</button>
             </li>
-            <!-- Approved History Tab: Visible for Admin and Super Admin -->
             <li class="nav-item admin-superadmin-only" role="presentation">
                 <button class="nav-link" id="approved-history-tab" data-bs-toggle="tab" data-bs-target="#approvedHistoryTab" type="button">Approved History</button>
             </li>
@@ -287,6 +257,7 @@ border:2px inset #808080;
                         </div>
                     </div>
 
+                    <!-- STATS ROW -->
                     <div class="row mb-3">
                         <div class="col-4">
                             <div class="card dash-card text-white bg-dash-total h-100">
@@ -329,9 +300,35 @@ border:2px inset #808080;
                         </div>
                     </div>
 
+                    <!-- UPDATED LAYOUT: LEFT/RIGHT ALIGNMENT -->
                     <div class="row">
-                        <!-- LEFT COLUMN -->
+                        <!-- LEFT COLUMN: DA Wise Bill Status -->
                         <div class="col-md-6 mb-3">
+                             <!-- DA Wise Bill Status -->
+                            <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-white py-2">
+                                    <h6 class="mb-0"><i class="bi bi-people"></i> DA Wise Bill Status</h6>
+                                </div>
+                                <div class="card-body p-2 scroll-box-md">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>DA Name</th>
+                                                    <th class="text-center">IOU QTY</th>
+                                                    <th class="text-center">Total Bill</th>
+                                                    <th class="text-center text-warning">Pending</th>
+                                                    <th class="text-center text-success">Approved</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dash_da_table_body">
+                                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <!-- IOU Entry Form -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">IOU Entry</div>
@@ -351,6 +348,18 @@ border:2px inset #808080;
                                         
                                         <div class="col-4 col-md-2"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
                                         <div class="col-4 col-md-2"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
+                                        
+                                        <!-- NEW: IOU Type -->
+                                        <div class="col-12 col-md-3">
+                                            <label class="fw-bold text-primary">IOU Type</label>
+                                            <select id="iou_type" class="form-select form-select-sm">
+                                                <option value="Delivery">Delivery (Bill Req)</option>
+                                                <option value="Collection">Collection (Bill Req)</option>
+                                                <option value="Return">Return (Bill Req)</option>
+                                                <option value="General">General (No Bill)</option>
+                                                <option value="Bill Payment">Bill Payment (No Bill)</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <button id="iou_save_btn" onclick="saveIOU()" class="btn btn-success btn-sm w-100">Save IOU Entry</button>
                                     <button id="iou_cancel_btn" onclick="cancelIOUEdit()" class="btn btn-secondary btn-sm w-100 hidden">Cancel Edit</button>
@@ -410,9 +419,20 @@ border:2px inset #808080;
                             </div>
                         </div>
 
-                        <!-- RIGHT COLUMN (Alighed Right) -->
+                        <!-- RIGHT COLUMN: Online Users -->
                         <div class="col-md-6 mb-3">
-                            <!-- NEW: Unbilled IOU List -->
+                            <!-- Realtime Online Users -->
+                            <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
+                                    <span class="badge bg-light text-success" id="online_count_badge">0</span>
+                                </div>
+                                <div class="card-body p-2 scroll-box-sm" id="online_users_list">
+                                    <div class="text-center text-muted p-2">Checking...</div>
+                                </div>
+                            </div>
+
+                            <!-- Unbilled IOU List -->
                             <div class="card dash-card no-print mb-3 border border-danger">
                                 <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0"><i class="bi bi-exclamation-octagon-fill me-1"></i> IOU Bill Pending</h6>
@@ -425,55 +445,20 @@ border:2px inset #808080;
                                                 <tr>
                                                     <th>Date</th>
                                                     <th>DA Name</th>
+                                                    <th>Type</th> <!-- Added Type Column -->
                                                     <th>Route</th>
                                                     <th class="text-end">Amount</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="unbilled_iou_list">
-                                                <tr><td colspan="4" class="text-center text-muted p-2">Checking...</td></tr>
+                                                <tr><td colspan="5" class="text-center text-muted p-2">Checking...</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="card dash-card no-print mb-3">
-                                <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0"><i class="bi bi-broadcast"></i> Realtime Online Users</h6>
-                                    <span class="badge bg-light text-success" id="online_count_badge">0</span>
-                                </div>
-                                <div class="card-body p-2 scroll-box-sm" id="online_users_list">
-                                    <div class="text-center text-muted p-2">Checking...</div>
-                                </div>
-                            </div>
-
-                            <!-- DA Wise Bill Status (UPDATED) -->
-                            <div class="card dash-card no-print mb-3">
-                                <div class="card-header bg-white py-2">
-                                    <h6 class="mb-0"><i class="bi bi-people"></i> DA Wise Bill Status</h6>
-                                </div>
-                                <div class="card-body p-2 scroll-box-md">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>DA Name</th>
-                                                    <th class="text-end">IOU TOTAL</th>
-                                                    <th class="text-center">Total</th>
-                                                    <th class="text-center text-warning">Pending</th>
-                                                    <th class="text-center text-success">Approved</th>
-                                                    <th class="text-end">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="dash_da_table_body">
-                                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Approved Bill vs IOU Summary (UPDATED) -->
+                            <!-- Approved Bill vs IOU Summary -->
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-info text-white py-2">
                                     <h6 class="mb-0"><i class="bi bi-check-circle-fill"></i> Approved Bill vs IOU Summary</h6>
@@ -505,6 +490,7 @@ border:2px inset #808080;
                 <!-- USER DASHBOARD VIEW -->
                 <div class="user-only">
                     <div class="row">
+                        <!-- LEFT COLUMN: My Active IOU -->
                         <div class="col-md-6 mb-3">
                             <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-primary text-white py-2">
@@ -513,29 +499,31 @@ border:2px inset #808080;
                                 <div class="card-body p-0 scroll-box-sm">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover mb-0">
-                                            <thead class="table-light"><tr><th>Date</th><th>Route</th><th>Taka</th><th>Action</th></tr></thead>
-                                            <tbody id="user_active_iou_list"><tr><td colspan="4" class="text-center p-2">No Active IOU</td></tr></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card dash-card no-print">
-                                <div class="card-header bg-secondary text-white py-2">
-                                    <h6 class="mb-0"><i class="bi bi-check-circle"></i> Used IOU</h6>
-                                </div>
-                                <div class="card-body p-0 scroll-box-sm">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0">
-                                            <thead class="table-light"><tr><th>Date</th><th>Route</th><th>Taka</th><th>Status</th></tr></thead>
-                                            <tbody id="user_used_iou_list"><tr><td colspan="4" class="text-center p-2">No Used IOU</td></tr></tbody>
+                                            <thead class="table-light"><tr><th>Date</th><th>Type</th><th>Route</th><th>Taka</th><th>Action</th></tr></thead>
+                                            <tbody id="user_active_iou_list"><tr><td colspan="5" class="text-center p-2">No Active IOU</td></tr></tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- RIGHT COLUMN: Used IOU -->
                         <div class="col-md-6 mb-3">
+                            <div class="card dash-card no-print mb-3">
+                                <div class="card-header bg-secondary text-white py-2">
+                                    <h6 class="mb-0"><i class="bi bi-check-circle"></i> Used IOU</h6>
+                                </div>
+                                <div class="card-body p-0 scroll-box-sm">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light"><tr><th>Date</th><th>Type</th><th>Route</th><th>Taka</th><th>Status</th></tr></thead>
+                                            <tbody id="user_used_iou_list"><tr><td colspan="5" class="text-center p-2">No Used IOU</td></tr></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Online Users (User View) -->
                              <div class="card dash-card no-print mb-3">
                                 <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0"><i class="bi bi-broadcast"></i> Online Users</h6>
@@ -543,19 +531,6 @@ border:2px inset #808080;
                                 </div>
                                 <div class="card-body p-2 scroll-box-sm" id="user_online_list_view">
                                     <div class="text-center text-muted p-2">Checking...</div>
-                                </div>
-                            </div>
-
-                            <div class="card dash-card no-print">
-                                <div class="card-header bg-info text-white py-2">
-                                    <h6 class="mb-0"><i class="bi bi-lightning"></i> Quick Links</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p>Use the top navigation menu to:</p>
-                                    <ul>
-                                        <li>Create a <strong>New Bill</strong> (Bill Entry Tab)</li>
-                                        <li>View your <strong>Bill History</strong></li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -604,8 +579,7 @@ border:2px inset #808080;
                         <div class="col-4"><label>Invoice Qty:</label><input type="number" id="form_invoice_qty" class="form-control form-control-sm" oninput="triggerAutoSave()"></div>
                         <div class="col-4"><label>Bundle Qty:</label><input type="number" id="form_bundle_qty" class="form-control form-control-sm" oninput="triggerAutoSave()"></div>
                     </div>
-
-                    <!-- REMARKS FIELD (USER ENTRY) -->
+                    
                     <div class="row mb-2">
                          <div class="col-12"><label class="fw-bold">Remarks:</label><input type="text" id="form_remarks" class="form-control form-control-sm" placeholder="Any specific notes..." oninput="triggerAutoSave()"></div>
                     </div>
@@ -615,15 +589,15 @@ border:2px inset #808080;
                         <div class="row g-1">
                             <div class="col-4">
                                 <label>From</label>
-                                <input type="text" id="q_from" class="form-control form-control-sm" placeholder="From">
+                                <input type="text" id="q_from" class="form-control form-control-sm q-from-input" placeholder="From">
                             </div>
                             <div class="col-4">
                                 <label>To</label>
-                                <input type="text" id="q_to" class="form-control form-control-sm" placeholder="To">
+                                <input type="text" id="q_to" class="form-control form-control-sm q-to-input" placeholder="To">
                             </div>
                             <div class="col-4">
                                 <label>Mode</label>
-                                <select id="q_mode" class="form-select form-select-sm">
+                                <select id="q_mode" class="form-select form-select-sm q-mode-select">
                                     <option>Rickshaw</option>
                                     <option>Auto</option>
                                     <option>Bus</option>
@@ -638,11 +612,11 @@ border:2px inset #808080;
                             </div>
                             <div class="col-4">
                                 <label>Amount</label>
-                                <input type="number" id="q_amount" class="form-control form-control-sm" placeholder="0">
+                                <input type="number" id="q_amount" class="form-control form-control-sm q-amount-input" placeholder="0">
                             </div>
                             <div class="col-4">
                                 <label>DA Exp</label>
-                                <input type="number" id="q_da_expense" class="form-control form-control-sm" placeholder="0">
+                                <input type="number" id="q_da_expense" class="form-control form-control-sm q-da-input" placeholder="0">
                             </div>
                             <div class="col-4 d-flex align-items-end">
                                 <button onclick="addQuickEntryRow()" class="btn btn-success btn-sm w-100"><i class="bi bi-plus-lg"></i> Add</button>
@@ -817,7 +791,6 @@ border:2px inset #808080;
                     <div class="card-header bg-primary text-white py-2">IOU List & Management</div>
                     <div class="card-body">
                         <div class="row g-2 mb-2 p-2 bg-light border rounded align-items-end">
-                            <!-- Changed to Month Filter -->
                              <div class="col-6 col-md-4">
                                 <label class="fw-bold text-muted">Filter by Month</label>
                                 <input type="month" id="filter_iou_month" class="form-control form-control-sm" onchange="loadAdminIOU()">
@@ -835,10 +808,10 @@ border:2px inset #808080;
 
                         <div class="table-responsive"><table class="table table-bordered table-sm">
                             <thead class="table-secondary">
-                                <tr><th>#</th><th>Date</th><th>DA Name</th><th>Territory</th><th>MPO</th><th>Summary</th><th>Sales</th><th>Ret</th><th>Sold</th><th>Qty</th><th>Bund Qty</th><th>Taka</th><th>%</th><th>Action</th></tr>
+                                <tr><th>#</th><th>Date</th><th>DA Name</th><th>Type</th><th>Territory</th><th>MPO</th><th>Summary</th><th>Sales</th><th>Ret</th><th>Sold</th><th>Qty</th><th>Bund Qty</th><th>Taka</th><th>%</th><th>Action</th></tr>
                             </thead>
                             <tbody id="iou_admin_table_body"></tbody>
-                            <tfoot><tr class="fw-bold table-warning"><td colspan="6">Filtered Total</td><td id="iou_tot_sales">0</td><td id="iou_tot_ret">0</td><td id="iou_tot_sold">0</td><td id="iou_tot_qty">0</td><td id="iou_tot_bqty">0</td><td id="iou_tot_taka">0</td><td></td><td></td></tr></tfoot>
+                            <tfoot><tr class="fw-bold table-warning"><td colspan="7">Filtered Total</td><td id="iou_tot_sales">0</td><td id="iou_tot_ret">0</td><td id="iou_tot_sold">0</td><td id="iou_tot_qty">0</td><td id="iou_tot_bqty">0</td><td id="iou_tot_taka">0</td><td></td><td></td></tr></tfoot>
                         </table></div>
 
                     </div>
@@ -963,7 +936,6 @@ border:2px inset #808080;
                             </tbody>
                         </table>
                         
-                        <!-- REMARKS INPUT (ADMIN) -->
                         <div class="mt-2">
                             <label class="fw-bold">Remarks (Will be printed):</label>
                             <input type="text" id="modal_remarks" class="form-control form-control-sm" placeholder="Enter checking remarks here...">
@@ -1012,7 +984,7 @@ border:2px inset #808080;
             </tr>
         </table>
         
-        <!-- UPDATED PRINT TABLE -->
+        <!-- PRINT TABLE -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <thead><tr style="background-color: #f0f0f0;">
                 <th style="padding: 2px; text-align: left;">Date</th>
@@ -1026,13 +998,12 @@ border:2px inset #808080;
                 <th style="padding: 2px; text-align: right;">Net Amount</th>
             </tr></thead>
             <tbody id="p_expense_body"></tbody>
-            <!-- FOOTER WITH SUMS -->
             <tfoot>
                 <tr style="font-weight: bold;">
                     <td colspan="4" style="text-align:left; padding: 2px;">Grand Total</td>
                     <td style="text-align:right; padding: 2px;" id="p_foot_amt">0</td>
                     <td style="text-align:right; padding: 2px;" id="p_foot_da">0</td>
-                    <td style="text-align:right; padding: 2px;" id="p_foot_total">0</td> <!-- Added ID -->
+                    <td style="text-align:right; padding: 2px;" id="p_foot_total">0</td>
                     <td style="text-align:right; padding: 2px;" id="p_foot_ded">0</td>
                     <td style="text-align:right; padding: 2px;" id="p_total_amount">0</td>
                 </tr>
@@ -1044,7 +1015,6 @@ border:2px inset #808080;
                 <div style="width: 60%;"><strong>Total In Words:</strong> <span id="p_total_words"></span></div>
                 <div style="width: 35%; text-align: right;"><strong>Cost (%):</strong> <span id="p_cost_percent"></span></div>
             </div>
-            <!-- REMARKS PRINT DISPLAY -->
             <div style="margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 2px;">
                 <strong>Remarks:</strong> <span id="p_remarks"></span>
             </div>
@@ -1154,22 +1124,68 @@ border:2px inset #808080;
         let iouListGlobal = {}; 
         let userPhotoBase64 = null; 
         let profilePhotoBase64 = null;
-        let currentSummaryData = []; // To store summary for printing
+        let currentSummaryData = [];
         
-        // Modal state variables
         let modalSales = 0;
         let modalUserBill = 0;
         let modalIou = 0;
 
         // ================= HELPER FUNCTIONS =================
         
-        // Check if a date (YYYY-MM-DD) falls in a month (YYYY-MM)
         function isDateInMonth(dateStr, monthVal) {
-            if (!monthVal) return true; // If no filter, show all
+            if (!monthVal) return true;
             if (!dateStr) return false;
-            // dateStr is YYYY-MM-DD, monthVal is YYYY-MM
             return dateStr.startsWith(monthVal);
         }
+
+        // ================= INPUT TOGGLE LOGIC =================
+        function toggleRowInputs(selectElement) {
+            const row = selectElement.closest('tr');
+            const mode = selectElement.value;
+            const isDaily = (mode === 'Daily Allowance');
+
+            const fromInput = row.querySelector('.exp-from');
+            const toInput = row.querySelector('.exp-to');
+            const amtInput = row.querySelector('.exp-amount');
+            const daInput = row.querySelector('.exp-da');
+
+            // Logic: Daily Allowance -> Disable From, To, Amount. Enable DA.
+            // Labour Bill & Other -> Enable From, To, Amount. Disable DA.
+
+            fromInput.disabled = isDaily;
+            toInput.disabled = isDaily;
+            amtInput.disabled = isDaily;
+            
+            if(isDaily) { 
+                fromInput.value = ''; 
+                toInput.value = ''; 
+                amtInput.value = ''; 
+            }
+
+            daInput.disabled = !isDaily;
+            if(!isDaily) { 
+                daInput.value = ''; 
+            }
+
+            calculateRowTotal(amtInput);
+        }
+        
+        // Toggle for Quick Entry Inputs
+        document.getElementById('q_mode').addEventListener('change', function() {
+            const isDaily = (this.value === 'Daily Allowance');
+            document.getElementById('q_from').disabled = isDaily;
+            document.getElementById('q_to').disabled = isDaily;
+            document.getElementById('q_amount').disabled = isDaily;
+            document.getElementById('q_da_expense').disabled = !isDaily;
+            
+            if(isDaily) {
+                document.getElementById('q_from').value = '';
+                document.getElementById('q_to').value = '';
+                document.getElementById('q_amount').value = '';
+            } else {
+                document.getElementById('q_da_expense').value = '';
+            }
+        });
 
         // ================= AUTO SAVE LOGIC =================
         let autoSaveTimeout;
@@ -1205,7 +1221,7 @@ border:2px inset #808080;
                 bundleQty: document.getElementById('form_bundle_qty').value,
                 iouId: currentIouId,
                 iouAmount: document.getElementById('form_iou_amount').value,
-                remarks: document.getElementById('form_remarks').value, // Added Remarks
+                remarks: document.getElementById('form_remarks').value,
                 expenses: []
             };
 
@@ -1242,7 +1258,7 @@ border:2px inset #808080;
                 document.getElementById('form_invoice_qty').value = data.invoiceQty || '';
                 document.getElementById('form_bundle_qty').value = data.bundleQty || '';
                 document.getElementById('form_iou_amount').value = data.iouAmount || 0;
-                document.getElementById('form_remarks').value = data.remarks || ''; // Load Remarks
+                document.getElementById('form_remarks').value = data.remarks || '';
                 
                 currentIouId = data.iouId || null;
                 
@@ -1259,7 +1275,7 @@ border:2px inset #808080;
                             <td><input type="date" class="form-control form-control-sm exp-date" value="${exp.date}" oninput="calculateRowTotal(this); triggerAutoSave()"></td>
                             <td><input type="text" class="form-control form-control-sm exp-from" value="${exp.from}" oninput="triggerAutoSave()"></td>
                             <td><input type="text" class="form-control form-control-sm exp-to" value="${exp.to}" oninput="triggerAutoSave()"></td>
-                            <td><select class="form-select form-select-sm exp-mode" onchange="triggerAutoSave()">
+                            <td><select class="form-select form-select-sm exp-mode" onchange="toggleRowInputs(this); triggerAutoSave()">
                                 <option ${exp.mode == 'Rickshaw' ? 'selected' : ''}>Rickshaw</option>
                                 <option ${exp.mode == 'Auto' ? 'selected' : ''}>Auto</option>
                                 <option ${exp.mode == 'Bus' ? 'selected' : ''}>Bus</option>
@@ -1276,14 +1292,18 @@ border:2px inset #808080;
                             <td><input type="text" class="form-control form-control-sm exp-total" value="${(parseFloat(exp.amount)||0) + (parseFloat(exp.da)||0)}" readonly></td>
                             <td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
                         `;
+                        const selectObj = row.querySelector('.exp-mode');
+                        toggleRowInputs(selectObj);
                     });
+                } else {
+                    addExpenseRow();
                 }
                 
                 calculateGrandTotal();
                 document.getElementById('auto_save_status').innerText = "Draft Restored";
                 document.getElementById('auto_save_status').classList.add('text-success');
 
-            } catch (e) { console.error("Error loading draft", e); }
+            } catch (e) { console.error("Error loading draft", e); addExpenseRow(); }
         }
 
         function clearLocalDraft() {
@@ -1308,7 +1328,7 @@ border:2px inset #808080;
                 document.getElementById('form_invoice_qty').value = '';
                 document.getElementById('form_bundle_qty').value = '';
                 document.getElementById('form_iou_amount').value = 0;
-                document.getElementById('form_remarks').value = ''; // Clear Remarks
+                document.getElementById('form_remarks').value = '';
                 
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('form_dep_date').value = today;
@@ -1321,6 +1341,8 @@ border:2px inset #808080;
                 
                 calculateSoldValue(); 
                 clearLocalDraft();
+                
+                addExpenseRow();
                 
                 if(currentUser && currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
                      document.getElementById('form_da_name').value = currentUser.name;
@@ -1518,7 +1540,6 @@ border:2px inset #808080;
             document.getElementById('dashTab').classList.add('show', 'active');
 
             setupPresence(); 
-
             listenForOnlineUsers(); 
 
             if(currentUser.role === 'user') {
@@ -1528,16 +1549,12 @@ border:2px inset #808080;
             } else {
                 document.querySelectorAll('.admin-only').forEach(item => item.style.display = 'block');
                 document.querySelectorAll('.admin-superadmin-only').forEach(item => item.style.display = 'block'); 
-                
-                // Super Admin CAN see History Tab
                 document.getElementById('history_tab_li').style.display = 'block';
 
                 loadDAListForIOU(); 
                 loadAdminDashboardData(); 
                 loadIOUListGlobal(); 
                 loadAdminIOU(); 
-                
-                // Load DA list for Summary Tab
                 loadDAListForSummary();
             }
 
@@ -1557,17 +1574,25 @@ border:2px inset #808080;
                 if(snap.exists()) {
                     snap.forEach(child => {
                         const d = child.val();
+                        const type = d.type || 'Delivery'; // Default if missing
                         if(d.status === 'used') {
                             hasUsed = true;
-                            usedBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-secondary">Used</span></td></tr>`;
+                            usedBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-secondary">Used</span></td></tr>`;
                         } else {
-                            hasActive = true;
-                            activeBody.innerHTML += `<tr class="clickable-row" onclick="fillBillFromIOU('${child.key}')"><td>${formatDate(d.date)}</td><td>${d.territory}</td><td>${d.taka}</td><td><i class="bi bi-check-circle-fill text-success"></i></td></tr>`;
+                            // Only show Active IOUs that REQUIRE a bill
+                            // If type is General or Bill Payment, user doesn't need to click to create bill from it
+                            if(type === 'General' || type === 'Bill Payment') {
+                                hasActive = true;
+                                activeBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-info">No Bill Req</span></td></tr>`;
+                            } else {
+                                hasActive = true;
+                                activeBody.innerHTML += `<tr class="clickable-row" onclick="fillBillFromIOU('${child.key}')"><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><i class="bi bi-check-circle-fill text-success"></i></td></tr>`;
+                            }
                         }
                     });
                 }
-                if(!hasActive) activeBody.innerHTML = '<tr><td colspan="4" class="text-center p-2">No Active IOU</td></tr>';
-                if(!hasUsed) usedBody.innerHTML = '<tr><td colspan="4" class="text-center p-2">No Used IOU</td></tr>';
+                if(!hasActive) activeBody.innerHTML = '<tr><td colspan="5" class="text-center p-2">No Active IOU</td></tr>';
+                if(!hasUsed) usedBody.innerHTML = '<tr><td colspan="5" class="text-center p-2">No Used IOU</td></tr>';
             });
 
             loadUserIOU(); 
@@ -1580,7 +1605,7 @@ border:2px inset #808080;
             loadUnbilledIOUList(); 
         }
 
-        // NEW FUNCTION: Load Unbilled IOU List
+        // UPDATED FUNCTION: Load Unbilled IOU List (FILTERED BY TYPE)
         function loadUnbilledIOUList() {
             const tbody = document.getElementById('unbilled_iou_list');
             const countBadge = document.getElementById('unbilled_iou_count');
@@ -1590,24 +1615,27 @@ border:2px inset #808080;
                 let count = 0;
                 
                 if(!snap.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-success p-2">No Pending IOUs</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-success p-2">No Pending IOUs</td></tr>';
                     countBadge.innerText = "0";
                     return;
                 }
 
-                // Convert to array to sort by date
                 let iouArray = [];
                 snap.forEach(child => {
                     iouArray.push({ key: child.key, ...child.val() });
                 });
 
-                // Sort by Date Descending (Newest first)
                 iouArray.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
                 iouArray.forEach(d => {
-                    count++;
+                    const type = d.type || 'Delivery';
                     
-                    // Calculate Days Passed
+                    // LOGIC UPDATE: Do NOT show General or Bill Payment in Pending Bill List
+                    if(type === 'General' || type === 'Bill Payment') {
+                        return; 
+                    }
+
+                    count++;
                     let daysPassed = "";
                     if(d.date) {
                         const iouDate = new Date(d.date);
@@ -1621,6 +1649,7 @@ border:2px inset #808080;
                     tr.innerHTML = `
                         <td>${formatDate(d.date)} ${daysPassed}</td>
                         <td>${d.daName}</td>
+                        <td><small class="badge bg-secondary">${type}</small></td>
                         <td>${d.territory}</td>
                         <td class="text-end fw-bold text-danger">${d.taka}</td>
                     `;
@@ -1630,7 +1659,7 @@ border:2px inset #808080;
                 countBadge.innerText = count;
                 
                 if(count === 0) {
-                     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-success p-2">All IOUs utilized</td></tr>';
+                     tbody.innerHTML = '<tr><td colspan="5" class="text-center text-success p-2">All Operational IOUs utilized</td></tr>';
                 }
             });
         }
@@ -1673,20 +1702,16 @@ border:2px inset #808080;
             });
         }
 
-        // ================= DASHBOARD STATS =================
+        // UPDATED: Load Dashboard Stats with Correct Columns
         function loadDashboardStats() {
             const monthFilter = document.getElementById('dash_filter_month')?.value || '';
 
-            // We need to load IOU data separately to aggregate IOU TOTAL per DA
-            // We'll use the global iouListGlobal if populated, otherwise fetch.
-            // For reliability, let's compute IOU totals locally.
-            
-            let iouTotalsPerDA = {};
+            let iouCountsPerDA = {};
             if(iouListGlobal) {
                 Object.keys(iouListGlobal).forEach(key => {
                     const iou = iouListGlobal[key];
-                    if(!iouTotalsPerDA[iou.daId]) iouTotalsPerDA[iou.daId] = 0;
-                    iouTotalsPerDA[iou.daId] += (iou.taka || 0);
+                    if(!iouCountsPerDA[iou.daId]) iouCountsPerDA[iou.daId] = 0;
+                    iouCountsPerDA[iou.daId]++;
                 });
             }
 
@@ -1700,7 +1725,9 @@ border:2px inset #808080;
                     snapshot.forEach((depotSnapshot) => {
                         depotSnapshot.forEach((daSnapshot) => {
                             const daId = daSnapshot.key;
-                            if(!daStats[daId]) daStats[daId] = { name: 'Unknown', total: 0, pending: 0, approved: 0, amount: 0 };
+                            // Initialize stats for this DA
+                            if(!daStats[daId]) daStats[daId] = { name: 'Unknown', total: 0, pending: 0, approved: 0 };
+                            
                             daSnapshot.forEach((billSnapshot) => {
                                 const bill = billSnapshot.val();
                                 
@@ -1710,7 +1737,6 @@ border:2px inset #808080;
                                 if(bill.daName) daStats[daId].name = bill.daName;
                                 totalBills++;
                                 daStats[daId].total++;
-                                daStats[daId].amount += bill.totalAmount || 0;
                                 
                                 if(bill.status === 'green') {
                                     approvedBills++; 
@@ -1730,39 +1756,25 @@ border:2px inset #808080;
 
                 const tbody = document.getElementById('dash_da_table_body');
                 tbody.innerHTML = '';
-                const sortedDAs = Object.values(daStats).sort((a,b) => a.name.localeCompare(b.name));
                 
-                if(sortedDAs.length === 0 || totalBills === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No Data for selected period</td></tr>';
-                } else {
-                    sortedDAs.forEach(da => {
-                        // Get IOU Total for this DA
-                        const daId = Object.keys(daStats).find(key => daStats[key].name === da.name); // Find key (inefficient but safe for this scale) or better, store ID in loop.
-                        // Refactoring loop to keep ID
-                    });
-                    
-                    // Re-iterating safely with IDs
-                    Object.keys(daStats).forEach(daId => {
-                         const da = daStats[daId];
-                         // Only show if they have activity in the selected month
-                        if(da.total > 0){
-                            const iouTotal = iouTotalsPerDA[daId] || 0;
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `<td><i class="bi bi-person-badge me-1"></i>${da.name}</td>
-                            <td class="text-end text-primary">${iouTotal.toFixed(2)}</td>
-                            <td class="text-center"><span class="badge bg-primary">${da.total}</span></td>
-                            <td class="text-center"><span class="badge bg-warning text-dark">${da.pending}</span></td>
-                            <td class="text-center"><span class="badge bg-success">${da.approved}</span></td>
-                            <td class="text-end fw-bold">${da.amount.toFixed(2)}</td>`;
-                            tbody.appendChild(tr);
-                        }
-                    });
-                }
+                Object.keys(daStats).forEach(daId => {
+                     const da = daStats[daId];
+                     const iouCount = iouCountsPerDA[daId] || 0;
+                     
+                     if(da.total > 0 || iouCount > 0){
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td><i class="bi bi-person-badge me-1"></i>${da.name}</td>
+                        <td class="text-center"><span class="badge bg-primary">${iouCount}</span></td>
+                        <td class="text-center"><span class="badge bg-info">${da.total}</span></td>
+                        <td class="text-center"><span class="badge bg-warning text-dark">${da.pending}</span></td>
+                        <td class="text-center"><span class="badge bg-success">${da.approved}</span></td>`;
+                        tbody.appendChild(tr);
+                    }
+                });
             });
         }
 
         function loadApprovedBillSummary() {
-            // This function loads ALL time data. 
             database.ref('IOU_List').on('value', (iouSnap) => {
                 const iouData = {};
                 if(iouSnap.exists()) {
@@ -1775,13 +1787,11 @@ border:2px inset #808080;
 
                 database.ref('Bills').on('value', (billSnap) => {
                     const billData = {};
-                    // Initialize billData with structure: { daId: { name, totalApproved, totalBundleQty } }
                     
                     if(billSnap.exists()) {
                         billSnap.forEach(depotSnap => {
                             depotSnap.forEach(daSnap => {
                                 const daId = daSnap.key;
-                                // Initialize if not exists, preserving name from iouData if possible
                                 if(!billData[daId]) {
                                     let dName = (iouData[daId]) ? iouData[daId].name : 'Unknown';
                                     billData[daId] = { name: dName, totalApproved: 0, totalBundleQty: 0 };
@@ -1850,6 +1860,7 @@ border:2px inset #808080;
             document.getElementById('form_submit_date').value = today;
             document.getElementById('expense_table_body').innerHTML = '';
             if(!editingBillId) loadLocalDraft();
+            else addExpenseRow();
         }
 
         function calculateSoldValue() {
@@ -1874,7 +1885,11 @@ border:2px inset #808080;
             
             const tbody = document.getElementById('expense_table_body');
             const row = tbody.insertRow();
-            row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${date}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" value="${from}" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" value="${to}" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="triggerAutoSave()"><option ${mode == 'Rickshaw' ? 'selected' : ''}>Rickshaw</option><option ${mode == 'Auto' ? 'selected' : ''}>Auto</option><option ${mode == 'Bus' ? 'selected' : ''}>Bus</option><option ${mode == 'CNG' ? 'selected' : ''}>CNG</option><option ${mode == 'Van' ? 'selected' : ''}>Van</option><option ${mode == 'Motorcycle' ? 'selected' : ''}>Motorcycle</option><option ${mode == 'Tempo' ? 'selected' : ''}>Tempo</option><option ${mode == 'Pickup' ? 'selected' : ''}>Pickup</option><option ${mode == 'Daily Allowance' ? 'selected' : ''}>Daily Allowance</option><option ${mode == 'Labour Bill' ? 'selected' : ''}>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" value="${amount}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" value="${da}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" value="${(parseFloat(amount)||0) + (parseFloat(da)||0)}" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
+            row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${date}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" value="${from}" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" value="${to}" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="toggleRowInputs(this); triggerAutoSave()"><option ${mode == 'Rickshaw' ? 'selected' : ''}>Rickshaw</option><option ${mode == 'Auto' ? 'selected' : ''}>Auto</option><option ${mode == 'Bus' ? 'selected' : ''}>Bus</option><option ${mode == 'CNG' ? 'selected' : ''}>CNG</option><option ${mode == 'Van' ? 'selected' : ''}>Van</option><option ${mode == 'Motorcycle' ? 'selected' : ''}>Motorcycle</option><option ${mode == 'Tempo' ? 'selected' : ''}>Tempo</option><option ${mode == 'Pickup' ? 'selected' : ''}>Pickup</option><option ${mode == 'Daily Allowance' ? 'selected' : ''}>Daily Allowance</option><option ${mode == 'Labour Bill' ? 'selected' : ''}>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" value="${amount}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" value="${da}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" value="${(parseFloat(amount)||0) + (parseFloat(da)||0)}" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
+            
+            const selectObj = row.querySelector('.exp-mode');
+            toggleRowInputs(selectObj);
+            
             calculateGrandTotal(); triggerAutoSave();
             document.getElementById('q_from').value = ''; document.getElementById('q_to').value = ''; document.getElementById('q_amount').value = ''; document.getElementById('q_da_expense').value = ''; document.getElementById('q_from').focus();
         }
@@ -1883,11 +1898,26 @@ border:2px inset #808080;
             const tbody = document.getElementById('expense_table_body');
             const today = document.getElementById('form_dep_date').value || new Date().toISOString().split('T')[0];
             const row = tbody.insertRow();
-            row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${today}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="triggerAutoSave()"><option>Rickshaw</option><option>Auto</option><option>Bus</option><option>CNG</option><option>Van</option><option>Motorcycle</option><option>Tempo</option><option>Pickup</option><option>Daily Allowance</option><option>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
+            row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${today}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="toggleRowInputs(this); triggerAutoSave()"><option>Rickshaw</option><option>Auto</option><option>Bus</option><option>CNG</option><option>Van</option><option>Motorcycle</option><option>Tempo</option><option>Pickup</option><option>Daily Allowance</option><option>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
             triggerAutoSave();
         }
 
-        function removeRow(btn) { btn.parentNode.parentNode.remove(); calculateGrandTotal(); triggerAutoSave(); }
+        function removeRow(btn) { 
+            const tbody = document.getElementById('expense_table_body');
+            if (tbody.rows.length > 1) {
+                btn.parentNode.parentNode.remove(); 
+            } else {
+                const row = tbody.rows[0];
+                row.querySelectorAll('input').forEach(i => {
+                    if(i.type !== 'date') i.value = '';
+                    else i.value = document.getElementById('form_dep_date').value;
+                });
+                const select = row.querySelector('select');
+                select.selectedIndex = 0;
+                toggleRowInputs(select);
+            }
+            calculateGrandTotal(); triggerAutoSave(); 
+        }
 
         function calculateRowTotal(input) {
             const row = input.parentNode.parentNode;
@@ -1923,7 +1953,7 @@ border:2px inset #808080;
             
             const grandTotal = parseFloat(document.getElementById('grand_total').value) || 0;
             const iouAmount = parseFloat(document.getElementById('form_iou_amount').value) || 0;
-            const remarks = document.getElementById('form_remarks').value; // Get Remarks
+            const remarks = document.getElementById('form_remarks').value;
 
             const billData = {
                 daName: targetDaName, daId: targetDaId, depot: targetDepot,
@@ -1937,7 +1967,7 @@ border:2px inset #808080;
                 status: statusType, timestamp: Date.now(), 
                 iouId: currentIouId,
                 iouAmount: iouAmount,
-                remarks: remarks, // Save Remarks
+                remarks: remarks,
                 deduction: 0
             };
             
@@ -1964,7 +1994,7 @@ border:2px inset #808080;
                         document.getElementById('form_route').value = ''; document.getElementById('form_mpo').value = ''; document.getElementById('form_summary').value = '';
                         document.getElementById('form_invoice_val').value = ''; document.getElementById('form_return_val').value = 0; document.getElementById('form_invoice_qty').value = '';
                         document.getElementById('form_bundle_qty').value = '';
-                        document.getElementById('form_remarks').value = ''; // Clear Remarks
+                        document.getElementById('form_remarks').value = '';
                         document.getElementById('grand_total').value = '0'; document.getElementById('form_cost_percent').innerText = '0%'; document.getElementById('expense_table_body').innerHTML = '';
                         document.getElementById('form_iou_amount').value = 0; 
                         calculateSoldValue(); currentIouId = null; originalIouId = null; prepareBillEntryForm(); document.getElementById('history-tab').click();
@@ -1986,13 +2016,15 @@ border:2px inset #808080;
                 document.getElementById('form_invoice_qty').value = bill.invoiceQty;
                 document.getElementById('form_bundle_qty').value = bill.bundleQty || 0;
                 document.getElementById('form_iou_amount').value = bill.iouAmount || 0; 
-                document.getElementById('form_remarks').value = bill.remarks || ''; // Load Remarks
+                document.getElementById('form_remarks').value = bill.remarks || '';
                 
                 const tbody = document.getElementById('expense_table_body'); tbody.innerHTML = '';
                 if(bill.expenses) {
                     bill.expenses.forEach(exp => {
                         const row = tbody.insertRow();
-                        row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${exp.date}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" value="${exp.from}" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" value="${exp.to}" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="triggerAutoSave()"><option ${exp.mode == 'Rickshaw' ? 'selected' : ''}>Rickshaw</option><option ${exp.mode == 'Auto' ? 'selected' : ''}>Auto</option><option ${exp.mode == 'Bus' ? 'selected' : ''}>Bus</option><option ${exp.mode == 'CNG' ? 'selected' : ''}>CNG</option><option ${exp.mode == 'Van' ? 'selected' : ''}>Van</option><option ${exp.mode == 'Motorcycle' ? 'selected' : ''}>Motorcycle</option><option ${exp.mode == 'Tempo' ? 'selected' : ''}>Tempo</option><option ${exp.mode == 'Pickup' ? 'selected' : ''}>Pickup</option><option ${exp.mode == 'Daily Allowance' ? 'selected' : ''}>Daily Allowance</option><option ${exp.mode == 'Labour Bill' ? 'selected' : ''}>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" value="${exp.amount}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" value="${exp.da}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" value="${(parseFloat(exp.amount)||0) + (parseFloat(exp.da)||0)}" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
+                        row.innerHTML = `<td><input type="date" class="form-control form-control-sm exp-date" value="${exp.date}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-from" value="${exp.from}" oninput="triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-to" value="${exp.to}" oninput="triggerAutoSave()"></td><td><select class="form-select form-select-sm exp-mode" onchange="toggleRowInputs(this); triggerAutoSave()"><option ${exp.mode == 'Rickshaw' ? 'selected' : ''}>Rickshaw</option><option ${exp.mode == 'Auto' ? 'selected' : ''}>Auto</option><option ${exp.mode == 'Bus' ? 'selected' : ''}>Bus</option><option ${exp.mode == 'CNG' ? 'selected' : ''}>CNG</option><option ${exp.mode == 'Van' ? 'selected' : ''}>Van</option><option ${exp.mode == 'Motorcycle' ? 'selected' : ''}>Motorcycle</option><option ${exp.mode == 'Tempo' ? 'selected' : ''}>Tempo</option><option ${exp.mode == 'Pickup' ? 'selected' : ''}>Pickup</option><option ${exp.mode == 'Daily Allowance' ? 'selected' : ''}>Daily Allowance</option><option ${exp.mode == 'Labour Bill' ? 'selected' : ''}>Labour Bill</option></select></td><td><input type="number" class="form-control form-control-sm exp-amount" value="${exp.amount}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="number" class="form-control form-control-sm exp-da" value="${exp.da}" oninput="calculateRowTotal(this); triggerAutoSave()"></td><td><input type="text" class="form-control form-control-sm exp-total" value="${(parseFloat(exp.amount)||0) + (parseFloat(exp.da)||0)}" readonly></td><td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>`;
+                        const selectObj = row.querySelector('.exp-mode');
+                        toggleRowInputs(selectObj);
                     });
                 }
                 calculateGrandTotal(); calculateSoldValue(); editingBillId = billId;
@@ -2029,7 +2061,6 @@ border:2px inset #808080;
                 if(snap.exists()) {
                     snap.forEach(child => { iouListGlobal[child.key] = child.val(); });
                 }
-                // Refresh Dashboard stats if IOU data changes, as IOU Totals depend on it
                 if(currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
                     loadDashboardStats();
                 }
@@ -2081,14 +2112,10 @@ border:2px inset #808080;
             });
         }
         
-        // NEW: Load DA List for Summary Tab
         function loadDAListForSummary() {
             const selectSummary = document.getElementById('summary_da');
             if(!selectSummary) return;
-            
             selectSummary.innerHTML = '<option value="">-- Select DA to Auto-Fill --</option>';
-            
-            // Reuse cache if available, else fetch
             if(Object.keys(daListCache).length > 0) {
                 Object.keys(daListCache).forEach(key => {
                     selectSummary.innerHTML += `<option value="${key}">${daListCache[key]}</option>`;
@@ -2114,6 +2141,9 @@ border:2px inset #808080;
             const returnVal = parseFloat(document.getElementById('iou_return').value) || 0;
             const soldVal = salesVal - returnVal;
 
+            // Get IOU Type
+            const iouType = document.getElementById('iou_type').value;
+
             const data = {
                 date: document.getElementById('iou_date').value, daId: daId, daName: document.getElementById('iou_da_name').selectedOptions[0].text,
                 territory: document.getElementById('iou_territory').value, mpo: document.getElementById('iou_mpo').value, summary: document.getElementById('iou_summary').value,
@@ -2123,7 +2153,8 @@ border:2px inset #808080;
                 qty: parseInt(document.getElementById('iou_qty').value) || 0,
                 bundleQty: parseInt(document.getElementById('iou_bundle_qty').value) || 0,
                 taka: parseFloat(document.getElementById('iou_taka').value) || 0, 
-                percent: document.getElementById('iou_percent').value, status: 'active'
+                percent: document.getElementById('iou_percent').value, status: 'active',
+                type: iouType // Save Type
             };
             const op = editingIouId ? database.ref('IOU_List/' + editingIouId).update(data) : database.ref('IOU_List').push(data);
             op.then(() => { alert(editingIouId ? "Updated!" : "Saved!"); clearIOUForm(); }).catch(e => alert(e.message));
@@ -2136,6 +2167,7 @@ border:2px inset #808080;
             document.getElementById('iou_qty').value = ''; 
             document.getElementById('iou_bundle_qty').value = ''; 
             document.getElementById('iou_taka').value = ''; document.getElementById('iou_percent').value = '0';
+            document.getElementById('iou_type').value = 'Delivery'; // Reset type
             editingIouId = null; document.getElementById('iou_save_btn').innerText = "Save IOU Entry"; document.getElementById('iou_cancel_btn').classList.add('hidden');
         }
 
@@ -2150,6 +2182,7 @@ border:2px inset #808080;
                 document.getElementById('iou_qty').value = d.qty; 
                 document.getElementById('iou_bundle_qty').value = d.bundleQty || 0; 
                 document.getElementById('iou_taka').value = d.taka; document.getElementById('iou_percent').value = d.percent;
+                document.getElementById('iou_type').value = d.type || 'Delivery';
                 editingIouId = id; document.getElementById('iou_save_btn').innerText = "Update"; document.getElementById('iou_cancel_btn').classList.remove('hidden');
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active')); 
                 document.getElementById('dashTab').classList.add('show', 'active');
@@ -2172,7 +2205,7 @@ border:2px inset #808080;
             database.ref('IOU_List').on('value', snap => {
                 const tbody = document.getElementById('iou_admin_table_body'); tbody.innerHTML = '';
                 let tSales=0, tRet=0, tSold=0, tQty=0, tBQty=0, tTaka=0, count=1;
-                if(!snap.exists()) tbody.innerHTML = '<tr><td colspan="14" class="text-center">No Data</td></tr>';
+                if(!snap.exists()) tbody.innerHTML = '<tr><td colspan="15" class="text-center">No Data</td></tr>';
                 snap.forEach(child => {
                     const d = child.val();
                     let show = true;
@@ -2183,7 +2216,9 @@ border:2px inset #808080;
                         const iSold = d.soldVal || ((d.sales || 0) - (d.returnVal || 0));
                         tSales += (d.sales || 0); tRet += (d.returnVal || 0); tSold += iSold; tQty += d.qty || 0; tBQty += d.bundleQty || 0; tTaka += d.taka || 0;
                         const badge = d.status === 'used' ? '<span class="badge bg-secondary">Used</span>' : '<span class="badge bg-success">Active</span>';
-                        tbody.innerHTML += `<tr class="${d.status === 'used' ? 'table-secondary' : ''}"><td>${count++}</td><td>${formatDate(d.date)}</td><td>${d.daName}</td><td>${d.territory}</td><td>${d.mpo}</td><td>${d.summary}</td><td>${d.sales || 0}</td><td>${d.returnVal || 0}</td><td>${iSold}</td><td>${d.qty}</td><td>${d.bundleQty || 0}</td><td>${d.taka}</td><td>${d.percent}%</td><td>${badge} <button class="btn btn-sm btn-warning" onclick="editIOU('${child.key}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteIOU('${child.key}')">X</button></td></tr>`;
+                        const typeBadge = d.type ? `<span class="badge bg-info">${d.type}</span>` : '';
+                        
+                        tbody.innerHTML += `<tr class="${d.status === 'used' ? 'table-secondary' : ''}"><td>${count++}</td><td>${formatDate(d.date)}</td><td>${d.daName}</td><td>${typeBadge}</td><td>${d.territory}</td><td>${d.mpo}</td><td>${d.summary}</td><td>${d.sales || 0}</td><td>${d.returnVal || 0}</td><td>${iSold}</td><td>${d.qty}</td><td>${d.bundleQty || 0}</td><td>${d.taka}</td><td>${d.percent}%</td><td>${badge} <button class="btn btn-sm btn-warning" onclick="editIOU('${child.key}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteIOU('${child.key}')">X</button></td></tr>`;
                     }
                 });
                 document.getElementById('iou_tot_sales').innerText = tSales; 
@@ -2207,6 +2242,12 @@ border:2px inset #808080;
             database.ref('IOU_List/' + iouId).once('value', snap => {
                 const iou = snap.val();
                 if(!iou) return;
+
+                // Check if this IOU type actually requires a bill
+                if(iou.type === 'General' || iou.type === 'Bill Payment') {
+                    alert("This is a " + iou.type + " IOU. A bill is not required for this type.");
+                    return;
+                }
                 
                 currentIouId = iouId;
                 document.getElementById('form_iou_amount').value = iou.taka; 
@@ -2223,10 +2264,13 @@ border:2px inset #808080;
                 calculateSoldValue();
                 
                 const tbody = document.getElementById('expense_table_body');
-                if(tbody.rows.length > 0) { 
-                    tbody.rows[0].querySelector('.exp-amount').value = iou.taka; 
-                    calculateRowTotal(tbody.rows[0].querySelector('.exp-amount')); 
+                if(tbody.rows.length === 0) {
+                    addExpenseRow();
                 }
+                const row = tbody.rows[0];
+                row.querySelector('.exp-date').value = iou.date;
+                row.querySelector('.exp-amount').value = iou.taka; 
+                calculateRowTotal(row.querySelector('.exp-amount')); 
                 triggerAutoSave(); 
                 
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active')); 
@@ -2259,7 +2303,6 @@ border:2px inset #808080;
             const approvedTableBody = document.getElementById('approved_bill_table_body');
             const approvedTableFoot = document.getElementById('approved_bill_table_foot');
             
-            // Read Filters
             const historyDA = document.getElementById('filter_history_da')?.value || '';
             const historyMonth = document.getElementById('filter_history_month')?.value || '';
             const approvedDA = document.getElementById('filter_approved_da')?.value || '';
@@ -2268,16 +2311,14 @@ border:2px inset #808080;
             tableBody.innerHTML = '<tr><td colspan="12" class="text-center">Loading...</td></tr>';
             approvedTableBody.innerHTML = '<tr><td colspan="11" class="text-center">Loading...</td></tr>';
             
-            // Initialize Totals
             let historyTotals = { iou: 0, sales: 0, userBill: 0, payable: 0 };
             let approvedTotals = { iou: 0, sales: 0, userBill: 0, payable: 0 };
 
-            // Table Headers based on Role
             if (currentUser.role === 'user') {
                 tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Depot</th><th>Route</th><th>Amount</th><th>Status</th></tr>`;
             } else if (currentUser.role === 'admin') {
                 tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Status</th><th>Action</th></tr>`;
-            } else { // Super Admin Headers (Updated)
+            } else { 
                 tableHead.innerHTML = `<tr><th>Date</th><th>DA Name</th><th>Route</th><th>IOU</th><th>Sales</th><th>User Bill</th><th>User %</th><th>Payable</th><th>Payable %</th><th>Status</th><th>Action</th></tr>`;
             }
 
@@ -2286,7 +2327,6 @@ border:2px inset #808080;
             billsRef.on('value', (snapshot) => {
                 tableBody.innerHTML = '';
                 approvedTableBody.innerHTML = '';
-                // Reset Totals
                 historyTotals = { iou: 0, sales: 0, userBill: 0, payable: 0 };
                 approvedTotals = { iou: 0, sales: 0, userBill: 0, payable: 0 };
                 
@@ -2299,7 +2339,6 @@ border:2px inset #808080;
                     return; 
                 }
 
-                // Collect all bills first to allow sorting for Approved History
                 let approvedBillsArray = [];
 
                 snapshot.forEach((depotSnapshot) => {
@@ -2309,7 +2348,6 @@ border:2px inset #808080;
                             const billId = billSnapshot.key;
                             const daId = bill.daId;
 
-                            // Calculations
                             const sales = bill.invoiceVal || 0;
                             let iou = bill.iouAmount || 0;
                             if (!iou && bill.iouId && iouListGlobal[bill.iouId]) {
@@ -2321,10 +2359,8 @@ border:2px inset #808080;
                             const userBillPer = sales > 0 ? ((originalAmount/sales)*100).toFixed(1) : '0';
                             const payPer = sales > 0 ? ((approvedAmount/sales)*100).toFixed(1) : '0';
 
-                            // Logic for User
                             if (currentUser.role === 'user') {
                                 if (bill.daId !== currentUser.id) return;
-                                // User sees all bills in one list
                                 const tr = document.createElement('tr');
                                 if(bill.status === 'draft') tr.classList.add('status-draft');
                                 else if (bill.status === 'red') tr.classList.add('status-red');
@@ -2352,19 +2388,14 @@ border:2px inset #808080;
                                 tableBody.appendChild(tr);
 
                             } 
-                            // Logic for Admin
                             else if (currentUser.role === 'admin') {
-                                // Prepare Row for History Tab
                                 if(bill.status === 'red') {
-                                    // Apply Filters
                                     if (historyDA && bill.daId !== historyDA) return;
                                     if (historyMonth && !isDateInMonth(bill.submitDate || bill.depDate, historyMonth)) return;
 
-                                    // Accumulate Totals
                                     historyTotals.iou += iou;
                                     historyTotals.sales += sales;
                                     historyTotals.userBill += originalAmount;
-                                    // Payable is same as user bill for pending bills
                                     historyTotals.payable += originalAmount; 
 
                                     const tr = document.createElement('tr');
@@ -2389,25 +2420,18 @@ border:2px inset #808080;
                                     tableBody.appendChild(tr);
                                 }
                                 
-                                // Approved History Tab (Orange & Green)
                                 if(bill.status === 'orange' || bill.status === 'green') {
-                                    // Add to array for sorting
                                     approvedBillsArray.push({
                                         bill, billId, daId, iou, sales, originalAmount, approvedAmount, userBillPer, payPer, deduction
                                     });
                                 }
 
                             } 
-                            // Logic for Super Admin (Updated)
                             else {
-                                // History Tab (Orange - Checked by DIC, Pending for RSM)
                                 if(bill.status === 'orange') {
-                                    // No specific filter for History tab on Super Admin yet, or use generic ones? 
-                                    // Assuming Super Admin uses the same filters as History tab for consistency
                                     if (historyDA && bill.daId !== historyDA) return;
                                     if (historyMonth && !isDateInMonth(bill.submitDate || bill.depDate, historyMonth)) return;
 
-                                    // Accumulate Totals
                                     historyTotals.iou += iou;
                                     historyTotals.sales += sales;
                                     historyTotals.userBill += originalAmount;
@@ -2437,7 +2461,6 @@ border:2px inset #808080;
                                     tableBody.appendChild(tr);
                                 }
                                 
-                                // Approved History Tab (Green)
                                 if(bill.status === 'green') {
                                     approvedBillsArray.push({
                                         bill, billId, daId, iou, sales, originalAmount, approvedAmount, userBillPer, payPer, deduction
@@ -2448,22 +2471,18 @@ border:2px inset #808080;
                     });
                 });
 
-                // SORTING APPROVED BILLS: Date A to Z (Oldest to Newest)
                 approvedBillsArray.sort((a, b) => {
                     const dateA = new Date(a.bill.submitDate || a.bill.depDate || 0);
                     const dateB = new Date(b.bill.submitDate || b.bill.depDate || 0);
                     return dateA - dateB;
                 });
 
-                // RENDER APPROVED BILLS
                 approvedBillsArray.forEach(item => {
                     const { bill, billId, daId, iou, sales, originalAmount, approvedAmount, userBillPer, payPer, deduction } = item;
                     
-                    // Apply Approved Filters
                     if (approvedDA && bill.daId !== approvedDA) return;
                     if (approvedMonth && !isDateInMonth(bill.submitDate || bill.depDate, approvedMonth)) return;
 
-                    // Accumulate Totals
                     approvedTotals.iou += iou;
                     approvedTotals.sales += sales;
                     approvedTotals.userBill += originalAmount;
@@ -2492,9 +2511,7 @@ border:2px inset #808080;
                     approvedTableBody.appendChild(trApp);
                 });
 
-                // Populate Footers
                 if(currentUser.role === 'admin') {
-                    // Admin History Footer (9 cols)
                     tableFoot.innerHTML = `<tr>
                         <td colspan="3" class="text-end">TOTAL</td>
                         <td class="text-end">${historyTotals.iou.toFixed(2)}</td>
@@ -2503,7 +2520,6 @@ border:2px inset #808080;
                         <td colspan="3"></td>
                     </tr>`;
                 } else if(currentUser.role === 'superadmin') {
-                     // Super Admin History Footer (11 cols)
                     tableFoot.innerHTML = `<tr>
                         <td colspan="3" class="text-end">TOTAL</td>
                         <td class="text-end">${historyTotals.iou.toFixed(2)}</td>
@@ -2515,7 +2531,6 @@ border:2px inset #808080;
                     </tr>`;
                 }
 
-                // Approved History Footer (Same for Admin & Super Admin - 11 cols)
                 if(currentUser.role === 'admin' || currentUser.role === 'superadmin') {
                     approvedTableFoot.innerHTML = `<tr>
                         <td colspan="3" class="text-end">TOTAL</td>
@@ -2541,20 +2556,16 @@ border:2px inset #808080;
             const depot = document.getElementById('summary_depot').value;
             
             tbody.innerHTML = '';
-            currentSummaryData = []; // Reset stored data
+            currentSummaryData = [];
 
             if(!daId) {
                 tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Please select a DA.</td></tr>';
                 return;
             }
 
-            // Get DA Name from dropdown
             const daName = document.getElementById('summary_da').selectedOptions[0].text;
-            
-            // Totals for footer
             let tSales = 0, tTaka = 0, tDA = 0, tNet = 0;
 
-            // Fetch bills for this DA
             database.ref('Bills/' + depot + '/' + daId).once('value', snap => {
                 if(!snap.exists()) {
                     tbody.innerHTML = '<tr><td colspan="9" class="text-center">No approved bills found for this DA.</td></tr>';
@@ -2572,18 +2583,14 @@ border:2px inset #808080;
                      return;
                 }
 
-                // Sort bills by date
                 billsArray.sort((a,b) => (a.submitDate || a.depDate || '').localeCompare(b.submitDate || b.depDate || ''));
 
                 let sl = 1;
                 billsArray.forEach(bill => {
-                    // Check month filter if provided
                     if(monthVal && !isDateInMonth(bill.submitDate || bill.depDate, monthVal)) return;
 
-                    // Calculate Summary Specifics
                     const netSales = bill.soldVal || (bill.invoiceVal - bill.returnVal);
                     
-                    // Separate Taka (Travel) vs DA (Daily Allowance)
                     let sumTaka = 0;
                     let sumDA = 0;
                     
@@ -2597,21 +2604,15 @@ border:2px inset #808080;
                             }
                         });
                     }
-
-                    // Fallback if expenses structure differs or flat
-                    // If we can't determine, split logically or use totalAmount as Net
-                    // Assuming expenses exist.
                     
                     const netAmount = bill.totalAmount || (sumTaka + sumDA);
                     const costPct = netSales > 0 ? ((netAmount / netSales) * 100).toFixed(2) : "0.00";
 
-                    // Add to totals
                     tSales += netSales;
                     tTaka += sumTaka;
                     tDA += sumDA;
                     tNet += netAmount;
 
-                    // Store for printing
                     currentSummaryData.push({
                         sl: sl++,
                         date: formatDate(bill.submitDate || bill.depDate),
@@ -2639,7 +2640,6 @@ border:2px inset #808080;
                     tbody.appendChild(tr);
                 });
 
-                // Update Footer
                 document.getElementById('sum_foot_sales').innerText = tSales.toFixed(2);
                 document.getElementById('sum_foot_taka').innerText = tTaka.toFixed(2);
                 document.getElementById('sum_foot_da').innerText = tDA.toFixed(2);
@@ -2660,16 +2660,14 @@ border:2px inset #808080;
                 return;
             }
 
-            // Populate Print Header
             const daId = document.getElementById('summary_da').value;
             const daName = document.getElementById('summary_da').selectedOptions[0].text;
             const monthVal = document.getElementById('summary_month').value;
             
             document.getElementById('print_sum_da_name').innerText = daName;
-            document.getElementById('print_sum_depot').innerText = "Kushtia Depot"; // Or fetch dynamically
+            document.getElementById('print_sum_depot').innerText = "Kushtia Depot";
             document.getElementById('print_sum_month').innerText = monthVal ? monthVal : "All Time";
 
-            // Populate Print Table
             const tbody = document.getElementById('print_sum_tbody');
             tbody.innerHTML = '';
             
@@ -2696,7 +2694,6 @@ border:2px inset #808080;
                 tbody.appendChild(tr);
             });
 
-            // Footer
             document.getElementById('print_sum_foot_sales').innerText = tSales.toFixed(2);
             document.getElementById('print_sum_foot_taka').innerText = tTaka.toFixed(2);
             document.getElementById('print_sum_foot_da').innerText = tDA.toFixed(2);
@@ -2708,8 +2705,6 @@ border:2px inset #808080;
 
             document.getElementById('print_sum_words').innerText = numberToEnglish(tNet) + " Taka Only";
 
-            // --- TOGGLE ACTIVE PRINT CLASS ---
-            // Activate Summary Container, Deactivate Individual Bill Container
             document.getElementById('print_summary_area').classList.add('active-print');
             document.getElementById('print_area').classList.remove('active-print');
 
@@ -2724,7 +2719,6 @@ border:2px inset #808080;
             database.ref('Bills/' + depot + '/' + daId + '/' + billId).once('value', (snapshot) => {
                 const bill = snapshot.val(); if(!bill) return;
                 
-                // Set Modal Global Variables
                 modalSales = bill.invoiceVal || 0;
                 modalUserBill = bill.originalAmount || bill.totalAmount || 0;
                 modalIou = bill.iouAmount || 0;
@@ -2739,7 +2733,6 @@ border:2px inset #808080;
                     });
                 }
                 
-                // Load Remarks into Modal
                 document.getElementById('modal_remarks').value = bill.remarks || '';
                 
                 calculateModalTotals();
@@ -2761,7 +2754,6 @@ border:2px inset #808080;
             });
             document.getElementById('modal_grand_total').innerText = grandTotal.toFixed(2);
 
-            // Update Summary Section
             document.getElementById('sum_iou').innerText = modalIou.toFixed(2);
             document.getElementById('sum_sales').innerText = modalSales.toFixed(2);
             document.getElementById('sum_user_bill').innerText = modalUserBill.toFixed(2);
@@ -2780,7 +2772,7 @@ border:2px inset #808080;
         function saveDeduction() {
             const billId = document.getElementById('edit_bill_id').value; const depot = document.getElementById('edit_depot').value; const daId = document.getElementById('edit_depot').dataset.daId;
             let newExpenses = []; let newTotalAmount = 0; let totalDeduction = 0;
-            let remarks = document.getElementById('modal_remarks').value; // Get Remarks from Modal
+            let remarks = document.getElementById('modal_remarks').value;
             
             let originalAmt = 0;
 
@@ -2800,21 +2792,18 @@ border:2px inset #808080;
                 totalDeduction += ded;
             });
             
-            // Status Update: Admin -> 'orange' (Checked), Super Admin -> 'orange' (Rechecked)
             let updateData = { 
                 expenses: newExpenses, 
                 totalAmount: newTotalAmount, 
                 deduction: totalDeduction, 
                 originalAmount: originalAmt, 
                 status: 'orange',
-                remarks: remarks // Save Remarks
+                remarks: remarks
             };
 
-            // If Super Admin is rechecking, we update recheckedBy field
             if(currentUser.role === 'superadmin') {
                 updateData.recheckedBy = currentUser.name;
             } else {
-                // If Admin is checking
                 updateData.checkedBy = currentUser.name;
             }
 
@@ -2827,7 +2816,7 @@ border:2px inset #808080;
             if(confirm("Approve this bill?")) {
                 database.ref('Bills/' + depot + '/' + daId + '/' + billId).update({
                     status: 'green',
-                    approvedBy: currentUser.name // Record Super Admin Name
+                    approvedBy: currentUser.name
                 }, (error) => {
                     if(error) alert("Error"); else alert("Bill Approved!");
                 });
@@ -2841,7 +2830,6 @@ border:2px inset #808080;
                 if(!bill) return;
 
                 let costPercent = "0%";
-                // Cost percent calculated on Final Payable Amount vs Sales
                 if (bill.invoiceVal > 0) costPercent = ((bill.totalAmount / bill.invoiceVal) * 100).toFixed(2) + "%";
 
                 document.getElementById('p_da_name').innerText = bill.daName; document.getElementById('p_depot').innerText = bill.depot;
@@ -2856,17 +2844,13 @@ border:2px inset #808080;
                 document.getElementById('p_cost_percent').innerText = costPercent; 
                 document.getElementById('p_prepared_by').innerText = bill.daName;
                 
-                // Print Remarks
                 document.getElementById('p_remarks').innerText = bill.remarks || '';
                 
-                // Dynamic Signatories
                 document.getElementById('p_checked_by').innerText = bill.checkedBy || ''; 
-                // For RSM signature, we prioritize 'recheckedBy' (if RSM modified it), else 'approvedBy'
                 document.getElementById('p_rechecked_by').innerText = bill.recheckedBy || bill.approvedBy || ''; 
 
                 const tbody = document.getElementById('p_expense_body'); tbody.innerHTML = '';
                 
-                // Variables for Auto Calculate Footer
                 let totAmt = 0, totDa = 0, totDed = 0, totNet = 0, totTotal = 0;
 
                 if(bill.expenses) {
@@ -2879,14 +2863,12 @@ border:2px inset #808080;
                         const total = amt + da;
                         const netAmount = total - ded;
                         
-                        // Accumulate Totals
                         totAmt += amt;
                         totDa += da;
                         totTotal += total; 
                         totDed += ded;
                         totNet += netAmount;
 
-                        // Strikethrough Logic for Total Column
                         let totalDisplay = total;
                         if(ded > 0) {
                             totalDisplay = `<span class="cut-text">${total}</span>`;
@@ -2907,15 +2889,12 @@ border:2px inset #808080;
                     });
                 }
                 
-                // Populate Footer
                 document.getElementById('p_foot_amt').innerText = totAmt;
                 document.getElementById('p_foot_da').innerText = totDa;
                 document.getElementById('p_foot_total').innerText = totTotal; 
                 document.getElementById('p_foot_ded').innerText = totDed;
                 document.getElementById('p_total_amount').innerText = totNet;
 
-                // --- TOGGLE ACTIVE PRINT CLASS ---
-                // Activate Individual Bill Container, Deactivate Summary Container
                 document.getElementById('print_area').classList.add('active-print');
                 document.getElementById('print_summary_area').classList.remove('active-print');
 
@@ -2923,7 +2902,7 @@ border:2px inset #808080;
             });
         }
 
-function numberToEnglish(num) {
+        function numberToEnglish(num) {
             if(num === 0) return "Zero";
             let a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
             let b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
@@ -2939,7 +2918,6 @@ function numberToEnglish(num) {
             return str;
         }
 
-        // ================= ADD NEW USER =================
         function saveNewUser() {
             const userIdManual = document.getElementById('new_user_id').value.trim();
             const name = document.getElementById('new_user_name').value.trim();
@@ -2971,7 +2949,6 @@ function numberToEnglish(num) {
                     alert("Error creating user"); 
                 } else { 
                     alert("User Created Successfully!"); 
-                    // Clear Form
                     document.getElementById('new_user_id').value = ''; 
                     document.getElementById('new_user_name').value = ''; 
                     document.getElementById('new_user_phone').value = '';
@@ -2983,7 +2960,6 @@ function numberToEnglish(num) {
                     document.getElementById('photo_preview').classList.add('hidden');
                     userPhotoBase64 = null;
                     
-                    // Refresh DA List in IOU section
                     loadDAListForIOU(); 
                     loadDAListForSummary();
                 }
