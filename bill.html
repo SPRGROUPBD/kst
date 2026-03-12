@@ -349,7 +349,7 @@
                                         <div class="col-4 col-md-2"><label>Taka</label><input type="number" id="iou_taka" class="form-control form-control-sm" oninput="calcIouPercent()"></div>
                                         <div class="col-4 col-md-2"><label>%</label><input type="text" id="iou_percent" class="form-control form-control-sm" readonly></div>
                                         
-                                        <!-- NEW: IOU Type -->
+                                        <!-- IOU Type -->
                                         <div class="col-12 col-md-3">
                                             <label class="fw-bold text-primary">IOU Type</label>
                                             <select id="iou_type" class="form-select form-select-sm">
@@ -1572,17 +1572,18 @@
                     snap.forEach(child => {
                         const d = child.val();
                         const type = d.type || 'Delivery'; 
+                        
+                        // FILTER: Skip General and Bill Payment types from User Dashboard
+                        if(type === 'General' || type === 'Bill Payment') {
+                            return;
+                        }
+
                         if(d.status === 'used') {
                             hasUsed = true;
                             usedBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-secondary">Used</span></td></tr>`;
                         } else {
-                            if(type === 'General' || type === 'Bill Payment') {
-                                hasActive = true;
-                                activeBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-info">No Bill Req</span></td></tr>`;
-                            } else {
-                                hasActive = true;
-                                activeBody.innerHTML += `<tr class="clickable-row" onclick="fillBillFromIOU('${child.key}')"><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><i class="bi bi-check-circle-fill text-success"></i></td></tr>`;
-                            }
+                            hasActive = true;
+                            activeBody.innerHTML += `<tr class="clickable-row" onclick="fillBillFromIOU('${child.key}')"><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><i class="bi bi-check-circle-fill text-success"></i></td></tr>`;
                         }
                     });
                 }
@@ -1624,6 +1625,7 @@
                 iouArray.forEach(d => {
                     const type = d.type || 'Delivery';
                     
+                    // FILTER: Skip General and Bill Payment from Pending Bill List
                     if(type === 'General' || type === 'Bill Payment') {
                         return; 
                     }
