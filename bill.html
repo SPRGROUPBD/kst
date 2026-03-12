@@ -445,7 +445,7 @@
                                                 <tr>
                                                     <th>Date</th>
                                                     <th>DA Name</th>
-                                                    <th>Type</th> <!-- Added Type Column -->
+                                                    <th>Type</th>
                                                     <th>Route</th>
                                                     <th class="text-end">Amount</th>
                                                 </tr>
@@ -1149,9 +1149,6 @@
             const amtInput = row.querySelector('.exp-amount');
             const daInput = row.querySelector('.exp-da');
 
-            // Logic: Daily Allowance -> Disable From, To, Amount. Enable DA.
-            // Labour Bill & Other -> Enable From, To, Amount. Disable DA.
-
             fromInput.disabled = isDaily;
             toInput.disabled = isDaily;
             amtInput.disabled = isDaily;
@@ -1296,14 +1293,14 @@
                         toggleRowInputs(selectObj);
                     });
                 } else {
-                    addExpenseRow();
+                    // If no expenses in draft, leave table empty
                 }
                 
                 calculateGrandTotal();
                 document.getElementById('auto_save_status').innerText = "Draft Restored";
                 document.getElementById('auto_save_status').classList.add('text-success');
 
-            } catch (e) { console.error("Error loading draft", e); addExpenseRow(); }
+            } catch (e) { console.error("Error loading draft", e); }
         }
 
         function clearLocalDraft() {
@@ -1335,14 +1332,14 @@
                 document.getElementById('form_ret_date').value = today;
                 document.getElementById('form_submit_date').value = today;
                 
+                // Clear Table completely
                 document.getElementById('expense_table_body').innerHTML = '';
+                
                 document.getElementById('grand_total').value = '0'; 
                 document.getElementById('form_cost_percent').innerText = '0%';
                 
                 calculateSoldValue(); 
                 clearLocalDraft();
-                
-                addExpenseRow();
                 
                 if(currentUser && currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
                      document.getElementById('form_da_name').value = currentUser.name;
@@ -1574,13 +1571,11 @@
                 if(snap.exists()) {
                     snap.forEach(child => {
                         const d = child.val();
-                        const type = d.type || 'Delivery'; // Default if missing
+                        const type = d.type || 'Delivery'; 
                         if(d.status === 'used') {
                             hasUsed = true;
                             usedBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-secondary">Used</span></td></tr>`;
                         } else {
-                            // Only show Active IOUs that REQUIRE a bill
-                            // If type is General or Bill Payment, user doesn't need to click to create bill from it
                             if(type === 'General' || type === 'Bill Payment') {
                                 hasActive = true;
                                 activeBody.innerHTML += `<tr><td>${formatDate(d.date)}</td><td><small>${type}</small></td><td>${d.territory}</td><td>${d.taka}</td><td><span class="badge bg-info">No Bill Req</span></td></tr>`;
@@ -1605,7 +1600,6 @@
             loadUnbilledIOUList(); 
         }
 
-        // UPDATED FUNCTION: Load Unbilled IOU List (FILTERED BY TYPE)
         function loadUnbilledIOUList() {
             const tbody = document.getElementById('unbilled_iou_list');
             const countBadge = document.getElementById('unbilled_iou_count');
@@ -1630,7 +1624,6 @@
                 iouArray.forEach(d => {
                     const type = d.type || 'Delivery';
                     
-                    // LOGIC UPDATE: Do NOT show General or Bill Payment in Pending Bill List
                     if(type === 'General' || type === 'Bill Payment') {
                         return; 
                     }
@@ -1702,7 +1695,6 @@
             });
         }
 
-        // UPDATED: Load Dashboard Stats with Correct Columns
         function loadDashboardStats() {
             const monthFilter = document.getElementById('dash_filter_month')?.value || '';
 
@@ -1725,13 +1717,11 @@
                     snapshot.forEach((depotSnapshot) => {
                         depotSnapshot.forEach((daSnapshot) => {
                             const daId = daSnapshot.key;
-                            // Initialize stats for this DA
                             if(!daStats[daId]) daStats[daId] = { name: 'Unknown', total: 0, pending: 0, approved: 0 };
                             
                             daSnapshot.forEach((billSnapshot) => {
                                 const bill = billSnapshot.val();
                                 
-                                // Apply Month Filter
                                 if (!isDateInMonth(bill.submitDate || bill.depDate, monthFilter)) return;
 
                                 if(bill.daName) daStats[daId].name = bill.daName;
@@ -1860,7 +1850,6 @@
             document.getElementById('form_submit_date').value = today;
             document.getElementById('expense_table_body').innerHTML = '';
             if(!editingBillId) loadLocalDraft();
-            else addExpenseRow();
         }
 
         function calculateSoldValue() {
@@ -2141,7 +2130,6 @@
             const returnVal = parseFloat(document.getElementById('iou_return').value) || 0;
             const soldVal = salesVal - returnVal;
 
-            // Get IOU Type
             const iouType = document.getElementById('iou_type').value;
 
             const data = {
@@ -2154,7 +2142,7 @@
                 bundleQty: parseInt(document.getElementById('iou_bundle_qty').value) || 0,
                 taka: parseFloat(document.getElementById('iou_taka').value) || 0, 
                 percent: document.getElementById('iou_percent').value, status: 'active',
-                type: iouType // Save Type
+                type: iouType 
             };
             const op = editingIouId ? database.ref('IOU_List/' + editingIouId).update(data) : database.ref('IOU_List').push(data);
             op.then(() => { alert(editingIouId ? "Updated!" : "Saved!"); clearIOUForm(); }).catch(e => alert(e.message));
@@ -2167,7 +2155,7 @@
             document.getElementById('iou_qty').value = ''; 
             document.getElementById('iou_bundle_qty').value = ''; 
             document.getElementById('iou_taka').value = ''; document.getElementById('iou_percent').value = '0';
-            document.getElementById('iou_type').value = 'Delivery'; // Reset type
+            document.getElementById('iou_type').value = 'Delivery'; 
             editingIouId = null; document.getElementById('iou_save_btn').innerText = "Save IOU Entry"; document.getElementById('iou_cancel_btn').classList.add('hidden');
         }
 
@@ -2243,7 +2231,6 @@
                 const iou = snap.val();
                 if(!iou) return;
 
-                // Check if this IOU type actually requires a bill
                 if(iou.type === 'General' || iou.type === 'Bill Payment') {
                     alert("This is a " + iou.type + " IOU. A bill is not required for this type.");
                     return;
@@ -2260,17 +2247,19 @@
                 document.getElementById('form_invoice_val').value = iou.soldVal || iou.sales; 
                 document.getElementById('form_return_val').value = iou.returnVal || 0; 
                 document.getElementById('form_invoice_qty').value = iou.qty; 
+                
+                // FIX: Fill Bundle Qty
                 document.getElementById('form_bundle_qty').value = iou.bundleQty || 0;
+                
                 calculateSoldValue();
                 
+                // FIX: Do NOT automatically add a row. Leave table empty or strictly empty.
                 const tbody = document.getElementById('expense_table_body');
-                if(tbody.rows.length === 0) {
-                    addExpenseRow();
-                }
-                const row = tbody.rows[0];
-                row.querySelector('.exp-date').value = iou.date;
-                row.querySelector('.exp-amount').value = iou.taka; 
-                calculateRowTotal(row.querySelector('.exp-amount')); 
+                tbody.innerHTML = ''; // Ensure strictly empty
+                
+                // FIX: Do NOT auto-fill a row with amount.
+                // User must use Quick Entry (+Add)
+                
                 triggerAutoSave(); 
                 
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active')); 
@@ -2278,7 +2267,7 @@
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); 
                 document.getElementById('entry-tab').classList.add('active');
                 
-                alert("Form Auto-filled!");
+                alert("Form Auto-filled! Please add expense rows manually using Quick Entry.");
             });
         }
 
